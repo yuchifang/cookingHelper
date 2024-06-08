@@ -30,7 +30,7 @@ jobs:
       - name: install dotnet-ef
         run: dotnet tool install -g dotnet-ef
       - name: dotnet migrate
-        run: dotnet ef migrations bundle --runtime linux-x64 -p CookingHelper.csproj -o ${{env.DOTNET_ROOT}}/myapp/migrate
+        run: dotnet ef migrations bundle --runtime linux-x64 -p ./CookingHelper.csproj -o ${{env.DOTNET_ROOT}}/myapp/migrate
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
