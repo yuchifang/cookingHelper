@@ -1,0 +1,6 @@
+@CookingHelper.Server_HostAddress = http://localhost:5139
+
+GET {{CookingHelper.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
