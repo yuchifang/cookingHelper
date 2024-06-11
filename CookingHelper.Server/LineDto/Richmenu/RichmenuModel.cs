@@ -1,6 +1,6 @@
 using CookingHelper.LineDto;
 namespace CookingHelper.LineDto;
-public class RichMenuDto
+public class RichMenuModel
 {
     // 建立的時候沒有Id
     public string? RichMenuId { get; set; }
