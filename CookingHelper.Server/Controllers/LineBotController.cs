@@ -47,6 +47,8 @@ public class LineBotController : ControllerBase
     //     return Ok();
     // }
     // ------ 新增 api ------
+
+
     //rich menu api
     [HttpPost("RichMenu/Validate")]
     public async Task<IActionResult> ValidateRichMenu(RichMenuModel richMenu)
@@ -76,5 +78,11 @@ public class LineBotController : ControllerBase
     public async Task<IActionResult> SetDefaultRichMenu(string richMenuId)
     {
         return Ok(await _richMenuService.SetDefaultRichMenu(richMenuId));
+    }
+
+    [HttpDelete("RichMenu/Delete/{richMenuId}")]
+    public async Task<IActionResult> DeleteRichMenu(string richMenuId)
+    {
+        return Ok(await _richMenuService.DeleteRichMenu(richMenuId));
     }
 }
