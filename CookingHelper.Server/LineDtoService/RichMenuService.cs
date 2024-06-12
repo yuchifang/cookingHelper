@@ -21,6 +21,8 @@ namespace CookingHelper.LineDtoService
         private readonly string uploadRichMenuImageUri = "https://api-data.line.me/v2/bot/richmenu/{0}/content";
         // {0} 的位置要帶入 richMenuId
         private readonly string setDefaultRichMenuUri = "https://api.line.me/v2/bot/user/all/richmenu/{0}";
+
+        private readonly string deleteRichMenuUri = "https://api.line.me/v2/bot/richmenu/{0}";
         public RichMenuService()
         {
         }
@@ -107,7 +109,13 @@ namespace CookingHelper.LineDtoService
             return await response.Content.ReadAsStringAsync();
         }
 
-
+        public async Task<string> DeleteRichMenu(string richMenuId)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Delete, String.Format(deleteRichMenuUri, richMenuId));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channelAccessToken);
+            var response = await client.SendAsync(request);
+            return await response.Content.ReadAsStringAsync();
+        }
 
     }
 }
