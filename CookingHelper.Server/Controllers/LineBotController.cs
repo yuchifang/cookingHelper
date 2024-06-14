@@ -14,17 +14,16 @@ public class LineBotController : ControllerBase
 {
 
     // 宣告 service
-    // private readonly LineBotService _lineBotService;
+    private readonly LineDtoService.LineBotService _lineBotService;
     // ------ 宣告 services ------
     private readonly RichMenuService _richMenuService;
 
     private readonly JsonProvider _jsonProvider;
     // constructor
-    public LineBotController()
+
+    public LineBotController(LineDtoService.LineBotService LineBotService)
     {
-        // public LineBotController(LineBotService LineBotService)
-        // {
-        // _lineBotService = LineBotService;
+        _lineBotService = LineBotService;
         _richMenuService = new RichMenuService();
         _jsonProvider = new JsonProvider();
     }
@@ -47,7 +46,12 @@ public class LineBotController : ControllerBase
     //     return Ok();
     // }
     // ------ 新增 api ------
-
+    [HttpPost("Webhook")]
+    public IActionResult Webhook(WebhookRequestBodyDto body)
+    {
+        _lineBotService.ReceiveWebhook(body); // 呼叫 Service
+        return Ok();
+    }
 
     //rich menu api
     [HttpPost("RichMenu/Validate")]
