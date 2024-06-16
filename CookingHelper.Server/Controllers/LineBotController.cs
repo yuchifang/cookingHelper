@@ -14,7 +14,7 @@ public class LineBotController : ControllerBase
 {
 
     // 宣告 service
-    private readonly LineDtoService.LineBotService _lineBotService;
+    private readonly LineBotService _lineBotService;
     // ------ 宣告 services ------
     private readonly RichMenuService _richMenuService;
 

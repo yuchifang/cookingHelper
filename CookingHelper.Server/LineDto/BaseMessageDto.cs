@@ -1,7 +1,7 @@
 using CookingHelper.LineDto;
 
 
-namespace LineText.Dtos;
+namespace CookingHelper.LineDto;
 
 public class BaseMessageDto
 {

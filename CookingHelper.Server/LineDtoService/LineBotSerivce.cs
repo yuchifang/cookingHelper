@@ -3,8 +3,6 @@ using System.Text;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
 using CookingHelper.ProviderGroup;
-using LineText.Dtos;
-using LineText.LineDto;
 
 namespace CookingHelper.LineDtoService;
 public class LineBotService
@@ -15,13 +13,16 @@ public class LineBotService
     private readonly JsonProvider _jsonProvider = new JsonProvider();
 
     private readonly string replyMessageUri = "https://api.line.me/v2/bot/message/reply";
-    private readonly string channelAccessToken = "4sT08cOaJIK+sANjJjlpUB6GVHlY8rw7MpN3n28BC/5IaVNyrgWEJFTWHBpzGofiJzrrhYTlcJJ7Q3dzbObXx9axOBVCsknQa6blSxxO8Ldf/h8W5jVAbT2d7/+6LkSGQM2MbIpeug01G/Rv+ce+EAdB04t89/1O/w1cDnyilFU=";
+    private readonly string channelAccessToken = "qkpg/pkt8deSF5DOX+WbTSahs44BcLW/v8XyUmkFBJdqr0EpDbiU4n3uxnSpUI311YwJuPv03rp8o89mIw/jQXdbaeJZcPWij3HSpezYw2OKdAnM+DJWdAgoXgIoiAhntM0F8RAE8ILJi7ZzEmhL3AdB04t89/1O/w1cDnyilFU=";
 
     public LineBotService(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
         client = _httpClientFactory.CreateClient();
+
     }
+
+    // 接收到使用者訊息會觸發此 API??
     public void ReceiveWebhook(WebhookRequestBodyDto requestBody)
     {
         foreach (WebhookEventDto eventObject in requestBody.Events)
@@ -50,7 +51,29 @@ public class LineBotService
                 // 訊息內容等於 "測試" 時
                 if (eventDto.Message.Text == "採買清單")
                 {
-                    Console.WriteLine("sss");
+                    Console.WriteLine("hereD");
+                    replyMessage = new ReplyMessageRequestDto<TextMessageDto>
+                    {
+                        ReplyToken = eventDto.ReplyToken,
+                        Messages = new List<TextMessageDto>{
+                            new TextMessageDto{
+                                    Text="採買清單",
+                            }
+                        }
+                    };
+                }
+                else
+                {
+                    Console.WriteLine($"{eventDto.ReplyToken}");
+                    replyMessage = new ReplyMessageRequestDto<TextMessageDto>
+                    {
+                        ReplyToken = eventDto.ReplyToken,
+                        Messages = new List<TextMessageDto>{
+                            new TextMessageDto{
+                                    Text=eventDto.Message.Text,
+                            }
+                        }
+                    };
                 }
                 break;
         }

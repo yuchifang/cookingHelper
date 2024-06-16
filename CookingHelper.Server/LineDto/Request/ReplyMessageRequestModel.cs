@@ -1,4 +1,4 @@
-namespace LineText.LineDto
+namespace CookingHelper.LineDto
 {
     public class ReplyMessageRequestDto<T>
     {
