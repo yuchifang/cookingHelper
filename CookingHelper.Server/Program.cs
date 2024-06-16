@@ -16,7 +16,10 @@ namespace CookingHelper.Server
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped<LineBotService, LineBotService>();
+            builder.Services.AddScoped<RichMenuService, RichMenuService>();
+
             var app = builder.Build();
+
 
             app.UseDefaultFiles();
             app.UseStaticFiles();

@@ -8,17 +8,19 @@ namespace CookingHelper.LineDtoService;
 public class LineBotService
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private static HttpClient client;
+    private readonly HttpClient _client;
 
     private readonly JsonProvider _jsonProvider = new JsonProvider();
 
     private readonly string replyMessageUri = "https://api.line.me/v2/bot/message/reply";
-    private readonly string channelAccessToken = "qkpg/pkt8deSF5DOX+WbTSahs44BcLW/v8XyUmkFBJdqr0EpDbiU4n3uxnSpUI311YwJuPv03rp8o89mIw/jQXdbaeJZcPWij3HSpezYw2OKdAnM+DJWdAgoXgIoiAhntM0F8RAE8ILJi7ZzEmhL3AdB04t89/1O/w1cDnyilFU=";
 
-    public LineBotService(IHttpClientFactory httpClientFactory)
+
+    private readonly IConfiguration _configuration;
+    public LineBotService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory;
-        client = _httpClientFactory.CreateClient();
+        _client = _httpClientFactory.CreateClient();
+        _configuration = configuration;
 
     }
 
@@ -91,8 +93,9 @@ public class LineBotService
 
     public async void ReplyMessage<T>(ReplyMessageRequestDto<T> request)
     {
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channelAccessToken); //帶入 channel access token
+
+        _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration["LineBot:ChannelAccessToken"]); //帶入 channel access token
         var json = _jsonProvider.Serialize(request);
         var requestMessage = new HttpRequestMessage
         {
@@ -101,7 +104,7 @@ public class LineBotService
             Content = new StringContent(json, Encoding.UTF8, "application/json")
         };
 
-        var response = await client.SendAsync(requestMessage);
+        var response = await _client.SendAsync(requestMessage);
         Console.WriteLine(await response.Content.ReadAsStringAsync());
     }
 }

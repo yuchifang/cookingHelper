@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using CookingHelper.LineDto;
-
-using System.ComponentModel.DataAnnotations;
 using CookingHelper.LineDtoService;
 using CookingHelper.ProviderGroup;
 
@@ -21,10 +19,10 @@ public class LineBotController : ControllerBase
     private readonly JsonProvider _jsonProvider;
     // constructor
 
-    public LineBotController(LineDtoService.LineBotService LineBotService)
+    public LineBotController(LineBotService LineBotService, RichMenuService RichMenuService)
     {
         _lineBotService = LineBotService;
-        _richMenuService = new RichMenuService();
+        _richMenuService = RichMenuService;
         _jsonProvider = new JsonProvider();
     }
 

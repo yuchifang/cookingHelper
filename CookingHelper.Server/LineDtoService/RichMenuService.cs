@@ -8,9 +8,6 @@ namespace CookingHelper.LineDtoService
 {
     public class RichMenuService
     {
-        // 貼上 messaging api channel 中的 accessToken & secret
-        private readonly string channelAccessToken = "qkpg/pkt8deSF5DOX+WbTSahs44BcLW/v8XyUmkFBJdqr0EpDbiU4n3uxnSpUI311YwJuPv03rp8o89mIw/jQXdbaeJZcPWij3HSpezYw2OKdAnM+DJWdAgoXgIoiAhntM0F8RAE8ILJi7ZzEmhL3AdB04t89/1O/w1cDnyilFU=";
-        private readonly string channelSecret = "9a91a4847988b77eeb530a0057980e05";
 
         private static HttpClient client = new HttpClient();
         private readonly JsonProvider _jsonProvider = new JsonProvider();
@@ -23,8 +20,12 @@ namespace CookingHelper.LineDtoService
         private readonly string setDefaultRichMenuUri = "https://api.line.me/v2/bot/user/all/richmenu/{0}";
 
         private readonly string deleteRichMenuUri = "https://api.line.me/v2/bot/richmenu/{0}";
-        public RichMenuService()
+
+        private readonly string _LineBotChannelAccessToken;
+        public RichMenuService(IConfiguration configuration)
         {
+
+            _LineBotChannelAccessToken = configuration["LineBot:ChannelAccessToken"]!;
         }
 
         public async Task<string> ValidateRichMenu(RichMenuModel richMenu)
@@ -36,7 +37,7 @@ namespace CookingHelper.LineDtoService
                 RequestUri = new Uri(validateRichMenuUri),
                 Content = jsonBody,
             };
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channelAccessToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _LineBotChannelAccessToken);
             var response = await client.SendAsync(request);
 
             return await response.Content.ReadAsStringAsync();
@@ -51,7 +52,7 @@ namespace CookingHelper.LineDtoService
                 RequestUri = new Uri(createRichMenuUri),
                 Content = jsonBody,
             };
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channelAccessToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _LineBotChannelAccessToken);
             var response = await client.SendAsync(request);
 
             return await response.Content.ReadAsStringAsync();
@@ -64,7 +65,7 @@ namespace CookingHelper.LineDtoService
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(getRichMenuListUri),
             };
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channelAccessToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _LineBotChannelAccessToken);
             var response = await client.SendAsync(request);
 
             Console.WriteLine(await response.Content.ReadAsStringAsync());
@@ -92,7 +93,7 @@ namespace CookingHelper.LineDtoService
                 {
                     Content = content
                 };
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channelAccessToken);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _LineBotChannelAccessToken);
                 var response = await client.SendAsync(request);
 
                 return await response.Content.ReadAsStringAsync();
@@ -102,7 +103,7 @@ namespace CookingHelper.LineDtoService
         public async Task<string> SetDefaultRichMenu(string richMenuId)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, String.Format(setDefaultRichMenuUri, richMenuId));
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channelAccessToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _LineBotChannelAccessToken);
 
             var response = await client.SendAsync(request);
 
@@ -112,7 +113,7 @@ namespace CookingHelper.LineDtoService
         public async Task<string> DeleteRichMenu(string richMenuId)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, String.Format(deleteRichMenuUri, richMenuId));
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", channelAccessToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _LineBotChannelAccessToken);
             var response = await client.SendAsync(request);
             return await response.Content.ReadAsStringAsync();
         }
