@@ -10,14 +10,9 @@ namespace CookingHelper.Controllers;
 [Route("api/[controller]")]
 public class LineBotController : ControllerBase
 {
-
-    // 宣告 service
     private readonly LineBotService _lineBotService;
-    // ------ 宣告 services ------
     private readonly RichMenuService _richMenuService;
-
     private readonly JsonProvider _jsonProvider;
-    // constructor
 
     public LineBotController(LineBotService LineBotService, RichMenuService RichMenuService)
     {
@@ -26,32 +21,14 @@ public class LineBotController : ControllerBase
         _jsonProvider = new JsonProvider();
     }
 
-    // 使用 Post 方法的原因是因為這支 API 會接收 Line 傳送的 webhook event，
-    // 這部分在下一篇會介紹～
-    // [HttpPost("Webhook")]
-    // public IActionResult Webhook(WebhookRequestBodyDto body)
-    // {
-    //     _lineBotService.ReceiveWebhook(body); // 呼叫 Service
-    //     return Ok();
-    // }
-
-
-    // // 對全部的使用者傳送訊息
-    // [HttpPost("SendMessage/Broadcast")]
-    // public IActionResult Broadcast([Required] string messageType, object body)
-    // {
-    //     _lineBotService.BroadcastMessageHandler(messageType, body);
-    //     return Ok();
-    // }
-    // ------ 新增 api ------
+    // 使用者傳訊息會由此API接收
     [HttpPost("Webhook")]
     public IActionResult Webhook(WebhookRequestBodyDto body)
     {
-        _lineBotService.ReceiveWebhook(body); // 呼叫 Service
+        _lineBotService.ReceiveWebhook(body);
         return Ok();
     }
 
-    //rich menu api
     [HttpPost("RichMenu/Validate")]
     public async Task<IActionResult> ValidateRichMenu(RichMenuModel richMenu)
     {

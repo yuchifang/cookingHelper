@@ -24,41 +24,38 @@ public class LineBotService
 
     }
 
-    // 接收到使用者訊息會觸發此 API??
-    public void ReceiveWebhook(WebhookRequestBodyDto requestBody)
+    public void ReceiveWebhook(WebhookRequestBodyDto WebHookRequestBody)
     {
-        foreach (WebhookEventDto eventObject in requestBody.Events)
+        foreach (WebhookEventDto WebHookEventDto in WebHookRequestBody.Events)
         {
-            switch (eventObject.Type)
+            switch (WebHookEventDto.Type)
             {
                 case WebhookEventTypeEnum.Message:
-                    if (eventObject.Message.Type == MessageTypeEnum.Text)
+                    if (WebHookEventDto.Message.Type == MessageTypeEnum.Text)
                     {
-                        ReceiveMessageWebhookEvent(eventObject);
-                        Console.WriteLine(eventObject.Message.Text + "123456");
+                        ReceiveMessageWebhookEvent(WebHookEventDto);
                     }
                     break;
             }
         }
     }
 
-    private void ReceiveMessageWebhookEvent(WebhookEventDto eventDto)
+    private void ReceiveMessageWebhookEvent(WebhookEventDto WebHookEventDto)
     {
-        dynamic replyMessage = new ReplyMessageRequestDto<BaseMessageDto>();
+        dynamic replyMessage = new ReplyMessageRequestDto<BaseMessageEventObject>();
 
-        switch (eventDto.Message.Type)
+        switch (WebHookEventDto.Message.Type)
         {
             // 收到文字訊息
             case MessageTypeEnum.Text:
-                // 訊息內容等於 "測試" 時
-                if (eventDto.Message.Text == "採買清單")
+                if (WebHookEventDto.Message.Text == "採買清單")
                 {
-                    Console.WriteLine("hereD");
-                    replyMessage = new ReplyMessageRequestDto<TextMessageDto>
+
+                    replyMessage = new ReplyMessageRequestDto<TextMessageEventObject>
                     {
-                        ReplyToken = eventDto.ReplyToken,
-                        Messages = new List<TextMessageDto>{
-                            new TextMessageDto{
+                        ReplyToken = WebHookEventDto.ReplyToken,
+                        Messages = new List<TextMessageEventObject>{
+                            new TextMessageEventObject{
                                     Text="採買清單",
                             }
                         }
@@ -66,13 +63,12 @@ public class LineBotService
                 }
                 else
                 {
-                    Console.WriteLine($"{eventDto.ReplyToken}");
-                    replyMessage = new ReplyMessageRequestDto<TextMessageDto>
+                    replyMessage = new ReplyMessageRequestDto<TextMessageEventObject>
                     {
-                        ReplyToken = eventDto.ReplyToken,
-                        Messages = new List<TextMessageDto>{
-                            new TextMessageDto{
-                                    Text=eventDto.Message.Text,
+                        ReplyToken = WebHookEventDto.ReplyToken,
+                        Messages = new List<TextMessageEventObject>{
+                            new TextMessageEventObject{
+                                    Text=WebHookEventDto.Message.Text,
                             }
                         }
                     };
@@ -81,11 +77,7 @@ public class LineBotService
         }
         ReplyMessageHandler("text", replyMessage);
     }
-    /// <summary>
-    /// 接收到回覆請求時，在將請求傳至 Line 前多一層處理(目前為預留)
-    /// </summary>
-    /// <param name="messageType"></param>
-    /// <param name="requestBody"></param>
+
     public void ReplyMessageHandler<T>(string messageType, ReplyMessageRequestDto<T> requestBody)
     {
         ReplyMessage(requestBody);
@@ -95,7 +87,7 @@ public class LineBotService
     {
 
         _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration["LineBot:ChannelAccessToken"]); //帶入 channel access token
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration["LineBot:ChannelAccessToken"]);
         var json = _jsonProvider.Serialize(request);
         var requestMessage = new HttpRequestMessage
         {

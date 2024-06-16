@@ -3,7 +3,7 @@ using CookingHelper.LineDto;
 
 namespace CookingHelper.LineDto;
 
-public class BaseMessageDto
+public class BaseMessageEventObject
 {
     public string Type { get; set; }
     // Quick reply

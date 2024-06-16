@@ -14,9 +14,9 @@ namespace CookingHelper.LineDtoService
         private readonly string validateRichMenuUri = "https://api.line.me/v2/bot/richmenu/validate";
         private readonly string createRichMenuUri = "https://api.line.me/v2/bot/richmenu";
         private readonly string getRichMenuListUri = "https://api.line.me/v2/bot/richmenu/list";
-        // {0} 的位置要帶入 richMenuId
+
         private readonly string uploadRichMenuImageUri = "https://api-data.line.me/v2/bot/richmenu/{0}/content";
-        // {0} 的位置要帶入 richMenuId
+
         private readonly string setDefaultRichMenuUri = "https://api.line.me/v2/bot/user/all/richmenu/{0}";
 
         private readonly string deleteRichMenuUri = "https://api.line.me/v2/bot/richmenu/{0}";

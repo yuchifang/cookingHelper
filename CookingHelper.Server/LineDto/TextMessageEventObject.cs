@@ -2,9 +2,9 @@ using CookingHelper.Enum;
 using CookingHelper.LineDto;
 
 namespace CookingHelper.LineDto;
-public class TextMessageDto : BaseMessageDto
+public class TextMessageEventObject : BaseMessageEventObject
 {
-    public TextMessageDto()
+    public TextMessageEventObject()
     {
         Type = MessageTypeEnum.Text;
     }
