@@ -1,5 +1,6 @@
 
 using CookingHelper.Data;
+using CookingHelper.DatabaseService;
 using CookingHelper.LineDtoService;
 using Microsoft.EntityFrameworkCore;
 namespace CookingHelper.Server
@@ -19,13 +20,14 @@ namespace CookingHelper.Server
             if (builder.Environment.IsDevelopment())
             {
                 var ConnectString = builder.Configuration.GetConnectionString("MySQLConnectString");
-                builder.Services.AddDbContext<ShoppingListDbContext>(Options =>
+                builder.Services.AddDbContext<UserListDbContext>(Options =>
                 {
                     Options.UseMySql(ConnectString, ServerVersion.AutoDetect(ConnectString));
                 });
             }
             builder.Services.AddScoped<LineBotService, LineBotService>();
             builder.Services.AddScoped<RichMenuService, RichMenuService>();
+            builder.Services.AddScoped<ShoppingListService, ShoppingListService>();
 
             var app = builder.Build();
 

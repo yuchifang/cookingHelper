@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text;
+using CookingHelper.DatabaseService;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
 using CookingHelper.ProviderGroup;
@@ -7,6 +8,7 @@ using CookingHelper.ProviderGroup;
 namespace CookingHelper.LineDtoService;
 public class LineBotService
 {
+    private readonly ShoppingListService _shoppingListService;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly HttpClient _client;
 
@@ -16,11 +18,12 @@ public class LineBotService
 
 
     private readonly IConfiguration _configuration;
-    public LineBotService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+    public LineBotService(IHttpClientFactory httpClientFactory, IConfiguration configuration, ShoppingListService ShoppingListService)
     {
         _httpClientFactory = httpClientFactory;
         _client = _httpClientFactory.CreateClient();
         _configuration = configuration;
+        _shoppingListService = ShoppingListService;
 
     }
 
@@ -50,6 +53,7 @@ public class LineBotService
             case MessageTypeEnum.Text:
                 if (WebHookEventDto.Message.Text == "採買清單")
                 {
+                    var UserData = _shoppingListService.GetUserData(WebHookEventDto.Source!.UserId!);
 
                     replyMessage = new ReplyMessageRequestDto<TextMessageEventObject>
                     {
