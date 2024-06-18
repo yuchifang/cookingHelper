@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CookingHelper.Server.Migrations
 {
     [DbContext(typeof(UserListDbContext))]
-    [Migration("20240617103144_initialcreate")]
-    partial class initialcreate
+    [Migration("20240618095059_changeFileName")]
+    partial class changeFileName
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,21 +24,18 @@ namespace CookingHelper.Server.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("ShoppingListModel", b =>
+            modelBuilder.Entity("UserList", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("ShoppingListText")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
-                    b.ToTable("ShoppingListModel");
+                    b.ToTable("UserList");
                 });
 #pragma warning restore 612, 618
         }
