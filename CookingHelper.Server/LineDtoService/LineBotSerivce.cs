@@ -27,7 +27,7 @@ public class LineBotService
 
     }
 
-    public void ReceiveWebhook(WebhookRequestBodyDto WebHookRequestBody)
+    public async Task ReceiveWebhook(WebhookRequestBodyDto WebHookRequestBody)
     {
         foreach (WebhookEventDto WebHookEventDto in WebHookRequestBody.Events)
         {
@@ -39,11 +39,15 @@ public class LineBotService
                         ReceiveMessageWebhookEvent(WebHookEventDto);
                     }
                     break;
+                case WebhookEventTypeEnum.Follow:
+                    Console.WriteLine($"使用者{WebHookEventDto.Source!.UserId}將我們新增為好友！");
+                    await _shoppingListService.UserAddedFriend(WebHookEventDto.Source!.UserId!);
+                    break;
             }
         }
     }
 
-    private void ReceiveMessageWebhookEvent(WebhookEventDto WebHookEventDto)
+    private async Task ReceiveMessageWebhookEvent(WebhookEventDto WebHookEventDto)
     {
         dynamic replyMessage = new ReplyMessageRequestDto<BaseMessageEventObject>();
 
@@ -53,7 +57,9 @@ public class LineBotService
             case MessageTypeEnum.Text:
                 if (WebHookEventDto.Message.Text == "採買清單")
                 {
-                    var UserData = _shoppingListService.GetUserData(WebHookEventDto.Source!.UserId!);
+                    var UserData = await _shoppingListService.GetUserData(WebHookEventDto.Source!.UserId!);
+
+
 
                     replyMessage = new ReplyMessageRequestDto<TextMessageEventObject>
                     {
@@ -78,6 +84,7 @@ public class LineBotService
                     };
                 }
                 break;
+
         }
         ReplyMessageHandler("text", replyMessage);
     }
@@ -87,7 +94,7 @@ public class LineBotService
         ReplyMessage(requestBody);
     }
 
-    public async void ReplyMessage<T>(ReplyMessageRequestDto<T> request)
+    public async Task ReplyMessage<T>(ReplyMessageRequestDto<T> request)
     {
 
         _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

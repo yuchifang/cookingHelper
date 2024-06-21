@@ -23,9 +23,9 @@ public class LineBotController : ControllerBase
 
     // 使用者傳訊息會由此API接收
     [HttpPost("Webhook")]
-    public IActionResult Webhook(WebhookRequestBodyDto body)
+    public async Task<IActionResult> Webhook(WebhookRequestBodyDto body)
     {
-        _lineBotService.ReceiveWebhook(body);
+        await _lineBotService.ReceiveWebhook(body);
         return Ok();
     }
 
