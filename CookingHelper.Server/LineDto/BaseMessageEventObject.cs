@@ -20,12 +20,4 @@ public class BaseMessageEventObject
         public string? ImageUrl { get; set; }
         public ActionDto Action { get; set; }
     }
-    // Sender
-    public SenderDto? Sender { get; set; }
-
-}
-public class SenderDto
-{
-    public string? Name { get; set; }
-    public string? IconUrl { get; set; }
 }

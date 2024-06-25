@@ -1,8 +1,8 @@
-
 using CookingHelper.Data;
 using CookingHelper.DatabaseService;
 using CookingHelper.LineDtoService;
 using Microsoft.EntityFrameworkCore;
+
 namespace CookingHelper.Server
 {
     public class Program
@@ -27,10 +27,10 @@ namespace CookingHelper.Server
             }
             builder.Services.AddScoped<LineBotService, LineBotService>();
             builder.Services.AddScoped<RichMenuService, RichMenuService>();
-            builder.Services.AddScoped<ShoppingListService, ShoppingListService>();
+            builder.Services.AddScoped<ShoppingListDatabaseService, ShoppingListDatabaseService>();
+            builder.Services.AddScoped<ShoppingListLogicService, ShoppingListLogicService>();
 
             var app = builder.Build();
-
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
@@ -45,7 +45,6 @@ namespace CookingHelper.Server
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

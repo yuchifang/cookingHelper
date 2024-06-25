@@ -1,4 +1,5 @@
 namespace CookingHelper.LineDto;
+
 public class ActionDto
 {
     public string Type { get; set; } = default!;
@@ -12,19 +13,12 @@ public class ActionDto
     public string? FillInText { get; set; }
 
     public string? Text { get; set; }
-
-    public string? Uri { get; set; }
-
-    public UriActionAltUriDto? AltUri { get; set; }
-    public string? Mode { get; set; }
-    public string? Initial { get; set; }
-    public string? Max { get; set; }
-
-    public string? Min { get; set; }
-    // rich menu switch action
-    public string? RichMenuAliasId { get; set; }
 }
-public class UriActionAltUriDto
+
+public static class PostbackInputOptionEnum
 {
-    public string? Desktop { get; set; }
+    public const string CloseRichMenu = "closeRichMenu";
+    public const string OpenRichMenu = "openRichMenu";
+    public const string OpenKeyboard = "openKeyboard";
+    public const string OpenVoice = "openVoice";
 }
