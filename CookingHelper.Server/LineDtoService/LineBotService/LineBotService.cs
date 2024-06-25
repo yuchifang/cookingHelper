@@ -70,9 +70,6 @@ public class LineBotService
                 {
                     _WebhookEventState = "";
                 }
-                // ? 這邊要加 其他 rich menu 的Text ?
-                // ? 改變他的Text 實際於顯示不同
-                // 改 richmenu action 加 Postback
                 if (
                     WebHookEventDto.Message.Text == KeywordGroup.PurchaseList
                     || _WebhookEventState == KeywordGroup.PurchaseListInput

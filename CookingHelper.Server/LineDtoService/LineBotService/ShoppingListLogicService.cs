@@ -24,6 +24,26 @@ public class ShoppingListLogicService
         是直接輸入
         */
         var ReplyMessageList = new List<TextMessageEventObject>();
+        // 使用者選擇 PurchaseList 又選 Feedback, MenuList,StorageManagement 情況
+        //? 不確定要不要檔
+        if (
+            WebHookEventDto.Message!.Text == KeywordGroup.Feedback
+            || WebHookEventDto.Message!.Text == KeywordGroup.MenuList
+            || WebHookEventDto.Message!.Text == KeywordGroup.StorageManagement
+        )
+        {
+            ReplyMessageList.Add(new TextMessageEventObject { Text = "無法記錄此字串, 請重新輸入", });
+            return new ShoppingListLogicServiceReturnType<TextMessageEventObject>
+            {
+                replyMessageRequest = new ReplyMessageRequestDto<TextMessageEventObject>
+                {
+                    ReplyToken = WebHookEventDto.ReplyToken!,
+                    Messages = ReplyMessageList
+                },
+                WebhookEventState = _WebhookEventState,
+            };
+        }
+
         var UserData = await _shoppingListDatabaseService.GetUserData(
             WebHookEventDto.Source!.UserId!
         );
