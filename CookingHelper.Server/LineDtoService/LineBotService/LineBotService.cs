@@ -10,6 +10,7 @@ namespace CookingHelper.LineDtoService;
 public class LineBotService
 {
     private readonly ShoppingListDatabaseService _shoppingListDatabaseService;
+
     private readonly ShoppingListLogicService _shoppingListLogicService;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly HttpClient _client;
@@ -32,6 +33,7 @@ public class LineBotService
         _client = _httpClientFactory.CreateClient();
         _configuration = configuration;
         _shoppingListDatabaseService = ShoppingListDatabaseService;
+
         _shoppingListLogicService = ShoppingListLogicService;
     }
 
@@ -68,23 +70,22 @@ public class LineBotService
                 {
                     _WebhookEventState = "";
                 }
+                // ? 這邊要加 其他 rich menu 的Text ?
+                // ? 改變他的Text 實際於顯示不同
+                // 改 richmenu action 加 Postback
                 if (
                     WebHookEventDto.Message.Text == KeywordGroup.PurchaseList
                     || _WebhookEventState == KeywordGroup.PurchaseListInput
-                    || _WebhookEventState == KeywordGroup.PurchaseList
                 )
                 {
-                    if (WebHookEventDto.Message.Text == KeywordGroup.PurchaseList)
-                    {
-                        _WebhookEventState = KeywordGroup.PurchaseList;
-                    }
-                    var SettingData = await _shoppingListLogicService.Init(
+                    _WebhookEventState = KeywordGroup.PurchaseListInput;
+                    var StatusSettingData = await _shoppingListLogicService.InputData(
                         WebHookEventDto,
                         _WebhookEventState
                     );
-                    replyMessageRequest = SettingData.replyMessageRequest;
 
-                    _WebhookEventState = SettingData.WebhookEventState;
+                    replyMessageRequest = StatusSettingData.replyMessageRequest;
+                    _WebhookEventState = StatusSettingData.WebhookEventState;
                 }
                 else
                 {
