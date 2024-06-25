@@ -1,4 +1,5 @@
 using CookingHelper.Data;
+using CookingHelper.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace CookingHelper.DatabaseService;
