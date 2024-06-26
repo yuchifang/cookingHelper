@@ -12,6 +12,7 @@ public class LineBotService
     private readonly ShoppingListDatabaseService _shoppingListDatabaseService;
 
     private readonly ShoppingListLogicService _shoppingListLogicService;
+    private readonly FeedbackLogicService _feedbackLogicService;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly HttpClient _client;
 
@@ -26,15 +27,16 @@ public class LineBotService
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
         ShoppingListDatabaseService ShoppingListDatabaseService,
-        ShoppingListLogicService ShoppingListLogicService
+        ShoppingListLogicService ShoppingListLogicService,
+        FeedbackLogicService FeedbackLogicService
     )
     {
         _httpClientFactory = httpClientFactory;
         _client = _httpClientFactory.CreateClient();
         _configuration = configuration;
         _shoppingListDatabaseService = ShoppingListDatabaseService;
-
         _shoppingListLogicService = ShoppingListLogicService;
+        _feedbackLogicService = FeedbackLogicService;
     }
 
     public async Task ReceiveWebhook(WebhookRequestBodyDto WebHookRequestBody)
@@ -76,13 +78,21 @@ public class LineBotService
                 )
                 {
                     _WebhookEventState = KeywordGroup.PurchaseListInput;
-                    var StatusSettingData = await _shoppingListLogicService.InputData(
+                    var StatusSettingData = await _shoppingListLogicService.UpdateShoppingList(
                         WebHookEventDto,
                         _WebhookEventState
                     );
 
                     replyMessageRequest = StatusSettingData.replyMessageRequest;
                     _WebhookEventState = StatusSettingData.WebhookEventState;
+                }
+                //? 與KeywordGroup.PurchaseList 可能會衝突到
+                else if (WebHookEventDto.Message.Text == KeywordGroup.Feedback)
+                {
+                    var StatusSettingData = await _feedbackLogicService.Init(
+                        WebHookEventDto,
+                        _WebhookEventState
+                    );
                 }
                 else
                 {
@@ -97,12 +107,15 @@ public class LineBotService
                 }
                 break;
         }
-        ReplyMessageHandler("text", replyMessageRequest);
+        await ReplyMessageHandler("text", replyMessageRequest);
     }
 
-    public void ReplyMessageHandler<T>(string messageType, ReplyMessageRequestDto<T> requestBody)
+    public async Task ReplyMessageHandler<T>(
+        string messageType,
+        ReplyMessageRequestDto<T> requestBody
+    )
     {
-        ReplyMessage(requestBody);
+        await ReplyMessage(requestBody);
     }
 
     public async Task ReplyMessage<T>(ReplyMessageRequestDto<T> request)
@@ -125,4 +138,10 @@ public class LineBotService
         var response = await _client.SendAsync(requestMessage);
         Console.WriteLine(await response.Content.ReadAsStringAsync());
     }
+}
+
+public class LineBotWebhookServiceReturnType<T>
+{
+    public string WebhookEventState { get; set; } = default!;
+    public ReplyMessageRequestDto<T> replyMessageRequest = default!;
 }

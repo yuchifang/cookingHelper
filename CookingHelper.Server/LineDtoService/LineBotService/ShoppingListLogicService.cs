@@ -14,7 +14,7 @@ public class ShoppingListLogicService
         _shoppingListDatabaseService = ShoppingListDatabaseService;
     }
 
-    public async Task<ShoppingListLogicServiceReturnType<TextMessageEventObject>> InputData(
+    public async Task<LineBotWebhookServiceReturnType<TextMessageEventObject>> UpdateShoppingList(
         WebhookEventDto WebHookEventDto,
         string _WebhookEventState
     )
@@ -33,7 +33,7 @@ public class ShoppingListLogicService
         )
         {
             ReplyMessageList.Add(new TextMessageEventObject { Text = "無法記錄此字串, 請重新輸入", });
-            return new ShoppingListLogicServiceReturnType<TextMessageEventObject>
+            return new LineBotWebhookServiceReturnType<TextMessageEventObject>
             {
                 replyMessageRequest = new ReplyMessageRequestDto<TextMessageEventObject>
                 {
@@ -83,7 +83,7 @@ public class ShoppingListLogicService
                 }
             );
             _WebhookEventState = "";
-            return new ShoppingListLogicServiceReturnType<TextMessageEventObject>
+            return new LineBotWebhookServiceReturnType<TextMessageEventObject>
             {
                 replyMessageRequest = new ReplyMessageRequestDto<TextMessageEventObject>
                 {
@@ -128,7 +128,7 @@ public class ShoppingListLogicService
             );
             _WebhookEventState = KeywordGroup.PurchaseListInput;
         }
-        return new ShoppingListLogicServiceReturnType<TextMessageEventObject>
+        return new LineBotWebhookServiceReturnType<TextMessageEventObject>
         {
             WebhookEventState = _WebhookEventState,
             replyMessageRequest = new ReplyMessageRequestDto<TextMessageEventObject>
@@ -138,10 +138,4 @@ public class ShoppingListLogicService
             },
         };
     }
-}
-
-public class ShoppingListLogicServiceReturnType<T>
-{
-    public string WebhookEventState { get; set; } = default!;
-    public ReplyMessageRequestDto<T> replyMessageRequest = default!;
 }

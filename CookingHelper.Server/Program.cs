@@ -28,8 +28,8 @@ namespace CookingHelper.Server
             builder.Services.AddScoped<LineBotService, LineBotService>();
             builder.Services.AddScoped<RichMenuService, RichMenuService>();
             builder.Services.AddScoped<ShoppingListDatabaseService, ShoppingListDatabaseService>();
-
             builder.Services.AddScoped<ShoppingListLogicService, ShoppingListLogicService>();
+            builder.Services.AddScoped<FeedbackLogicService, FeedbackLogicService>();
 
             var app = builder.Build();
 
