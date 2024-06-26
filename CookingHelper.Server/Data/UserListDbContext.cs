@@ -27,18 +27,29 @@ public class UserListDbContext : DbContext
             entityBuilder.Property(e => e.ShoppingListText).HasMaxLength(50);
         });
 
-        // 一對一
         modelBuilder
             .Entity<UserList>()
             .HasOne(UserList => UserList.FeedbackGroup)
             .WithOne(FeedbackGroup => FeedbackGroup.UserList)
             .HasForeignKey<FeedbackGroup>(FeedbackGroup => FeedbackGroup.UserId);
 
+        modelBuilder.Entity<FeedbackGroup>().HasKey(FeedbackGroup => FeedbackGroup.FeedbackGroupId);
+        modelBuilder
+            .Entity<FeedbackGroup>()
+            .Property(FeedbackGroup => FeedbackGroup.FeedbackGroupId)
+            .ValueGeneratedOnAdd();
+
         modelBuilder
             .Entity<FeedbackGroup>()
             .HasOne(FeedbackGroup => FeedbackGroup.QuestionReply)
             .WithOne(QuestionReply => QuestionReply.FeedbackGroup)
             .HasForeignKey<QuestionReply>(QuestionReply => QuestionReply.FeedbackGroupId);
+
+        modelBuilder.Entity<QuestionReply>().HasKey(QuestionReply => QuestionReply.QuestionReplyId);
+        modelBuilder
+            .Entity<QuestionReply>()
+            .Property(QuestionReply => QuestionReply.QuestionReplyId)
+            .ValueGeneratedOnAdd();
 
         modelBuilder
             .Entity<FeedbackGroup>()
@@ -47,16 +58,24 @@ public class UserListDbContext : DbContext
             .HasForeignKey<SystemSuggestion>(SystemSuggestion => SystemSuggestion.FeedbackGroupId);
 
         modelBuilder
-            .Entity<FeedbackGroup>()
-            .HasOne(FeedbackGroup => FeedbackGroup.OtherSuggestion)
-            .WithOne(OtherSuggestion => OtherSuggestion.FeedbackGroup)
-            .HasForeignKey<OtherSuggestion>(OtherSuggestion => OtherSuggestion.FeedbackGroupId);
-
+            .Entity<SystemSuggestion>()
+            .HasKey(SystemSuggestion => SystemSuggestion.SystemSuggestionId);
         modelBuilder
-            .Entity<OtherSuggestion>()
-            .HasMany(OtherSuggestion => OtherSuggestion.PostList)
-            .WithOne(FeedbackPost => FeedbackPost.OtherSuggestion)
-            .HasForeignKey(FeedbackPost => FeedbackPost.OtherSuggestionId);
+            .Entity<SystemSuggestion>()
+            .Property(SystemSuggestion => SystemSuggestion.SystemSuggestionId)
+            .ValueGeneratedOnAdd();
+
+        // modelBuilder
+        //     .Entity<FeedbackGroup>()
+        //     .HasOne(FeedbackGroup => FeedbackGroup.OtherSuggestion)
+        //     .WithOne(OtherSuggestion => OtherSuggestion.FeedbackGroup)
+        //     .HasForeignKey<OtherSuggestion>(OtherSuggestion => OtherSuggestion.FeedbackGroupId);
+
+        // modelBuilder
+        //     .Entity<OtherSuggestion>()
+        //     .HasMany(OtherSuggestion => OtherSuggestion.PostList)
+        //     .WithOne(FeedbackPost => FeedbackPost.OtherSuggestion)
+        //     .HasForeignKey(FeedbackPost => FeedbackPost.OtherSuggestionId);
 
         modelBuilder
             .Entity<SystemSuggestion>()
@@ -69,6 +88,12 @@ public class UserListDbContext : DbContext
             .HasMany(QuestionReply => QuestionReply.PostList)
             .WithOne(FeedbackPost => FeedbackPost.QuestionReply)
             .HasForeignKey(FeedbackPost => FeedbackPost.QuestionReplyId);
+
+        modelBuilder.Entity<FeedbackPost>().HasKey(FeedbackPost => FeedbackPost.Id);
+        modelBuilder
+            .Entity<FeedbackPost>()
+            .Property(FeedbackPost => FeedbackPost.Id)
+            .ValueGeneratedOnAdd();
 
         modelBuilder.Entity<FeedbackGroup>().ToTable("FeedbackGroup");
         modelBuilder.Entity<FeedbackPost>().ToTable("FeedbackPost");
