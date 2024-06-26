@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CookingHelper.DatabaseService;
 
-public class ShoppingListDatabaseService
+public class UserListDatabaseService
 {
     private readonly UserListDbContext _userListContext;
 
-    public ShoppingListDatabaseService(UserListDbContext UserListDbContext)
+    public UserListDatabaseService(UserListDbContext UserListDbContext)
     {
         _userListContext = UserListDbContext;
     }

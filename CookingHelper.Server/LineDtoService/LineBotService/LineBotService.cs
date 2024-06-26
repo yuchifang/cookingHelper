@@ -9,7 +9,7 @@ namespace CookingHelper.LineDtoService;
 
 public class LineBotService
 {
-    private readonly ShoppingListDatabaseService _shoppingListDatabaseService;
+    private readonly UserListDatabaseService _userListDatabaseService;
 
     private readonly ShoppingListLogicService _shoppingListLogicService;
     private readonly FeedbackLogicService _feedbackLogicService;
@@ -26,7 +26,7 @@ public class LineBotService
     public LineBotService(
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
-        ShoppingListDatabaseService ShoppingListDatabaseService,
+        UserListDatabaseService UserListDatabaseService,
         ShoppingListLogicService ShoppingListLogicService,
         FeedbackLogicService FeedbackLogicService
     )
@@ -34,7 +34,7 @@ public class LineBotService
         _httpClientFactory = httpClientFactory;
         _client = _httpClientFactory.CreateClient();
         _configuration = configuration;
-        _shoppingListDatabaseService = ShoppingListDatabaseService;
+        _userListDatabaseService = UserListDatabaseService;
         _shoppingListLogicService = ShoppingListLogicService;
         _feedbackLogicService = FeedbackLogicService;
     }
@@ -53,7 +53,7 @@ public class LineBotService
                     break;
                 case WebhookEventTypeEnum.Follow:
                     Console.WriteLine($"使用者{WebHookEventDto.Source!.UserId}將我們新增為好友！");
-                    await _shoppingListDatabaseService.AddEmptyShoppingListText(
+                    await _userListDatabaseService.AddEmptyShoppingListText(
                         WebHookEventDto.Source!.UserId!
                     );
                     break;
@@ -74,10 +74,10 @@ public class LineBotService
                 }
                 if (
                     WebHookEventDto.Message.Text == KeywordGroup.PurchaseList
-                    || _WebhookEventState == KeywordGroup.PurchaseListInput
+                    || _WebhookEventState == KeywordGroup.InputPurchaseList
                 )
                 {
-                    _WebhookEventState = KeywordGroup.PurchaseListInput;
+                    _WebhookEventState = KeywordGroup.InputPurchaseList;
                     var StatusSettingData = await _shoppingListLogicService.UpdateShoppingList(
                         WebHookEventDto,
                         _WebhookEventState
@@ -86,13 +86,18 @@ public class LineBotService
                     replyMessageRequest = StatusSettingData.replyMessageRequest;
                     _WebhookEventState = StatusSettingData.WebhookEventState;
                 }
-                //? 與KeywordGroup.PurchaseList 可能會衝突到
-                else if (WebHookEventDto.Message.Text == KeywordGroup.Feedback)
+                //? 與KeywordGroup.PurchaseListInput 可能會衝突到
+                else if (
+                    WebHookEventDto.Message.Text == KeywordGroup.Feedback
+                    || _WebhookEventState == KeywordGroup.InputFeedback
+                )
                 {
                     var StatusSettingData = await _feedbackLogicService.Init(
                         WebHookEventDto,
                         _WebhookEventState
                     );
+                    replyMessageRequest = StatusSettingData.replyMessageRequest;
+                    _WebhookEventState = StatusSettingData.WebhookEventState;
                 }
                 else
                 {
