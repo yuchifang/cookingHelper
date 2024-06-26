@@ -1,9 +1,12 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CookingHelper.Model;
 
 public class SystemSuggestion
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int SystemSuggestionId { get; set; } = default!;
 
     [ForeignKey("FeedbackGroupId")]

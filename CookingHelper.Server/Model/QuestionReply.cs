@@ -1,9 +1,12 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CookingHelper.Model;
 
 public class QuestionReply
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int QuestionReplyId { get; set; } = default!;
 
     [ForeignKey("FeedbackGroupId")]
