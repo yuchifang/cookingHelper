@@ -10,10 +10,28 @@ public class WebhookEventDto
     public string WebhookEventId { get; set; } = default!; // webhook event id - ULID format
     public DeliverycontextDto DeliveryContext { get; set; } = default!; // 是否為重新傳送之事件 DeliveryContext.IsRedelivery : true | false
 
-
     public string? ReplyToken { get; set; } // 回覆此事件所使用的 token
     public MessageEventDto? Message { get; set; } // 收到訊息的事件，可收到 text、sticker、image、file、video、audio、location 訊息
+
+    // Postback
+    public Postback? Postback { get; set; }
 }
+
+public class Postback
+{
+    public string? data { get; set; }
+    public Params? Params { get; set; }
+}
+
+public class Params
+{
+    public string? datetime { get; set; }
+    public string? date { get; set; }
+    public string? time { get; set; }
+    public string? newRichMenuAliasId { get; set; }
+    public string? status { get; set; }
+}
+
 // -------- 以下 common property --------
 // 可以表示群組,社群,個人的訊息
 public class SourceDto
@@ -23,11 +41,12 @@ public class SourceDto
     public string? GroupId { get; set; }
     public string? RoomId { get; set; }
 }
+
 public class DeliverycontextDto
 {
     public bool IsRedelivery { get; set; }
-
 }
+
 public class MessageEventDto
 {
     public string Id { get; set; } = default!;
@@ -38,6 +57,7 @@ public class MessageEventDto
     public List<TextMessageEventEmojiDto>? Emojis { get; set; }
     public TextMessageEventMentionDto? Mention { get; set; }
 }
+
 public class TextMessageEventEmojiDto
 {
     public int Index { get; set; }

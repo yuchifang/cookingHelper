@@ -1,7 +1,7 @@
 using CookingHelper.DatabaseService;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
-using static CookingHelper.LineDto.BaseMessageEventObject;
+using static CookingHelper.LineDto.BaseMessageObject;
 
 namespace CookingHelper.LineDtoService;
 
@@ -14,7 +14,7 @@ public class ShoppingListLogicService
         _shoppingListDatabaseService = ShoppingListDatabaseService;
     }
 
-    public async Task<LineBotWebhookServiceReturnType<TextMessageEventObject>> UpdateShoppingList(
+    public async Task<LineBotWebhookServiceReturnType<TextMessageObject>> UpdateShoppingList(
         WebhookEventDto WebHookEventDto,
         string _WebhookEventState
     )
@@ -23,7 +23,7 @@ public class ShoppingListLogicService
         依據 _WebhookEventState及 WebHookEventDto.Message!.Text判斷是否
         是直接輸入
         */
-        var ReplyMessageList = new List<TextMessageEventObject>();
+        var ReplyMessageList = new List<TextMessageObject>();
         // 使用者選擇 PurchaseList 又選 Feedback, MenuList,StorageManagement 情況
         //? 不確定要不要檔
         if (
@@ -32,10 +32,10 @@ public class ShoppingListLogicService
             || WebHookEventDto.Message!.Text == KeywordGroup.StorageManagement
         )
         {
-            ReplyMessageList.Add(new TextMessageEventObject { Text = "無法記錄此字串, 請重新輸入", });
-            return new LineBotWebhookServiceReturnType<TextMessageEventObject>
+            ReplyMessageList.Add(new TextMessageObject { Text = "無法記錄此字串, 請重新輸入", });
+            return new LineBotWebhookServiceReturnType<TextMessageObject>
             {
-                replyMessageRequest = new ReplyMessageRequestDto<TextMessageEventObject>
+                replyMessageRequest = new ReplyMessageRequestDto<TextMessageObject>
                 {
                     ReplyToken = WebHookEventDto.ReplyToken!,
                     Messages = ReplyMessageList
@@ -60,7 +60,7 @@ public class ShoppingListLogicService
             );
 
             ReplyMessageList.Add(
-                new TextMessageEventObject
+                new TextMessageObject
                 {
                     Text = "更新完成",
                     QuickReply = new QuickReplyItemDto
@@ -83,9 +83,9 @@ public class ShoppingListLogicService
                 }
             );
             _WebhookEventState = "";
-            return new LineBotWebhookServiceReturnType<TextMessageEventObject>
+            return new LineBotWebhookServiceReturnType<TextMessageObject>
             {
-                replyMessageRequest = new ReplyMessageRequestDto<TextMessageEventObject>
+                replyMessageRequest = new ReplyMessageRequestDto<TextMessageObject>
                 {
                     ReplyToken = WebHookEventDto.ReplyToken!,
                     Messages = ReplyMessageList
@@ -96,15 +96,13 @@ public class ShoppingListLogicService
 
         if (UserData.ShoppingListText == "")
         {
-            ReplyMessageList.Add(
-                new TextMessageEventObject { Text = "沒有物品在採買清單, 開啟輸入框, 輸入想要紀錄的物品", }
-            );
+            ReplyMessageList.Add(new TextMessageObject { Text = "沒有物品在採買清單, 開啟輸入框, 輸入想要紀錄的物品", });
             _WebhookEventState = KeywordGroup.InputPurchaseList;
         }
         else
         {
             ReplyMessageList.Add(
-                new TextMessageEventObject
+                new TextMessageObject
                 {
                     Text = UserData.ShoppingListText!,
                     QuickReply = new QuickReplyItemDto
@@ -128,10 +126,10 @@ public class ShoppingListLogicService
             );
             _WebhookEventState = KeywordGroup.InputPurchaseList;
         }
-        return new LineBotWebhookServiceReturnType<TextMessageEventObject>
+        return new LineBotWebhookServiceReturnType<TextMessageObject>
         {
             WebhookEventState = _WebhookEventState,
-            replyMessageRequest = new ReplyMessageRequestDto<TextMessageEventObject>
+            replyMessageRequest = new ReplyMessageRequestDto<TextMessageObject>
             {
                 ReplyToken = WebHookEventDto.ReplyToken!,
                 Messages = ReplyMessageList
