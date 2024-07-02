@@ -12,7 +12,7 @@ public class LineBotService
     private readonly UserListDatabaseService _userListDatabaseService;
 
     private readonly ShoppingListLogicService _shoppingListLogicService;
-    private readonly FeedbackLogicService _feedbackLogicService;
+
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly HttpClient _client;
 
@@ -27,8 +27,7 @@ public class LineBotService
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
         UserListDatabaseService UserListDatabaseService,
-        ShoppingListLogicService ShoppingListLogicService,
-        FeedbackLogicService FeedbackLogicService
+        ShoppingListLogicService ShoppingListLogicService
     )
     {
         _httpClientFactory = httpClientFactory;
@@ -36,7 +35,6 @@ public class LineBotService
         _configuration = configuration;
         _userListDatabaseService = UserListDatabaseService;
         _shoppingListLogicService = ShoppingListLogicService;
-        _feedbackLogicService = FeedbackLogicService;
     }
 
     public async Task ReceiveWebhook(WebhookRequestBodyDto WebHookRequestBody)
@@ -63,7 +61,7 @@ public class LineBotService
 
     private async Task ReceiveMessageWebhookEvent(WebhookEventDto WebHookEventDto)
     {
-        dynamic replyMessageRequest = new ReplyMessageRequestDto<BaseMessageEventObject>();
+        dynamic replyMessageRequest = new ReplyMessageRequestDto<BaseMessageObject>();
 
         switch (WebHookEventDto.Message.Type)
         {
@@ -86,27 +84,14 @@ public class LineBotService
                     replyMessageRequest = StatusSettingData.replyMessageRequest;
                     _WebhookEventState = StatusSettingData.WebhookEventState;
                 }
-                //? 與KeywordGroup.PurchaseListInput 可能會衝突到
-                else if (
-                    WebHookEventDto.Message.Text == KeywordGroup.Feedback
-                    || _WebhookEventState == KeywordGroup.InputFeedback
-                )
-                {
-                    var StatusSettingData = await _feedbackLogicService.Init(
-                        WebHookEventDto,
-                        _WebhookEventState
-                    );
-                    replyMessageRequest = StatusSettingData.replyMessageRequest;
-                    _WebhookEventState = StatusSettingData.WebhookEventState;
-                }
                 else
                 {
-                    replyMessageRequest = new ReplyMessageRequestDto<TextMessageEventObject>
+                    replyMessageRequest = new ReplyMessageRequestDto<TextMessageObject>
                     {
                         ReplyToken = WebHookEventDto.ReplyToken!,
-                        Messages = new List<TextMessageEventObject>
+                        Messages = new List<TextMessageObject>
                         {
-                            new TextMessageEventObject { Text = WebHookEventDto.Message.Text! }
+                            new TextMessageObject { Text = WebHookEventDto.Message.Text! }
                         }
                     };
                 }

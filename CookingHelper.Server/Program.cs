@@ -29,7 +29,6 @@ namespace CookingHelper.Server
             builder.Services.AddScoped<RichMenuService, RichMenuService>();
             builder.Services.AddScoped<UserListDatabaseService, UserListDatabaseService>();
             builder.Services.AddScoped<ShoppingListLogicService, ShoppingListLogicService>();
-            builder.Services.AddScoped<FeedbackLogicService, FeedbackLogicService>();
 
             var app = builder.Build();
 
