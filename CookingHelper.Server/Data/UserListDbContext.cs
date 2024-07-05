@@ -10,14 +10,8 @@ public class UserListDbContext : DbContext
         : base(options) { }
 
     public DbSet<UserList> UserList { get; set; }
-    public DbSet<FeedbackGroup> FeedbackGroup { get; set; }
-    public DbSet<FeedbackPost> FeedbackPost { get; set; }
 
-    public DbSet<QuestionReply> QuestionReply { get; set; }
-
-    public DbSet<OtherSuggestion> OtherSuggestion { get; set; }
-
-    public DbSet<SystemSuggestion> SystemSuggestion { get; set; }
+    public DbSet<StoreItemGroup> StoreItemGroup { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,78 +23,34 @@ public class UserListDbContext : DbContext
 
         modelBuilder
             .Entity<UserList>()
-            .HasOne(UserList => UserList.FeedbackGroup)
-            .WithOne(FeedbackGroup => FeedbackGroup.UserList)
-            .HasForeignKey<FeedbackGroup>(FeedbackGroup => FeedbackGroup.UserId);
+            .HasOne(UserList => UserList.StoreList)
+            .WithOne(StoreList => StoreList.UserList)
+            .HasForeignKey<StoreList>(StoreList => StoreList.UserId);
 
-        modelBuilder.Entity<FeedbackGroup>().HasKey(FeedbackGroup => FeedbackGroup.FeedbackGroupId);
+        modelBuilder.Entity<StoreList>().HasKey(StoreList => StoreList.StoreListId);
         modelBuilder
-            .Entity<FeedbackGroup>()
-            .Property(FeedbackGroup => FeedbackGroup.FeedbackGroupId)
+            .Entity<StoreList>()
+            .Property(StoreList => StoreList.StoreListId)
             .ValueGeneratedOnAdd();
 
         modelBuilder
-            .Entity<FeedbackGroup>()
-            .HasOne(FeedbackGroup => FeedbackGroup.QuestionReply)
-            .WithOne(QuestionReply => QuestionReply.FeedbackGroup)
-            .HasForeignKey<QuestionReply>(QuestionReply => QuestionReply.FeedbackGroupId);
+            .Entity<StoreList>()
+            .HasMany(StoreList => StoreList.StoreItemGroup)
+            .WithOne(StoreItemGroup => StoreItemGroup.StoreList)
+            .HasForeignKey(StoreItemGroup => StoreItemGroup.StoreItemGroupId);
 
-        modelBuilder.Entity<QuestionReply>().HasKey(QuestionReply => QuestionReply.QuestionReplyId);
         modelBuilder
-            .Entity<QuestionReply>()
-            .Property(QuestionReply => QuestionReply.QuestionReplyId)
+            .Entity<StoreItemGroup>()
+            .HasKey(StoreItemGroup => StoreItemGroup.StoreItemGroupId);
+        modelBuilder
+            .Entity<StoreItemGroup>()
+            .Property(StoreItemGroup => StoreItemGroup.StoreItemGroupId)
             .ValueGeneratedOnAdd();
 
-        modelBuilder
-            .Entity<FeedbackGroup>()
-            .HasOne(FeedbackGroup => FeedbackGroup.SystemSuggestion)
-            .WithOne(SystemSuggestion => SystemSuggestion.FeedbackGroup)
-            .HasForeignKey<SystemSuggestion>(SystemSuggestion => SystemSuggestion.FeedbackGroupId);
-
-        modelBuilder
-            .Entity<SystemSuggestion>()
-            .HasKey(SystemSuggestion => SystemSuggestion.SystemSuggestionId);
-        modelBuilder
-            .Entity<SystemSuggestion>()
-            .Property(SystemSuggestion => SystemSuggestion.SystemSuggestionId)
-            .ValueGeneratedOnAdd();
-
-        // modelBuilder
-        //     .Entity<FeedbackGroup>()
-        //     .HasOne(FeedbackGroup => FeedbackGroup.OtherSuggestion)
-        //     .WithOne(OtherSuggestion => OtherSuggestion.FeedbackGroup)
-        //     .HasForeignKey<OtherSuggestion>(OtherSuggestion => OtherSuggestion.FeedbackGroupId);
-
-        // modelBuilder
-        //     .Entity<OtherSuggestion>()
-        //     .HasMany(OtherSuggestion => OtherSuggestion.PostList)
-        //     .WithOne(FeedbackPost => FeedbackPost.OtherSuggestion)
-        //     .HasForeignKey(FeedbackPost => FeedbackPost.OtherSuggestionId);
-
-        modelBuilder
-            .Entity<SystemSuggestion>()
-            .HasMany(SystemSuggestion => SystemSuggestion.PostList)
-            .WithOne(FeedbackPost => FeedbackPost.SystemSuggestion)
-            .HasForeignKey(FeedbackPost => FeedbackPost.SystemSuggestionId);
-
-        modelBuilder
-            .Entity<QuestionReply>()
-            .HasMany(QuestionReply => QuestionReply.PostList)
-            .WithOne(FeedbackPost => FeedbackPost.QuestionReply)
-            .HasForeignKey(FeedbackPost => FeedbackPost.QuestionReplyId);
-
-        modelBuilder.Entity<FeedbackPost>().HasKey(FeedbackPost => FeedbackPost.Id);
-        modelBuilder
-            .Entity<FeedbackPost>()
-            .Property(FeedbackPost => FeedbackPost.Id)
-            .ValueGeneratedOnAdd();
-
-        modelBuilder.Entity<FeedbackGroup>().ToTable("FeedbackGroup");
-        modelBuilder.Entity<FeedbackPost>().ToTable("FeedbackPost");
         modelBuilder.Entity<UserList>().ToTable("UserList");
 
-        modelBuilder.Entity<SystemSuggestion>().ToTable("SystemSuggestion");
-        modelBuilder.Entity<OtherSuggestion>().ToTable("OtherSuggestion");
-        modelBuilder.Entity<QuestionReply>().ToTable("QuestionReply");
+        modelBuilder.Entity<StoreList>().ToTable("StoreList");
+
+        modelBuilder.Entity<StoreItemGroup>().ToTable("StoreItemGroup");
     }
 }

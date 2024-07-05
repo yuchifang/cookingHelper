@@ -14,7 +14,7 @@ public class StoreItemGroup
 
     public DateOnly? ExpiryDate { get; set; }
 
-    [ForeignKey("StoreItemListId")]
-    public int StoreItemListId { get; set; } = default!;
-    public StoreItemList StoreItemList { get; set; } = default!;
+    [ForeignKey("StoreListId")]
+    public int StoreListId { get; set; } = default!;
+    public StoreList StoreList { get; set; } = default!;
 }

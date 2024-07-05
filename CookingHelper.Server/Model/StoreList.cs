@@ -2,11 +2,11 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using CookingHelper.Model;
 
-public class StoreItemList
+public class StoreList
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int StoreItemListId { get; set; } = default!;
+    public int StoreListId { get; set; } = default!;
 
     [ForeignKey("UserId")]
     public string UserId { get; set; } = default!;
