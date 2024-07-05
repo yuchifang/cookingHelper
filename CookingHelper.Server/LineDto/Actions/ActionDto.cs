@@ -13,6 +13,8 @@ public class ActionDto
     public string? FillInText { get; set; }
 
     public string? Text { get; set; }
+
+    public string? uri { get; set; }
 }
 
 public static class PostbackInputOptionEnum
