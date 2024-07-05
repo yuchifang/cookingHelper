@@ -84,6 +84,7 @@ public class LineBotService
                     replyMessageRequest = StatusSettingData.replyMessageRequest;
                     _WebhookEventState = StatusSettingData.WebhookEventState;
                 }
+                else if (WebHookEventDto.Message.Text == KeywordGroup.StorageManagement) { }
                 else
                 {
                     replyMessageRequest = new ReplyMessageRequestDto<TextMessageObject>
