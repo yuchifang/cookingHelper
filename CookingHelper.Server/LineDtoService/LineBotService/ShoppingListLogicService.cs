@@ -14,10 +14,7 @@ public class ShoppingListLogicService
         _shoppingListDatabaseService = ShoppingListDatabaseService;
     }
 
-    public async Task<LineBotWebhookServiceReturnType<TextMessageObject>> Init(
-        WebhookEventDto WebHookEventDto,
-        string _WebhookEventState
-    )
+    public async Task Init(WebhookEventDto WebHookEventDto)
     {
         /*
         依據 _WebhookEventState及 WebHookEventDto.Message!.Text判斷是否
@@ -33,15 +30,14 @@ public class ShoppingListLogicService
         )
         {
             ReplyMessageList.Add(new TextMessageObject { Text = "無法記錄此字串, 請重新輸入", });
-            return new LineBotWebhookServiceReturnType<TextMessageObject>
-            {
-                replyMessageRequest = new ReplyMessageRequestDto<TextMessageObject>
+
+            LineBotService._ReplyMessageRequestStatic =
+                new ReplyMessageRequestDto<TextMessageObject>
                 {
                     ReplyToken = WebHookEventDto.ReplyToken!,
                     Messages = ReplyMessageList
-                },
-                WebhookEventState = _WebhookEventState,
-            };
+                };
+            return;
         }
 
         var UserData = await _shoppingListDatabaseService.GetUserListData(
@@ -49,7 +45,7 @@ public class ShoppingListLogicService
         );
 
         if (
-            _WebhookEventState == KeywordGroup.InputPurchaseList
+            LineBotService._WebhookEventStateStatic == KeywordGroup.InputPurchaseList
             && WebHookEventDto.Message!.Text != KeywordGroup.PurchaseList
         )
         {
@@ -82,22 +78,20 @@ public class ShoppingListLogicService
                     }
                 }
             );
-            _WebhookEventState = "";
-            return new LineBotWebhookServiceReturnType<TextMessageObject>
-            {
-                replyMessageRequest = new ReplyMessageRequestDto<TextMessageObject>
+            LineBotService._WebhookEventStateStatic = "";
+            LineBotService._ReplyMessageRequestStatic =
+                new ReplyMessageRequestDto<TextMessageObject>
                 {
                     ReplyToken = WebHookEventDto.ReplyToken!,
                     Messages = ReplyMessageList
-                },
-                WebhookEventState = _WebhookEventState,
-            };
+                };
+            return;
         }
 
         if (UserData.ShoppingListText == "")
         {
             ReplyMessageList.Add(new TextMessageObject { Text = "採買清單中沒有物品, 開啟輸入框, 輸入想要紀錄的物品", });
-            _WebhookEventState = KeywordGroup.InputPurchaseList;
+            LineBotService._WebhookEventStateStatic = KeywordGroup.InputPurchaseList;
         }
         else
         {
@@ -124,16 +118,13 @@ public class ShoppingListLogicService
                     }
                 }
             );
-            _WebhookEventState = KeywordGroup.InputPurchaseList;
+            LineBotService._WebhookEventStateStatic = KeywordGroup.InputPurchaseList;
         }
-        return new LineBotWebhookServiceReturnType<TextMessageObject>
+
+        LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
         {
-            WebhookEventState = _WebhookEventState,
-            replyMessageRequest = new ReplyMessageRequestDto<TextMessageObject>
-            {
-                ReplyToken = WebHookEventDto.ReplyToken!,
-                Messages = ReplyMessageList
-            },
+            ReplyToken = WebHookEventDto.ReplyToken!,
+            Messages = ReplyMessageList
         };
     }
 }
