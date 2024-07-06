@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class StoreItemGroup
+namespace CookingHelper.Model;
+
+public class StoreItem
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
