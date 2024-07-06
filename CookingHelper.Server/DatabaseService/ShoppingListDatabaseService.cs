@@ -4,23 +4,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CookingHelper.DatabaseService;
 
-public class UserListDatabaseService
+public class ShoppingListDatabaseService
 {
     private readonly UserListDbContext _userListContext;
 
-    public UserListDatabaseService(UserListDbContext UserListDbContext)
+    public ShoppingListDatabaseService(UserListDbContext UserListDbContext)
     {
         _userListContext = UserListDbContext;
     }
 
-    public async Task<UserList> GetUserData(string userId)
+    public async Task<UserList> GetUserListData(string userId)
     {
         try
         {
-            var UserData = await _userListContext
+            var UserListData = await _userListContext
                 .UserList.AsNoTracking()
                 .FirstOrDefaultAsync(user => user.UserId == userId);
-            return UserData!;
+            return UserListData!;
         }
         catch (Exception ex)
         {
@@ -33,9 +33,7 @@ public class UserListDatabaseService
     {
         try
         {
-            var UserData = await _userListContext
-                .UserList.AsNoTracking()
-                .FirstOrDefaultAsync(user => user.UserId == userId);
+            var UserData = await GetUserListData(userId);
             if (UserData == null)
             {
                 await _userListContext.UserList.AddAsync(
@@ -60,9 +58,7 @@ public class UserListDatabaseService
         {
             try
             {
-                var UserData = await _userListContext
-                    .UserList.AsNoTracking()
-                    .FirstOrDefaultAsync(user => user.UserId == userId);
+                var UserData = await GetUserListData(userId!);
                 if (UserData != null)
                 {
                     UserData.ShoppingListText = UpdateShoppingText;
