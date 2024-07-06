@@ -1,7 +1,5 @@
-using System.Security.Cryptography;
 using CookingHelper.Data;
 using CookingHelper.Model;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace CookingHelper.DatabaseService;
