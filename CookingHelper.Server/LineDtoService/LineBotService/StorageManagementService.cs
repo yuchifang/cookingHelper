@@ -17,10 +17,7 @@ public class StorageManagementService
         _storageManagementDatabaseService = StorageManagementDatabaseService;
     }
 
-    public async Task<LineBotWebhookServiceReturnType<TextMessageObject>> Init(
-        WebhookEventDto WebHookEventDto,
-        string _WebhookEventState
-    )
+    public async Task Init(WebhookEventDto WebHookEventDto)
     {
         var ReplyMessageList = new List<TextMessageObject>();
 
@@ -57,14 +54,10 @@ public class StorageManagementService
             );
         }
 
-        return new LineBotWebhookServiceReturnType<TextMessageObject>
+        LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
         {
-            replyMessageRequest = new ReplyMessageRequestDto<TextMessageObject>
-            {
-                ReplyToken = WebHookEventDto.ReplyToken!,
-                Messages = ReplyMessageList
-            },
-            WebhookEventState = _WebhookEventState,
+            ReplyToken = WebHookEventDto.ReplyToken!,
+            Messages = ReplyMessageList
         };
     }
 }

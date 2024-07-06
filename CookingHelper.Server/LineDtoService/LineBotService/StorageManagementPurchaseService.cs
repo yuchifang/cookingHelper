@@ -9,20 +9,11 @@ public class StorageManagementPurchaseService
 {
     public StorageManagementPurchaseService() { }
 
-    public async Task<LineBotWebhookServiceReturnType<TextMessageObject>> InputStorage(
-        WebhookEventDto WebHookEventDto,
-        string _WebhookEventState
-    )
+    public async Task InputStorage(WebhookEventDto WebHookEventDto)
     {
         var ReplyMessageList = new List<TextMessageObject>();
-        _WebhookEventState = "新增物品至庫存";
+        LineBotService._WebhookEventStateStatic = "新增物品至庫存";
         //? 寫一個紀錄 Storage 的狀態的state ?? 測試 不同呼叫 內層的static 會部會改變
-
-        // LineBotService._WebhookEventState = "s"; 改成這種方式 改_WebhookEventState
-
-        // replyMessageRequest 看看要不要也用這種方式修改
-
-
 
 
         ReplyMessageList.AddRange(
@@ -59,14 +50,10 @@ public class StorageManagementPurchaseService
             ]
         );
 
-        return new LineBotWebhookServiceReturnType<TextMessageObject>
+        LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
         {
-            replyMessageRequest = new ReplyMessageRequestDto<TextMessageObject>
-            {
-                ReplyToken = WebHookEventDto.ReplyToken!,
-                Messages = ReplyMessageList
-            },
-            WebhookEventState = _WebhookEventState,
+            ReplyToken = WebHookEventDto.ReplyToken!,
+            Messages = ReplyMessageList
         };
     }
 }

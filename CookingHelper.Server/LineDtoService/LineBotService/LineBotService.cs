@@ -96,21 +96,11 @@ public class LineBotService
                 }
                 else if (WebHookEventDto.Message.Text == KeywordGroup.StorageManagement)
                 {
-                    var StatusSettingData = await _storageManagementService.Init(
-                        WebHookEventDto,
-                        _WebhookEventStateStatic
-                    );
-                    _ReplyMessageRequestStatic = StatusSettingData.replyMessageRequest;
-                    _WebhookEventStateStatic = StatusSettingData.WebhookEventState;
+                    await _storageManagementService.Init(WebHookEventDto);
                 }
                 else if (WebHookEventDto.Message.Text == "新增物品至庫存")
                 {
-                    var StatusSettingData = await _storageManagementPurchaseService.InputStorage(
-                        WebHookEventDto,
-                        _WebhookEventStateStatic
-                    );
-                    _ReplyMessageRequestStatic = StatusSettingData.replyMessageRequest;
-                    _WebhookEventStateStatic = StatusSettingData.WebhookEventState;
+                    await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
                 }
                 else
                 {
