@@ -9,9 +9,15 @@ namespace CookingHelper.LineDtoService;
 
 public class LineBotService
 {
-    private readonly UserListDatabaseService _userListDatabaseService;
+    private readonly ShoppingListDatabaseService _userListDatabaseService;
 
     private readonly ShoppingListLogicService _shoppingListLogicService;
+
+    private readonly StorageManagementService _storageManagementService;
+
+    private readonly StorageManagementDatabaseService _storageManagementDatabaseService;
+
+    private readonly StorageManagementPurchaseService _storageManagementPurchaseService;
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly HttpClient _client;
@@ -21,13 +27,16 @@ public class LineBotService
     private readonly string replyMessageUri = "https://api.line.me/v2/bot/message/reply";
 
     private readonly IConfiguration _configuration;
-    protected static string _WebhookEventState = "";
+    public static string _StaticWebhookEventState = "";
 
     public LineBotService(
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
-        UserListDatabaseService UserListDatabaseService,
-        ShoppingListLogicService ShoppingListLogicService
+        ShoppingListDatabaseService UserListDatabaseService,
+        ShoppingListLogicService ShoppingListLogicService,
+        StorageManagementService StorageManagementService,
+        StorageManagementDatabaseService StorageManagementDatabaseService,
+        StorageManagementPurchaseService StorageManagementPurchaseService
     )
     {
         _httpClientFactory = httpClientFactory;
@@ -35,6 +44,9 @@ public class LineBotService
         _configuration = configuration;
         _userListDatabaseService = UserListDatabaseService;
         _shoppingListLogicService = ShoppingListLogicService;
+        _storageManagementService = StorageManagementService;
+        _storageManagementDatabaseService = StorageManagementDatabaseService;
+        _storageManagementPurchaseService = StorageManagementPurchaseService;
     }
 
     public async Task ReceiveWebhook(WebhookRequestBodyDto WebHookRequestBody)
@@ -54,6 +66,9 @@ public class LineBotService
                     await _userListDatabaseService.AddEmptyShoppingListText(
                         WebHookEventDto.Source!.UserId!
                     );
+                    await _storageManagementDatabaseService.AddEmptyStorageData(
+                        WebHookEventDto.Source!.UserId!
+                    );
                     break;
             }
         }
@@ -68,23 +83,40 @@ public class LineBotService
             case MessageTypeEnum.Text:
                 if (WebHookEventDto.Message.Text == "返回目錄")
                 {
-                    _WebhookEventState = "";
+                    _StaticWebhookEventState = "s";
                 }
                 if (
                     WebHookEventDto.Message.Text == KeywordGroup.PurchaseList
-                    || _WebhookEventState == KeywordGroup.InputPurchaseList
+                    || _StaticWebhookEventState == KeywordGroup.InputPurchaseList
                 )
                 {
-                    _WebhookEventState = KeywordGroup.InputPurchaseList;
-                    var StatusSettingData = await _shoppingListLogicService.UpdateShoppingList(
+                    _StaticWebhookEventState = KeywordGroup.InputPurchaseList;
+                    var StatusSettingData = await _shoppingListLogicService.Init(
                         WebHookEventDto,
-                        _WebhookEventState
+                        _StaticWebhookEventState
                     );
 
                     replyMessageRequest = StatusSettingData.replyMessageRequest;
-                    _WebhookEventState = StatusSettingData.WebhookEventState;
+                    _StaticWebhookEventState = StatusSettingData.WebhookEventState;
                 }
-                else if (WebHookEventDto.Message.Text == KeywordGroup.StorageManagement) { }
+                else if (WebHookEventDto.Message.Text == KeywordGroup.StorageManagement)
+                {
+                    var StatusSettingData = await _storageManagementService.Init(
+                        WebHookEventDto,
+                        _StaticWebhookEventState
+                    );
+                    replyMessageRequest = StatusSettingData.replyMessageRequest;
+                    _StaticWebhookEventState = StatusSettingData.WebhookEventState;
+                }
+                else if (WebHookEventDto.Message.Text == "新增物品至庫存")
+                {
+                    var StatusSettingData = await _storageManagementPurchaseService.InputStorage(
+                        WebHookEventDto,
+                        _StaticWebhookEventState
+                    );
+                    replyMessageRequest = StatusSettingData.replyMessageRequest;
+                    _StaticWebhookEventState = StatusSettingData.WebhookEventState;
+                }
                 else
                 {
                     replyMessageRequest = new ReplyMessageRequestDto<TextMessageObject>
@@ -92,7 +124,10 @@ public class LineBotService
                         ReplyToken = WebHookEventDto.ReplyToken!,
                         Messages = new List<TextMessageObject>
                         {
-                            new TextMessageObject { Text = WebHookEventDto.Message.Text! }
+                            new TextMessageObject
+                            {
+                                Text = WebHookEventDto.Message.Text! + " 無效輸入, 請依步驟執行"
+                            }
                         }
                     };
                 }
