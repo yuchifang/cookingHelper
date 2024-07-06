@@ -34,6 +34,10 @@ namespace CookingHelper.Server
                 StorageManagementPurchaseService,
                 StorageManagementPurchaseService
             >();
+            builder.Services.AddScoped<
+                StorageManagementDatabaseService,
+                StorageManagementDatabaseService
+            >();
             var app = builder.Build();
 
             app.UseDefaultFiles();
