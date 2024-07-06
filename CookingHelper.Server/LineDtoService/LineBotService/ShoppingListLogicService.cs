@@ -7,14 +7,14 @@ namespace CookingHelper.LineDtoService;
 
 public class ShoppingListLogicService
 {
-    private readonly UserListDatabaseService _shoppingListDatabaseService;
+    private readonly ShoppingListDatabaseService _shoppingListDatabaseService;
 
-    public ShoppingListLogicService(UserListDatabaseService ShoppingListDatabaseService)
+    public ShoppingListLogicService(ShoppingListDatabaseService ShoppingListDatabaseService)
     {
         _shoppingListDatabaseService = ShoppingListDatabaseService;
     }
 
-    public async Task<LineBotWebhookServiceReturnType<TextMessageObject>> UpdateShoppingList(
+    public async Task<LineBotWebhookServiceReturnType<TextMessageObject>> Init(
         WebhookEventDto WebHookEventDto,
         string _WebhookEventState
     )
@@ -44,7 +44,7 @@ public class ShoppingListLogicService
             };
         }
 
-        var UserData = await _shoppingListDatabaseService.GetUserData(
+        var UserData = await _shoppingListDatabaseService.GetUserListData(
             WebHookEventDto.Source!.UserId!
         );
 
@@ -96,7 +96,7 @@ public class ShoppingListLogicService
 
         if (UserData.ShoppingListText == "")
         {
-            ReplyMessageList.Add(new TextMessageObject { Text = "沒有物品在採買清單, 開啟輸入框, 輸入想要紀錄的物品", });
+            ReplyMessageList.Add(new TextMessageObject { Text = "採買清單中沒有物品, 開啟輸入框, 輸入想要紀錄的物品", });
             _WebhookEventState = KeywordGroup.InputPurchaseList;
         }
         else
