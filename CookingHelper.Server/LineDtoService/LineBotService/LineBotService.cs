@@ -27,7 +27,10 @@ public class LineBotService
     private readonly string replyMessageUri = "https://api.line.me/v2/bot/message/reply";
 
     private readonly IConfiguration _configuration;
-    public static string _StaticWebhookEventState = "";
+    public static string _WebhookEventStateStatic = "";
+
+    public static dynamic _ReplyMessageRequestStatic =
+        new ReplyMessageRequestDto<BaseMessageObject>();
 
     public LineBotService(
         IHttpClientFactory httpClientFactory,
@@ -76,50 +79,42 @@ public class LineBotService
 
     private async Task ReceiveMessageWebhookEvent(WebhookEventDto WebHookEventDto)
     {
-        dynamic replyMessageRequest = new ReplyMessageRequestDto<BaseMessageObject>();
-
         switch (WebHookEventDto.Message.Type)
         {
             case MessageTypeEnum.Text:
                 if (WebHookEventDto.Message.Text == "返回目錄")
                 {
-                    _StaticWebhookEventState = "s";
+                    _WebhookEventStateStatic = "";
                 }
                 if (
                     WebHookEventDto.Message.Text == KeywordGroup.PurchaseList
-                    || _StaticWebhookEventState == KeywordGroup.InputPurchaseList
+                    || _WebhookEventStateStatic == KeywordGroup.InputPurchaseList
                 )
                 {
-                    _StaticWebhookEventState = KeywordGroup.InputPurchaseList;
-                    var StatusSettingData = await _shoppingListLogicService.Init(
-                        WebHookEventDto,
-                        _StaticWebhookEventState
-                    );
-
-                    replyMessageRequest = StatusSettingData.replyMessageRequest;
-                    _StaticWebhookEventState = StatusSettingData.WebhookEventState;
+                    _WebhookEventStateStatic = KeywordGroup.InputPurchaseList;
+                    await _shoppingListLogicService.Init(WebHookEventDto);
                 }
                 else if (WebHookEventDto.Message.Text == KeywordGroup.StorageManagement)
                 {
                     var StatusSettingData = await _storageManagementService.Init(
                         WebHookEventDto,
-                        _StaticWebhookEventState
+                        _WebhookEventStateStatic
                     );
-                    replyMessageRequest = StatusSettingData.replyMessageRequest;
-                    _StaticWebhookEventState = StatusSettingData.WebhookEventState;
+                    _ReplyMessageRequestStatic = StatusSettingData.replyMessageRequest;
+                    _WebhookEventStateStatic = StatusSettingData.WebhookEventState;
                 }
                 else if (WebHookEventDto.Message.Text == "新增物品至庫存")
                 {
                     var StatusSettingData = await _storageManagementPurchaseService.InputStorage(
                         WebHookEventDto,
-                        _StaticWebhookEventState
+                        _WebhookEventStateStatic
                     );
-                    replyMessageRequest = StatusSettingData.replyMessageRequest;
-                    _StaticWebhookEventState = StatusSettingData.WebhookEventState;
+                    _ReplyMessageRequestStatic = StatusSettingData.replyMessageRequest;
+                    _WebhookEventStateStatic = StatusSettingData.WebhookEventState;
                 }
                 else
                 {
-                    replyMessageRequest = new ReplyMessageRequestDto<TextMessageObject>
+                    _ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
                     {
                         ReplyToken = WebHookEventDto.ReplyToken!,
                         Messages = new List<TextMessageObject>
@@ -133,7 +128,7 @@ public class LineBotService
                 }
                 break;
         }
-        await ReplyMessageHandler("text", replyMessageRequest);
+        await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
     }
 
     public async Task ReplyMessageHandler<T>(
