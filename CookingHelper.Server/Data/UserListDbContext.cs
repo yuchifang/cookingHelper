@@ -11,7 +11,8 @@ public class UserListDbContext : DbContext
 
     public DbSet<UserList> UserList { get; set; }
 
-    public DbSet<StoreItemGroup> StoreItemGroup { get; set; }
+    public DbSet<StoreItem> StoreItem { get; set; }
+    public DbSet<StoreList> StoreList { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,15 +36,13 @@ public class UserListDbContext : DbContext
 
         modelBuilder
             .Entity<StoreList>()
-            .HasMany(StoreList => StoreList.StoreItemGroup)
+            .HasMany(StoreList => StoreList.StoreItemList)
             .WithOne(StoreItemGroup => StoreItemGroup.StoreList)
             .HasForeignKey(StoreItemGroup => StoreItemGroup.StoreItemGroupId);
 
+        modelBuilder.Entity<StoreItem>().HasKey(StoreItemGroup => StoreItemGroup.StoreItemGroupId);
         modelBuilder
-            .Entity<StoreItemGroup>()
-            .HasKey(StoreItemGroup => StoreItemGroup.StoreItemGroupId);
-        modelBuilder
-            .Entity<StoreItemGroup>()
+            .Entity<StoreItem>()
             .Property(StoreItemGroup => StoreItemGroup.StoreItemGroupId)
             .ValueGeneratedOnAdd();
 
@@ -51,6 +50,6 @@ public class UserListDbContext : DbContext
 
         modelBuilder.Entity<StoreList>().ToTable("StoreList");
 
-        modelBuilder.Entity<StoreItemGroup>().ToTable("StoreItemGroup");
+        modelBuilder.Entity<StoreItem>().ToTable("StoreItemGroup");
     }
 }
