@@ -61,3 +61,45 @@ public class StorageManagementService
         };
     }
 }
+
+public class InputStorageDataStatus
+{
+    private string _inputStorageStatus = "init";
+    public string InputStorageStatus
+    {
+        get => _inputStorageStatus;
+        set
+        {
+            if (
+                value != "place"
+                && value != "name"
+                && value != "location"
+                && value != "purchaseDate"
+                && value != "expiryDate"
+                && value != "amount"
+                && value != "init"
+                && value != "end"
+                && value != "edit"
+            )
+            {
+                throw new ArgumentException("Value Error");
+            }
+            _inputStorageStatus = value;
+        }
+    }
+
+    // 儲存位置
+    // 物品名稱
+    // 詳細位置
+    // 數量
+    // 購買日期
+    // 有效日期
+    public string Place { get; set; } = default!;
+    public string Name { get; set; } = default!;
+    public string? Location { get; set; }
+    public string? Amount { get; set; }
+
+    public string? PurchaseDate { get; set; }
+
+    public string? ExpiryDate { get; set; }
+}

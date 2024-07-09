@@ -95,28 +95,31 @@ public class ShoppingListLogicService
         }
         else
         {
-            ReplyMessageList.Add(
-                new TextMessageObject
-                {
-                    Text = UserData.ShoppingListText!,
-                    QuickReply = new QuickReplyItemDto
+            ReplyMessageList.AddRange(
+                [
+                    new TextMessageObject { Text = "開啟輸入框, 輸入要記錄的物品", },
+                    new TextMessageObject
                     {
-                        Items = new List<QuickReplyButtonDto>
+                        Text = "採買清單: " + UserData.ShoppingListText!,
+                        QuickReply = new QuickReplyItemDto
                         {
-                            new QuickReplyButtonDto
+                            Items = new List<QuickReplyButtonDto>
                             {
-                                Action = new ActionDto
+                                new QuickReplyButtonDto
                                 {
-                                    Type = ActionTypeEnum.Postback,
-                                    Label = "將採買清單帶入輸入框",
-                                    Data = "quick reply postback action",
-                                    InputOption = PostbackInputOptionEnum.OpenKeyboard,
-                                    FillInText = UserData.ShoppingListText!
-                                }
-                            },
+                                    Action = new ActionDto
+                                    {
+                                        Type = ActionTypeEnum.Postback,
+                                        Label = "將上次的採買清單帶入輸入框",
+                                        Data = "quick reply postback action",
+                                        InputOption = PostbackInputOptionEnum.OpenKeyboard,
+                                        FillInText = UserData.ShoppingListText!
+                                    }
+                                },
+                            }
                         }
                     }
-                }
+                ]
             );
             LineBotService._WebhookEventStateStatic = KeywordGroup.InputPurchaseList;
         }

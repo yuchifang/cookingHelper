@@ -64,6 +64,14 @@ public class LineBotService
                         await ReceiveMessageWebhookEvent(WebHookEventDto);
                     }
                     break;
+                case WebhookEventTypeEnum.Postback:
+                    if (
+                        _WebhookEventStateStatic == "新增物品至庫存"
+                        && WebHookEventDto.Message!.Text == "修改"
+                    ) { 
+                        await _storageManagementPurchaseService.EditAddedResultConfirmPostBack()
+                    }
+                    break;
                 case WebhookEventTypeEnum.Follow:
                     Console.WriteLine($"使用者{WebHookEventDto.Source!.UserId}將我們新增為好友！");
                     await _userListDatabaseService.AddEmptyShoppingListText(
@@ -98,7 +106,10 @@ public class LineBotService
                 {
                     await _storageManagementService.Init(WebHookEventDto);
                 }
-                else if (WebHookEventDto.Message.Text == "新增物品至庫存")
+                else if (
+                    WebHookEventDto.Message.Text == "新增物品至庫存"
+                    || _WebhookEventStateStatic == "新增物品至庫存"
+                )
                 {
                     await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
                 }

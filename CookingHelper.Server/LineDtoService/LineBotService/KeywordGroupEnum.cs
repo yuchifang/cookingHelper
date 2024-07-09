@@ -14,3 +14,22 @@ public static class KeywordGroup
     //庫存管理
     public const string StorageManagement = "庫存管理";
 }
+
+public static class StorageManagementKeywordGroup
+{
+    // 儲存位置
+    // 物品名稱
+    // 詳細位置
+    // 數量
+    // 購買日期
+    // 有效日期
+    public const string Place = "儲存位置";
+    public const string Name = "物品名稱";
+    public const string Location = "詳細位置";
+    public const string Amount = "數量";
+
+    public const string PurchaseDate = "購買日期";
+
+    public const string ExpiryDate = "有效日期";
+    public static string[] ExamineList = ["購買日期", "數量", "有效日期", "儲存位置", "物品名稱", "詳細位置"];
+}
