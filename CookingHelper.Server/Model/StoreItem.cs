@@ -11,6 +11,7 @@ public class StoreItem
     public string Name { get; set; } = default!;
     public string Place { get; set; } = default!;
     public string? Location { get; set; }
+    public string? Amount { get; set; }
 
     public DateOnly? PurchaseDate { get; set; }
 
