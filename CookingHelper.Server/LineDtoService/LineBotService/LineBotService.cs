@@ -65,11 +65,13 @@ public class LineBotService
                     }
                     break;
                 case WebhookEventTypeEnum.Postback:
+
                     if (
                         _WebhookEventStateStatic == "新增物品至庫存"
-                        && WebHookEventDto.Message!.Text == "修改"
-                    ) { 
-                        await _storageManagementPurchaseService.EditAddedResultConfirmPostBack()
+                        && WebHookEventDto.Postback.Data == "修改"
+                    )
+                    {
+                        await ReceivePostbackWebhookEvent(WebHookEventDto);
                     }
                     break;
                 case WebhookEventTypeEnum.Follow:
@@ -85,50 +87,47 @@ public class LineBotService
         }
     }
 
+    private async Task ReceivePostbackWebhookEvent(WebhookEventDto WebHookEventDto)
+    {
+        await _storageManagementPurchaseService.EditAddedResultConfirmPostBack(WebHookEventDto);
+
+        await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
+    }
+
     private async Task ReceiveMessageWebhookEvent(WebhookEventDto WebHookEventDto)
     {
-        switch (WebHookEventDto.Message.Type)
+        if (WebHookEventDto.Message.Text == "返回目錄")
         {
-            case MessageTypeEnum.Text:
-                if (WebHookEventDto.Message.Text == "返回目錄")
-                {
-                    _WebhookEventStateStatic = "";
-                }
-                if (
-                    WebHookEventDto.Message.Text == KeywordGroup.PurchaseList
-                    || _WebhookEventStateStatic == KeywordGroup.InputPurchaseList
-                )
-                {
-                    _WebhookEventStateStatic = KeywordGroup.InputPurchaseList;
-                    await _shoppingListLogicService.Init(WebHookEventDto);
-                }
-                else if (WebHookEventDto.Message.Text == KeywordGroup.StorageManagement)
-                {
-                    await _storageManagementService.Init(WebHookEventDto);
-                }
-                else if (
-                    WebHookEventDto.Message.Text == "新增物品至庫存"
-                    || _WebhookEventStateStatic == "新增物品至庫存"
-                )
-                {
-                    await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
-                }
-                else
-                {
-                    _ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
-                    {
-                        ReplyToken = WebHookEventDto.ReplyToken!,
-                        Messages = new List<TextMessageObject>
-                        {
-                            new TextMessageObject
-                            {
-                                Text = WebHookEventDto.Message.Text! + " 無效輸入, 請依步驟執行"
-                            }
-                        }
-                    };
-                }
-                break;
+            _WebhookEventStateStatic = "";
         }
+        if (
+            WebHookEventDto.Message.Text == KeywordGroup.PurchaseList
+            || _WebhookEventStateStatic == KeywordGroup.InputPurchaseList
+        )
+        {
+            _WebhookEventStateStatic = KeywordGroup.InputPurchaseList;
+            await _shoppingListLogicService.Init(WebHookEventDto);
+        }
+        else if (WebHookEventDto.Message.Text == KeywordGroup.StorageManagement)
+        {
+            await _storageManagementService.Init(WebHookEventDto);
+        }
+        else if (WebHookEventDto.Message.Text == "新增物品至庫存" || _WebhookEventStateStatic == "新增物品至庫存")
+        {
+            await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
+        }
+        else
+        {
+            _ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
+            {
+                ReplyToken = WebHookEventDto.ReplyToken!,
+                Messages = new List<TextMessageObject>
+                {
+                    new TextMessageObject { Text = WebHookEventDto.Message.Text! + " 無效輸入, 請依步驟執行" }
+                }
+            };
+        }
+
         await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
     }
 
