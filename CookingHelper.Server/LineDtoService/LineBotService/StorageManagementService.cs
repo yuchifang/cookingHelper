@@ -62,12 +62,12 @@ public class StorageManagementService
     }
 }
 
-public class InputStorageDataStatus
+public class InputStorageInfo
 {
-    private string _inputStorageStatus = "init";
-    public string InputStorageStatus
+    private string _Status = "init";
+    public string Status
     {
-        get => _inputStorageStatus;
+        get => _Status;
         set
         {
             if (
@@ -84,7 +84,7 @@ public class InputStorageDataStatus
             {
                 throw new ArgumentException("Value Error");
             }
-            _inputStorageStatus = value;
+            _Status = value;
         }
     }
 
