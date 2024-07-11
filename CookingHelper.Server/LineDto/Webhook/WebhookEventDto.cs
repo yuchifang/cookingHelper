@@ -19,17 +19,17 @@ public class WebhookEventDto
 
 public class Postback
 {
-    public string? data { get; set; }
+    public string? Data { get; set; }
     public Params? Params { get; set; }
 }
 
 public class Params
 {
-    public string? datetime { get; set; }
-    public string? date { get; set; }
-    public string? time { get; set; }
-    public string? newRichMenuAliasId { get; set; }
-    public string? status { get; set; }
+    public string? Datetime { get; set; }
+    public string? Date { get; set; }
+    public string? Time { get; set; }
+    public string? NewRichMenuAliasId { get; set; }
+    public string? Status { get; set; }
 }
 
 // -------- 以下 common property --------
