@@ -99,7 +99,7 @@ public class InputStorageInfo
     public string? Location { get; set; }
     public string? Amount { get; set; }
 
-    public string? PurchaseDate { get; set; }
+    public DateOnly? PurchaseDate { get; set; }
 
-    public string? ExpiryDate { get; set; }
+    public DateOnly? ExpiryDate { get; set; }
 }
