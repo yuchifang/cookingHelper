@@ -14,16 +14,35 @@ namespace CookingHelper.LineDtoService;
 //! 寫完要更新 Database migrations
 public class StorageManagementPurchaseService
 {
-    public StorageManagementPurchaseService() { }
+    private readonly StorageManagementService _storageManagementService;
+
+    public StorageManagementPurchaseService(StorageManagementService StorageManagementService)
+    {
+        _storageManagementService = StorageManagementService;
+    }
 
     public static InputStorageInfo _InputStorageInfoStatic = new InputStorageInfo();
 
     public static dynamic _ReplyMessageListStatic = new List<object>();
 
+    //! 可不可以把程式碼包成 物件
     public async Task InputStorage(WebhookEventDto WebHookEventDto)
     {
         if (WebHookEventDto.Message!.Text == "新增物品至庫存")
             _InputStorageInfoStatic.Status = "init";
+
+        if (WebHookEventDto.Message!.Text == "取消新增")
+        {
+            _InputStorageInfoStatic = new InputStorageInfo();
+            await _storageManagementService.Init(WebHookEventDto);
+            return;
+        }
+
+        if (WebHookEventDto.Message!.Text == "略過")
+        {
+            WebHookEventDto.Message!.Text = null;
+        }
+
         if (_InputStorageInfoStatic.Status == "init")
         {
             LineBotService._WebhookEventStateStatic = "新增物品至庫存";
@@ -33,154 +52,63 @@ public class StorageManagementPurchaseService
         else if (_InputStorageInfoStatic.Status == "place")
         {
             _InputStorageInfoStatic.Place = WebHookEventDto.Message!.Text!;
-            //?
             await InputNameHint();
             _InputStorageInfoStatic.Status = "name";
         }
         else if (_InputStorageInfoStatic.Status == "name")
         {
             _InputStorageInfoStatic.Name = WebHookEventDto.Message!.Text!;
-            //?
             await InputAmountHint();
             _InputStorageInfoStatic.Status = "amount";
         }
         else if (_InputStorageInfoStatic.Status == "amount")
         {
             _InputStorageInfoStatic.Amount = WebHookEventDto.Message!.Text!;
-            //?
             await InputLocationHint();
             _InputStorageInfoStatic.Status = "location";
         }
         else if (_InputStorageInfoStatic.Status == "location")
         {
             _InputStorageInfoStatic.Location = WebHookEventDto.Message!.Text!;
-            //?
             await InputPurchaseDateHint();
             _InputStorageInfoStatic.Status = "purchaseDate";
         }
         else if (_InputStorageInfoStatic.Status == "purchaseDate")
         {
             var dateString = WebHookEventDto.Message!.Text;
-            if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly PurchaseDate))
+            if (dateString == null)
+            {
+                _InputStorageInfoStatic.PurchaseDate = null;
+                await InputExpiryDateHint();
+                _InputStorageInfoStatic.Status = "expiryDate";
+            }
+            else if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly PurchaseDate))
             {
                 _InputStorageInfoStatic.PurchaseDate = PurchaseDate;
-
                 await InputExpiryDateHint();
                 _InputStorageInfoStatic.Status = "expiryDate";
             }
             else
             {
-                _ReplyMessageListStatic = new List<object>
-                {
-                    new TextMessageObject
-                    {
-                        Text = "$ 購買日期格式錯誤, 請重新輸入(格式: YYYYMMDD)",
-                        Emojis = new List<TextMessageEmojiDto>
-                        {
-                            new TextMessageEmojiDto
-                            {
-                                Index = 0,
-                                ProductId = "5ac21ae3040ab15980c9b440",
-                                EmojiId = "067"
-                            }
-                        },
-                        QuickReply = new QuickReplyItemDto
-                        {
-                            Items = new List<QuickReplyButtonDto>
-                            {
-                                new QuickReplyButtonDto
-                                {
-                                    Action = new ActionDto
-                                    {
-                                        Type = ActionTypeEnum.Message,
-                                        Label = "取消新增",
-                                        Text = "取消新增",
-                                    }
-                                },
-                                new QuickReplyButtonDto
-                                {
-                                    Action = new ActionDto
-                                    {
-                                        Type = ActionTypeEnum.Message,
-                                        Label = "略過",
-                                        Text = "略過",
-                                    }
-                                },
-                                new QuickReplyButtonDto
-                                {
-                                    Action = new ActionDto
-                                    {
-                                        Type = ActionTypeEnum.Message,
-                                        Label = "完成輸入",
-                                        Text = "完成輸入",
-                                    }
-                                }
-                            }
-                        }
-                    }
-                };
+                await DateTypeErrorHint("$ 購買日期格式錯誤, 請重新輸入(格式: YYYYMMDD)");
             }
         }
         else if (_InputStorageInfoStatic.Status == "expiryDate")
         {
             var dateString = WebHookEventDto.Message!.Text;
-            if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly ExpiryDate))
+            if (dateString == null)
+            {
+                _InputStorageInfoStatic.ExpiryDate = null;
+                await AddedResultConfirm();
+            }
+            else if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly ExpiryDate))
             {
                 _InputStorageInfoStatic.ExpiryDate = ExpiryDate;
-
                 await AddedResultConfirm();
             }
             else
             {
-                _ReplyMessageListStatic = new List<object>
-                {
-                    new TextMessageObject
-                    {
-                        Text = "$ 過期日期格式錯誤, 請重新輸入(格式: YYYYMMDD)",
-                        Emojis = new List<TextMessageEmojiDto>
-                        {
-                            new TextMessageEmojiDto
-                            {
-                                Index = 0,
-                                ProductId = "5ac21ae3040ab15980c9b440",
-                                EmojiId = "067"
-                            }
-                        },
-                        QuickReply = new QuickReplyItemDto
-                        {
-                            Items = new List<QuickReplyButtonDto>
-                            {
-                                new QuickReplyButtonDto
-                                {
-                                    Action = new ActionDto
-                                    {
-                                        Type = ActionTypeEnum.Message,
-                                        Label = "取消新增",
-                                        Text = "取消新增",
-                                    }
-                                },
-                                new QuickReplyButtonDto
-                                {
-                                    Action = new ActionDto
-                                    {
-                                        Type = ActionTypeEnum.Message,
-                                        Label = "略過",
-                                        Text = "略過",
-                                    }
-                                },
-                                new QuickReplyButtonDto
-                                {
-                                    Action = new ActionDto
-                                    {
-                                        Type = ActionTypeEnum.Message,
-                                        Label = "完成輸入",
-                                        Text = "完成輸入",
-                                    }
-                                }
-                            }
-                        }
-                    }
-                };
+                await DateTypeErrorHint("$ 過期日期格式錯誤, 請重新輸入(格式: YYYYMMDD)");
             }
         }
         else if (_InputStorageInfoStatic.Status == "edit")
@@ -200,6 +128,8 @@ public class StorageManagementPurchaseService
     //! 完成時間
 
     //! 完成新增 簡化程式碼
+
+
 
     //! C# new List<List<string>>(); 變成 array
     //! 重啟 database? 有時出問題會重啟
@@ -272,7 +202,7 @@ public class StorageManagementPurchaseService
     }
 
     public async Task InputPlaceHint()
-    { //! 取消新增還沒做
+    {
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject { Text = "依儲存位置,物品名稱,詳細位置,購買時間,過期時間輸入", },
@@ -301,7 +231,7 @@ public class StorageManagementPurchaseService
     }
 
     public async Task InputNameHint()
-    { //! 取消新增還沒做
+    {
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject { Text = "此欄位為必填, 沒填入將無法紀錄", },
@@ -362,8 +292,8 @@ public class StorageManagementPurchaseService
                                 Action = new ActionDto
                                 {
                                     Type = ActionTypeEnum.Message,
-                                    Label = "完成輸入",
-                                    Text = "完成輸入",
+                                    Label = "新增完成",
+                                    Text = "新增完成",
                                 }
                             }
                         }
@@ -374,7 +304,7 @@ public class StorageManagementPurchaseService
     }
 
     public async Task InputLocationHint()
-    { //! 取消新增還沒做 略過 完成輸入
+    { //! 還沒做 略過 完成輸入
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject
@@ -407,8 +337,8 @@ public class StorageManagementPurchaseService
                                 Action = new ActionDto
                                 {
                                     Type = ActionTypeEnum.Message,
-                                    Label = "完成輸入",
-                                    Text = "完成輸入",
+                                    Label = "新增完成",
+                                    Text = "新增完成",
                                 }
                             }
                         }
@@ -419,7 +349,7 @@ public class StorageManagementPurchaseService
     }
 
     public async Task InputPurchaseDateHint()
-    { //! 取消新增 略過 完成輸入還沒做
+    { //!  略過 完成輸入還沒做
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject
@@ -452,8 +382,8 @@ public class StorageManagementPurchaseService
                                 Action = new ActionDto
                                 {
                                     Type = ActionTypeEnum.Message,
-                                    Label = "完成輸入",
-                                    Text = "完成輸入",
+                                    Label = "新增完成",
+                                    Text = "新增完成",
                                 }
                             }
                         }
@@ -464,7 +394,7 @@ public class StorageManagementPurchaseService
     }
 
     public async Task InputExpiryDateHint()
-    { //! 取消新增 略過 完成輸入還沒做
+    { //!  略過 完成輸入還沒做
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject
@@ -497,8 +427,8 @@ public class StorageManagementPurchaseService
                                 Action = new ActionDto
                                 {
                                     Type = ActionTypeEnum.Message,
-                                    Label = "完成輸入",
-                                    Text = "完成輸入",
+                                    Label = "新增完成",
+                                    Text = "新增完成",
                                 }
                             }
                         }
@@ -508,11 +438,65 @@ public class StorageManagementPurchaseService
         );
     }
 
+    public async Task DateTypeErrorHint(string HintText)
+    {
+        _ReplyMessageListStatic = new List<object>
+        {
+            new TextMessageObject
+            {
+                Text = HintText,
+                Emojis = new List<TextMessageEmojiDto>
+                {
+                    new TextMessageEmojiDto
+                    {
+                        Index = 0,
+                        ProductId = "5ac21ae3040ab15980c9b440",
+                        EmojiId = "067"
+                    }
+                },
+                QuickReply = new QuickReplyItemDto
+                {
+                    Items = new List<QuickReplyButtonDto>
+                    {
+                        new QuickReplyButtonDto
+                        {
+                            Action = new ActionDto
+                            {
+                                Type = ActionTypeEnum.Message,
+                                Label = "取消新增",
+                                Text = "取消新增",
+                            }
+                        },
+                        new QuickReplyButtonDto
+                        {
+                            Action = new ActionDto
+                            {
+                                Type = ActionTypeEnum.Message,
+                                Label = "略過",
+                                Text = "略過",
+                            }
+                        },
+                        new QuickReplyButtonDto
+                        {
+                            Action = new ActionDto
+                            {
+                                Type = ActionTypeEnum.Message,
+                                Label = "新增完成",
+                                Text = "新增完成",
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    }
+
     public async Task AddedResultConfirm()
     {
         //? 要button 字大一點?
         //? button 上面要有線嗎?
-        // ! 新增 修改 取消還沒做
+        //? 樣式還要改
+        // ! 新增 取消還沒做
         var NameField = FieldFlexComponent(
             StorageManagementKeywordGroup.Name,
             _InputStorageInfoStatic.Name
@@ -675,7 +659,7 @@ public class StorageManagementPurchaseService
 
     public FlexComponent? FieldFlexComponent(string? keyString, string? valueString)
     {
-        if (valueString != null || valueString != "")
+        if (valueString != null && valueString != "")
         {
             return new FlexComponent
             {
@@ -743,7 +727,7 @@ public class StorageManagementPurchaseService
                 if (
                     (
                         Array.Find(
-                            StorageManagementKeywordGroup.ExamineList,
+                            StorageManagementKeywordGroup.ExamineArray,
                             Key => Key == ExamineKey
                         )
                     ) != null

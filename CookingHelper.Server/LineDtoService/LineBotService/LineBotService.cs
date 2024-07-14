@@ -29,8 +29,7 @@ public class LineBotService
     private readonly IConfiguration _configuration;
     public static string _WebhookEventStateStatic = "";
 
-    public static dynamic _ReplyMessageRequestStatic =
-        new ReplyMessageRequestDto<BaseMessageObject>();
+    public static dynamic? _ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>();
 
     public LineBotService(
         IHttpClientFactory httpClientFactory,
@@ -65,7 +64,6 @@ public class LineBotService
                     }
                     break;
                 case WebhookEventTypeEnum.Postback:
-
                     if (
                         _WebhookEventStateStatic == "新增物品至庫存"
                         && WebHookEventDto.Postback.Data == "修改"
@@ -108,7 +106,10 @@ public class LineBotService
             _WebhookEventStateStatic = KeywordGroup.InputPurchaseList;
             await _shoppingListLogicService.Init(WebHookEventDto);
         }
-        else if (WebHookEventDto.Message.Text == KeywordGroup.StorageManagement)
+        else if (
+            WebHookEventDto.Message.Text == KeywordGroup.StorageManagement
+            || _WebhookEventStateStatic == KeywordGroup.StorageManagement
+        )
         {
             await _storageManagementService.Init(WebHookEventDto);
         }
@@ -127,8 +128,10 @@ public class LineBotService
                 }
             };
         }
-
-        await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
+        if (_ReplyMessageRequestStatic != null)
+        {
+            await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
+        }
     }
 
     public async Task ReplyMessageHandler<T>(

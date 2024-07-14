@@ -31,5 +31,5 @@ public static class StorageManagementKeywordGroup
     public const string PurchaseDate = "購買日期";
 
     public const string ExpiryDate = "有效日期";
-    public static string[] ExamineList = ["購買日期", "數量", "有效日期", "儲存位置", "物品名稱", "詳細位置"];
+    public static string[] ExamineArray = ["購買日期", "數量", "有效日期", "儲存位置", "物品名稱", "詳細位置"];
 }
