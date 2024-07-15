@@ -1,9 +1,5 @@
-using System.Diagnostics.Eventing.Reader;
-using System.Reflection.Metadata;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
-using CookingHelper.Model;
-using Microsoft.AspNetCore.Components;
 using static CookingHelper.LineDto.BaseMessageObject;
 
 namespace CookingHelper.LineDtoService;
@@ -12,6 +8,18 @@ namespace CookingHelper.LineDtoService;
 
 */
 //! 寫完要更新 Database migrations
+//! interface?? 宣告的
+//! abstract 功用
+//! virtual
+//! override
+//! 一功用整理 筆記
+//! 看看 DbContext 寫法
+//! DI 注入?? 整理一篇
+//! Dictionary??
+//! Func<>
+
+//? interface 可以換成 abstract?
+
 public class StorageManagementPurchaseService
 {
     private readonly StorageManagementService _storageManagementService;
@@ -28,93 +36,37 @@ public class StorageManagementPurchaseService
     //! 可不可以把程式碼包成 物件
     public async Task InputStorage(WebhookEventDto WebHookEventDto)
     {
-        if (WebHookEventDto.Message!.Text == "新增物品至庫存")
+        string? WebHookEventMessage = WebHookEventDto.Message!.Text;
+        var _StatusProcessor = new Dictionary<string, Func<Task>>
+        {
+            { "init", StatusInit },
+            { "place", () => StatusPlace(WebHookEventMessage!) },
+            { "name", () => StatusName(WebHookEventMessage!) },
+            { "amount", () => StatusAmount(WebHookEventMessage!) },
+            { "location", () => StatusLocation(WebHookEventMessage!) },
+            { "purchaseDate", () => StatusPurchaseDate(WebHookEventMessage!) },
+            { "expiryDate", () => StatusExpiryDate(WebHookEventMessage!) },
+            { "edit", () => EditAddedResultConfirm(WebHookEventMessage!) }
+        };
+
+        if (WebHookEventMessage == "新增物品至庫存")
             _InputStorageInfoStatic.Status = "init";
 
-        if (WebHookEventDto.Message!.Text == "取消新增")
+        if (WebHookEventMessage == "取消新增")
         {
             _InputStorageInfoStatic = new InputStorageInfo();
             await _storageManagementService.Init(WebHookEventDto);
             return;
         }
 
-        if (WebHookEventDto.Message!.Text == "略過")
+        if (WebHookEventMessage == "略過")
         {
-            WebHookEventDto.Message!.Text = null;
+            WebHookEventMessage = null;
         }
 
-        if (_InputStorageInfoStatic.Status == "init")
-        {
-            LineBotService._WebhookEventStateStatic = "新增物品至庫存";
-            await InputPlaceHint();
-            _InputStorageInfoStatic.Status = "place";
-        }
-        else if (_InputStorageInfoStatic.Status == "place")
-        {
-            _InputStorageInfoStatic.Place = WebHookEventDto.Message!.Text!;
-            await InputNameHint();
-            _InputStorageInfoStatic.Status = "name";
-        }
-        else if (_InputStorageInfoStatic.Status == "name")
-        {
-            _InputStorageInfoStatic.Name = WebHookEventDto.Message!.Text!;
-            await InputAmountHint();
-            _InputStorageInfoStatic.Status = "amount";
-        }
-        else if (_InputStorageInfoStatic.Status == "amount")
-        {
-            _InputStorageInfoStatic.Amount = WebHookEventDto.Message!.Text!;
-            await InputLocationHint();
-            _InputStorageInfoStatic.Status = "location";
-        }
-        else if (_InputStorageInfoStatic.Status == "location")
-        {
-            _InputStorageInfoStatic.Location = WebHookEventDto.Message!.Text!;
-            await InputPurchaseDateHint();
-            _InputStorageInfoStatic.Status = "purchaseDate";
-        }
-        else if (_InputStorageInfoStatic.Status == "purchaseDate")
-        {
-            var dateString = WebHookEventDto.Message!.Text;
-            if (dateString == null)
-            {
-                _InputStorageInfoStatic.PurchaseDate = null;
-                await InputExpiryDateHint();
-                _InputStorageInfoStatic.Status = "expiryDate";
-            }
-            else if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly PurchaseDate))
-            {
-                _InputStorageInfoStatic.PurchaseDate = PurchaseDate;
-                await InputExpiryDateHint();
-                _InputStorageInfoStatic.Status = "expiryDate";
-            }
-            else
-            {
-                await DateTypeErrorHint("$ 購買日期格式錯誤, 請重新輸入(格式: YYYYMMDD)");
-            }
-        }
-        else if (_InputStorageInfoStatic.Status == "expiryDate")
-        {
-            var dateString = WebHookEventDto.Message!.Text;
-            if (dateString == null)
-            {
-                _InputStorageInfoStatic.ExpiryDate = null;
-                await AddedResultConfirm();
-            }
-            else if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly ExpiryDate))
-            {
-                _InputStorageInfoStatic.ExpiryDate = ExpiryDate;
-                await AddedResultConfirm();
-            }
-            else
-            {
-                await DateTypeErrorHint("$ 過期日期格式錯誤, 請重新輸入(格式: YYYYMMDD)");
-            }
-        }
-        else if (_InputStorageInfoStatic.Status == "edit")
-        {
-            await EditAddedResultConfirm(WebHookEventDto.Message!.Text!);
-        }
+        Console.WriteLine(WebHookEventMessage);
+
+        await _StatusProcessor[_InputStorageInfoStatic.Status]();
 
         LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
         {
@@ -122,14 +74,6 @@ public class StorageManagementPurchaseService
             Messages = _ReplyMessageListStatic
         };
     }
-
-    //! 日期格式??
-    //! 日期格式填錯??
-    //! 完成時間
-
-    //! 完成新增 簡化程式碼
-
-
 
     //! C# new List<List<string>>(); 變成 array
     //! 重啟 database? 有時出問題會重啟
@@ -786,6 +730,81 @@ public class StorageManagementPurchaseService
             _ReplyMessageListStatic.Add(
                 new TextMessageObject { Text = "發生錯誤: 此欄位出現問題 " + GetError }
             );
+        }
+    }
+
+    public async Task StatusInit()
+    {
+        LineBotService._WebhookEventStateStatic = "新增物品至庫存";
+        await InputPlaceHint();
+        _InputStorageInfoStatic.Status = "place";
+    }
+
+    public async Task StatusPlace(string WebHookEventMessage)
+    {
+        _InputStorageInfoStatic.Place = WebHookEventMessage;
+        await InputNameHint();
+        _InputStorageInfoStatic.Status = "name";
+    }
+
+    public async Task StatusName(string WebHookEventMessage)
+    {
+        _InputStorageInfoStatic.Name = WebHookEventMessage!;
+        await InputAmountHint();
+        _InputStorageInfoStatic.Status = "amount";
+    }
+
+    public async Task StatusAmount(string WebHookEventMessage)
+    {
+        _InputStorageInfoStatic.Amount = WebHookEventMessage!;
+        await InputLocationHint();
+        _InputStorageInfoStatic.Status = "location";
+    }
+
+    public async Task StatusLocation(string WebHookEventMessage)
+    {
+        _InputStorageInfoStatic.Location = WebHookEventMessage!;
+        await InputPurchaseDateHint();
+        _InputStorageInfoStatic.Status = "purchaseDate";
+    }
+
+    public async Task StatusPurchaseDate(string WebHookEventMessage)
+    {
+        var dateString = WebHookEventMessage;
+        if (dateString == null)
+        {
+            _InputStorageInfoStatic.PurchaseDate = null;
+            await InputExpiryDateHint();
+            _InputStorageInfoStatic.Status = "expiryDate";
+        }
+        else if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly PurchaseDate))
+        {
+            _InputStorageInfoStatic.PurchaseDate = PurchaseDate;
+            await InputExpiryDateHint();
+            _InputStorageInfoStatic.Status = "expiryDate";
+        }
+        else
+        {
+            await DateTypeErrorHint("$ 購買日期格式錯誤, 請重新輸入(格式: YYYYMMDD)");
+        }
+    }
+
+    public async Task StatusExpiryDate(string WebHookEventMessage)
+    {
+        var dateString = WebHookEventMessage;
+        if (dateString == null)
+        {
+            _InputStorageInfoStatic.ExpiryDate = null;
+            await AddedResultConfirm();
+        }
+        else if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly ExpiryDate))
+        {
+            _InputStorageInfoStatic.ExpiryDate = ExpiryDate;
+            await AddedResultConfirm();
+        }
+        else
+        {
+            await DateTypeErrorHint("$ 過期日期格式錯誤, 請重新輸入(格式: YYYYMMDD)");
         }
     }
 }
