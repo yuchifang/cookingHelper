@@ -33,21 +33,621 @@ public class StorageManagementPurchaseService
 
     public static dynamic _ReplyMessageListStatic = new List<object>();
 
-    //! 可不可以把程式碼包成 物件
+    class StatusInitClass : Status
+    {
+        public override void Init()
+        {
+            LineBotService._WebhookEventStateStatic = "新增物品至庫存";
+            _ReplyMessageListStatic = new List<object>(
+                [
+                    new TextMessageObject { Text = "依儲存位置,物品名稱,詳細位置,購買日期,過期日期輸入", },
+                    new TextMessageObject { Text = "儲存位置及物品名稱一定要填入, 沒填入將無法紀錄", },
+                    new TextMessageObject
+                    {
+                        Text = "請輸入儲存位置:",
+                        QuickReply = new QuickReplyItemDto
+                        {
+                            Items = new List<QuickReplyButtonDto>
+                            {
+                                GetCancelAdditionQuickReplyButton()
+                            }
+                        }
+                    }
+                ]
+            );
+            _InputStorageInfoStatic.Status = "place";
+        }
+    }
+
+    class StatusPlaceClass : Status
+    {
+        private readonly string _WebHookEventMessage;
+
+        public StatusPlaceClass(string WebHookEventMessage)
+        {
+            _WebHookEventMessage = WebHookEventMessage;
+        }
+
+        public override void Init()
+        {
+            _InputStorageInfoStatic.Place = _WebHookEventMessage;
+            _ReplyMessageListStatic = new List<object>(
+                [
+                    new TextMessageObject { Text = "此欄位為必填, 沒填入將無法紀錄", },
+                    new TextMessageObject
+                    {
+                        Text = "請輸入物品名稱:",
+                        QuickReply = new QuickReplyItemDto
+                        {
+                            Items = new List<QuickReplyButtonDto>
+                            {
+                                GetCancelAdditionQuickReplyButton()
+                            }
+                        }
+                    }
+                ]
+            );
+            _InputStorageInfoStatic.Status = "name";
+        }
+    }
+
+    class StatusNameClass : Status
+    {
+        private readonly string _WebHookEventMessage;
+
+        public StatusNameClass(string WebHookEventMessage)
+        {
+            _WebHookEventMessage = WebHookEventMessage;
+        }
+
+        public override void Init()
+        {
+            _InputStorageInfoStatic.Name = _WebHookEventMessage;
+            _ReplyMessageListStatic = new List<object>(
+                [
+                    new TextMessageObject
+                    {
+                        Text = "請輸入數量:",
+                        QuickReply = new QuickReplyItemDto
+                        {
+                            Items = new List<QuickReplyButtonDto>
+                            {
+                                GetCancelAdditionQuickReplyButton(),
+                                GetSkipQuickReplyButton(),
+                                GetAdditionCompleteQuickReplyButton()
+                            }
+                        }
+                    }
+                ]
+            );
+            _InputStorageInfoStatic.Status = "amount";
+        }
+    }
+
+    class StatusAmountClass : Status
+    {
+        private readonly string? _WebHookEventMessage;
+
+        public StatusAmountClass(string? WebHookEventMessage)
+        {
+            _WebHookEventMessage = WebHookEventMessage;
+        }
+
+        public override void Init()
+        {
+            _InputStorageInfoStatic.Amount = _WebHookEventMessage;
+            _ReplyMessageListStatic = new List<object>(
+                [
+                    new TextMessageObject
+                    {
+                        Text = "請輸入詳細位置:",
+                        QuickReply = new QuickReplyItemDto
+                        {
+                            Items = new List<QuickReplyButtonDto>
+                            {
+                                GetCancelAdditionQuickReplyButton(),
+                                GetSkipQuickReplyButton(),
+                                GetAdditionCompleteQuickReplyButton()
+                            }
+                        }
+                    }
+                ]
+            );
+            _InputStorageInfoStatic.Status = "location";
+        }
+    }
+
+    class StatusLocationClass : Status
+    {
+        private readonly string? _WebHookEventMessage;
+
+        public StatusLocationClass(string? WebHookEventMessage)
+        {
+            _WebHookEventMessage = WebHookEventMessage;
+        }
+
+        public override void Init()
+        {
+            _InputStorageInfoStatic.Location = _WebHookEventMessage;
+            _ReplyMessageListStatic = new List<object>(
+                [
+                    new TextMessageObject
+                    {
+                        Text = "請輸入購買日期(格式: YYYYMMDD):",
+                        QuickReply = new QuickReplyItemDto
+                        {
+                            Items = new List<QuickReplyButtonDto>
+                            {
+                                GetCancelAdditionQuickReplyButton(),
+                                GetSkipQuickReplyButton(),
+                                GetAdditionCompleteQuickReplyButton()
+                            }
+                        }
+                    }
+                ]
+            );
+            _InputStorageInfoStatic.Status = "purchaseDate";
+        }
+    }
+
+    class StatusPurchaseDateClass : Status
+    {
+        private readonly string? _WebHookEventMessage;
+
+        public StatusPurchaseDateClass(string? WebHookEventMessage)
+        {
+            _WebHookEventMessage = WebHookEventMessage;
+        }
+
+        public override void Init()
+        {
+            var dateString = _WebHookEventMessage;
+
+            if (dateString == null)
+            {
+                _InputStorageInfoStatic.PurchaseDate = null;
+                _ReplyMessageListStatic = new List<object>(
+                    [
+                        new TextMessageObject
+                        {
+                            Text = "請輸入過期日期(格式: YYYYMMDD):",
+                            QuickReply = new QuickReplyItemDto
+                            {
+                                Items = new List<QuickReplyButtonDto>
+                                {
+                                    GetCancelAdditionQuickReplyButton(),
+                                    GetSkipQuickReplyButton(),
+                                    GetAdditionCompleteQuickReplyButton()
+                                }
+                            }
+                        }
+                    ]
+                );
+                _InputStorageInfoStatic.Status = "expiryDate";
+            }
+            else if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly PurchaseDate))
+            {
+                _InputStorageInfoStatic.PurchaseDate = PurchaseDate;
+                _ReplyMessageListStatic = new List<object>(
+                    [
+                        new TextMessageObject
+                        {
+                            Text = "請輸入過期日期(格式: YYYYMMDD):",
+                            QuickReply = new QuickReplyItemDto
+                            {
+                                Items = new List<QuickReplyButtonDto>
+                                {
+                                    GetCancelAdditionQuickReplyButton(),
+                                    GetSkipQuickReplyButton(),
+                                    GetAdditionCompleteQuickReplyButton()
+                                }
+                            }
+                        }
+                    ]
+                );
+                _InputStorageInfoStatic.Status = "expiryDate";
+            }
+            else
+            {
+                _ReplyMessageListStatic = DateTypeErrorHint("$ 購買日期格式錯誤, 請重新輸入(格式: YYYYMMDD)");
+            }
+        }
+    }
+
+    class StatusExpiryDateClass : Status
+    {
+        private readonly string? _WebHookEventMessage;
+
+        public StatusExpiryDateClass(string? WebHookEventMessage)
+        {
+            _WebHookEventMessage = WebHookEventMessage;
+        }
+
+        public override void Init()
+        {
+            var dateString = _WebHookEventMessage;
+            if (dateString == null)
+            {
+                _InputStorageInfoStatic.ExpiryDate = null;
+                var NameField = FieldFlexComponent(
+                    StorageManagementKeywordGroup.Name,
+                    _InputStorageInfoStatic.Name
+                );
+                var AmountField = FieldFlexComponent(
+                    StorageManagementKeywordGroup.Amount,
+                    _InputStorageInfoStatic.Amount
+                );
+                var LocationField = FieldFlexComponent(
+                    StorageManagementKeywordGroup.Location,
+                    _InputStorageInfoStatic.Location
+                );
+                FlexComponent? PurchaseDateField;
+                if (_InputStorageInfoStatic.PurchaseDate != null)
+                {
+                    string customFormat = "yyyy-MM-dd";
+                    string PurchaseDateString = _InputStorageInfoStatic
+                        .PurchaseDate.Value.ToDateTime(new TimeOnly(0, 0))
+                        .ToString(customFormat);
+
+                    PurchaseDateField = FieldFlexComponent(
+                        StorageManagementKeywordGroup.PurchaseDate,
+                        PurchaseDateString
+                    );
+                }
+                else
+                {
+                    PurchaseDateField = null;
+                }
+                FlexComponent? ExpiryDateField;
+                if (_InputStorageInfoStatic.ExpiryDate != null)
+                {
+                    string customFormat = "yyyy-MM-dd";
+                    string ExpiryDateString = _InputStorageInfoStatic
+                        .ExpiryDate.Value.ToDateTime(new TimeOnly(0, 0))
+                        .ToString(customFormat);
+
+                    ExpiryDateField = FieldFlexComponent(
+                        StorageManagementKeywordGroup.ExpiryDate,
+                        ExpiryDateString
+                    );
+                }
+                else
+                {
+                    ExpiryDateField = null;
+                }
+
+                List<FlexComponent> FieldTable = new List<FlexComponent> { };
+
+                if (NameField != null)
+                    FieldTable.Add(NameField);
+                if (AmountField != null)
+                    FieldTable.Add(AmountField);
+                if (LocationField != null)
+                    FieldTable.Add(LocationField);
+                if (PurchaseDateField != null)
+                    FieldTable.Add(PurchaseDateField);
+                if (ExpiryDateField != null)
+                    FieldTable.Add(ExpiryDateField);
+                _ReplyMessageListStatic = new List<object>
+                {
+                    GetBubbleFlexMessageObject(_InputStorageInfoStatic.Place, FieldTable)
+                };
+            }
+            else if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly ExpiryDate))
+            {
+                _InputStorageInfoStatic.ExpiryDate = ExpiryDate;
+                var NameField = FieldFlexComponent(
+                    StorageManagementKeywordGroup.Name,
+                    _InputStorageInfoStatic.Name
+                );
+                var AmountField = FieldFlexComponent(
+                    StorageManagementKeywordGroup.Amount,
+                    _InputStorageInfoStatic.Amount
+                );
+                var LocationField = FieldFlexComponent(
+                    StorageManagementKeywordGroup.Location,
+                    _InputStorageInfoStatic.Location
+                );
+                FlexComponent? PurchaseDateField;
+                if (_InputStorageInfoStatic.PurchaseDate != null)
+                {
+                    string customFormat = "yyyy-MM-dd";
+                    string PurchaseDateString = _InputStorageInfoStatic
+                        .PurchaseDate.Value.ToDateTime(new TimeOnly(0, 0))
+                        .ToString(customFormat);
+
+                    PurchaseDateField = FieldFlexComponent(
+                        StorageManagementKeywordGroup.PurchaseDate,
+                        PurchaseDateString
+                    );
+                }
+                else
+                {
+                    PurchaseDateField = null;
+                }
+                FlexComponent? ExpiryDateField;
+                if (_InputStorageInfoStatic.ExpiryDate != null)
+                {
+                    string customFormat = "yyyy-MM-dd";
+                    string ExpiryDateString = _InputStorageInfoStatic
+                        .ExpiryDate.Value.ToDateTime(new TimeOnly(0, 0))
+                        .ToString(customFormat);
+
+                    ExpiryDateField = FieldFlexComponent(
+                        StorageManagementKeywordGroup.ExpiryDate,
+                        ExpiryDateString
+                    );
+                }
+                else
+                {
+                    ExpiryDateField = null;
+                }
+
+                List<FlexComponent> FieldTable = new List<FlexComponent> { };
+
+                if (NameField != null)
+                    FieldTable.Add(NameField);
+                if (AmountField != null)
+                    FieldTable.Add(AmountField);
+                if (LocationField != null)
+                    FieldTable.Add(LocationField);
+                if (PurchaseDateField != null)
+                    FieldTable.Add(PurchaseDateField);
+                if (ExpiryDateField != null)
+                    FieldTable.Add(ExpiryDateField);
+                _ReplyMessageListStatic = new List<object>
+                {
+                    GetBubbleFlexMessageObject(_InputStorageInfoStatic.Place, FieldTable)
+                };
+            }
+            else
+            {
+                _ReplyMessageListStatic = DateTypeErrorHint("$ 過期日期格式錯誤, 請重新輸入(格式: YYYYMMDD)");
+            }
+        }
+    }
+
+    class EditAddedResultConfirmClass : Status
+    {
+        private readonly string? _WebHookEventMessage;
+
+        public EditAddedResultConfirmClass(string? WebHookEventMessage)
+        {
+            _WebHookEventMessage = WebHookEventMessage;
+        }
+
+        public override void Init()
+        {
+            var FieldArray = _WebHookEventMessage!.Split(
+                "/",
+                StringSplitOptions.RemoveEmptyEntries
+            );
+            var StorageTableList = new List<List<string>>();
+            var GetError = "";
+            try
+            {
+                foreach (var item in FieldArray)
+                {
+                    char[] Colon = { ':', '：' };
+                    var ValuePairArray = item.Split(Colon, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .ToArray();
+
+                    var ExamineKey = ValuePairArray[0];
+
+                    if (ExamineKey == "購買日期" || ExamineKey == "有效日期")
+                    {
+                        if (
+                            DateOnly.TryParseExact(ValuePairArray[1], "yyyyMMdd", out DateOnly Date)
+                        )
+                        {
+                            StorageTableList.Add(ValuePairArray.ToList());
+                        }
+                        else
+                        {
+                            GetError = $"{ValuePairArray[0]}, {ValuePairArray[1]}";
+                            break;
+                        }
+                    }
+
+                    if (
+                        (
+                            Array.Find(
+                                StorageManagementKeywordGroup.ExamineArray,
+                                Key => Key == ExamineKey
+                            )
+                        ) != null
+                    )
+                    {
+                        StorageTableList.Add(ValuePairArray.ToList());
+                    }
+                    else
+                    {
+                        GetError = $"{ValuePairArray[0]}, {ValuePairArray[1]}";
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+
+                Console.WriteLine(ex.StackTrace);
+            }
+
+            if (GetError == "")
+            {
+                foreach (var KeyValueList in StorageTableList)
+                {
+                    Console.WriteLine(KeyValueList[0]);
+                    switch (KeyValueList[0])
+                    {
+                        case StorageManagementKeywordGroup.Place:
+                            _InputStorageInfoStatic.Place = KeyValueList[1];
+                            break;
+                        case StorageManagementKeywordGroup.Name:
+                            _InputStorageInfoStatic.Name = KeyValueList[1];
+                            break;
+                        case StorageManagementKeywordGroup.Location:
+                            _InputStorageInfoStatic.Location = KeyValueList[1];
+                            break;
+                        case StorageManagementKeywordGroup.Amount:
+                            _InputStorageInfoStatic.Amount = KeyValueList[1];
+                            break;
+                        case StorageManagementKeywordGroup.PurchaseDate:
+                            DateOnly PurchaseDate = DateOnly.ParseExact(
+                                KeyValueList[1],
+                                "yyyyMMdd"
+                            );
+                            _InputStorageInfoStatic.PurchaseDate = PurchaseDate;
+                            break;
+                        case StorageManagementKeywordGroup.ExpiryDate:
+                            DateOnly ExpiryDate = DateOnly.ParseExact(KeyValueList[1], "yyyyMMdd");
+                            _InputStorageInfoStatic.ExpiryDate = ExpiryDate;
+                            break;
+                    }
+                }
+                _InputStorageInfoStatic.ExpiryDate = null;
+                var NameField = FieldFlexComponent(
+                    StorageManagementKeywordGroup.Name,
+                    _InputStorageInfoStatic.Name
+                );
+                var AmountField = FieldFlexComponent(
+                    StorageManagementKeywordGroup.Amount,
+                    _InputStorageInfoStatic.Amount
+                );
+                var LocationField = FieldFlexComponent(
+                    StorageManagementKeywordGroup.Location,
+                    _InputStorageInfoStatic.Location
+                );
+                FlexComponent? PurchaseDateField;
+                if (_InputStorageInfoStatic.PurchaseDate != null)
+                {
+                    string customFormat = "yyyy-MM-dd";
+                    string PurchaseDateString = _InputStorageInfoStatic
+                        .PurchaseDate.Value.ToDateTime(new TimeOnly(0, 0))
+                        .ToString(customFormat);
+
+                    PurchaseDateField = FieldFlexComponent(
+                        StorageManagementKeywordGroup.PurchaseDate,
+                        PurchaseDateString
+                    );
+                }
+                else
+                {
+                    PurchaseDateField = null;
+                }
+                FlexComponent? ExpiryDateField;
+                if (_InputStorageInfoStatic.ExpiryDate != null)
+                {
+                    string customFormat = "yyyy-MM-dd";
+                    string ExpiryDateString = _InputStorageInfoStatic
+                        .ExpiryDate.Value.ToDateTime(new TimeOnly(0, 0))
+                        .ToString(customFormat);
+
+                    ExpiryDateField = FieldFlexComponent(
+                        StorageManagementKeywordGroup.ExpiryDate,
+                        ExpiryDateString
+                    );
+                }
+                else
+                {
+                    ExpiryDateField = null;
+                }
+
+                List<FlexComponent> FieldTable = new List<FlexComponent> { };
+
+                if (NameField != null)
+                    FieldTable.Add(NameField);
+                if (AmountField != null)
+                    FieldTable.Add(AmountField);
+                if (LocationField != null)
+                    FieldTable.Add(LocationField);
+                if (PurchaseDateField != null)
+                    FieldTable.Add(PurchaseDateField);
+                if (ExpiryDateField != null)
+                    FieldTable.Add(ExpiryDateField);
+                _ReplyMessageListStatic = new List<object>
+                {
+                    GetBubbleFlexMessageObject(_InputStorageInfoStatic.Place, FieldTable)
+                };
+            }
+            else
+            {
+                var NameField = FieldFlexComponent(
+                    StorageManagementKeywordGroup.Name,
+                    _InputStorageInfoStatic.Name
+                );
+                var AmountField = FieldFlexComponent(
+                    StorageManagementKeywordGroup.Amount,
+                    _InputStorageInfoStatic.Amount
+                );
+                var LocationField = FieldFlexComponent(
+                    StorageManagementKeywordGroup.Location,
+                    _InputStorageInfoStatic.Location
+                );
+                FlexComponent? PurchaseDateField;
+                if (_InputStorageInfoStatic.PurchaseDate != null)
+                {
+                    string customFormat = "yyyy-MM-dd";
+                    string PurchaseDateString = _InputStorageInfoStatic
+                        .PurchaseDate.Value.ToDateTime(new TimeOnly(0, 0))
+                        .ToString(customFormat);
+
+                    PurchaseDateField = FieldFlexComponent(
+                        StorageManagementKeywordGroup.PurchaseDate,
+                        PurchaseDateString
+                    );
+                }
+                else
+                {
+                    PurchaseDateField = null;
+                }
+                FlexComponent? ExpiryDateField;
+                if (_InputStorageInfoStatic.ExpiryDate != null)
+                {
+                    string customFormat = "yyyy-MM-dd";
+                    string ExpiryDateString = _InputStorageInfoStatic
+                        .ExpiryDate.Value.ToDateTime(new TimeOnly(0, 0))
+                        .ToString(customFormat);
+
+                    ExpiryDateField = FieldFlexComponent(
+                        StorageManagementKeywordGroup.ExpiryDate,
+                        ExpiryDateString
+                    );
+                }
+                else
+                {
+                    ExpiryDateField = null;
+                }
+
+                List<FlexComponent> FieldTable = new List<FlexComponent> { };
+
+                if (NameField != null)
+                    FieldTable.Add(NameField);
+                if (AmountField != null)
+                    FieldTable.Add(AmountField);
+                if (LocationField != null)
+                    FieldTable.Add(LocationField);
+                if (PurchaseDateField != null)
+                    FieldTable.Add(PurchaseDateField);
+                if (ExpiryDateField != null)
+                    FieldTable.Add(ExpiryDateField);
+                _ReplyMessageListStatic = new List<object>
+                {
+                    GetBubbleFlexMessageObject(_InputStorageInfoStatic.Place, FieldTable)
+                };
+                _ReplyMessageListStatic.Add(
+                    new TextMessageObject { Text = "發生錯誤: 此欄位出現問題 " + GetError }
+                );
+            }
+        }
+    }
+
+    //! FlexComponent
     public async Task InputStorage(WebhookEventDto WebHookEventDto)
     {
         string? WebHookEventMessage = WebHookEventDto.Message!.Text;
-        var _StatusProcessor = new Dictionary<string, Func<Task>>
-        {
-            { "init", StatusInit },
-            { "place", () => StatusPlace(WebHookEventMessage!) },
-            { "name", () => StatusName(WebHookEventMessage!) },
-            { "amount", () => StatusAmount(WebHookEventMessage!) },
-            { "location", () => StatusLocation(WebHookEventMessage!) },
-            { "purchaseDate", () => StatusPurchaseDate(WebHookEventMessage!) },
-            { "expiryDate", () => StatusExpiryDate(WebHookEventMessage!) },
-            { "edit", () => EditAddedResultConfirm(WebHookEventMessage!) }
-        };
 
         if (WebHookEventMessage == "新增物品至庫存")
             _InputStorageInfoStatic.Status = "init";
@@ -64,9 +664,34 @@ public class StorageManagementPurchaseService
             WebHookEventMessage = null;
         }
 
+        var _StatusProcessorClass = new Dictionary<string, Status>
+        {
+            { "init", new StatusInitClass() },
+            { "place", new StatusPlaceClass(WebHookEventMessage!) },
+            { "name", new StatusNameClass(WebHookEventMessage!) },
+            { "amount", new StatusAmountClass(WebHookEventMessage) },
+            { "location", new StatusLocationClass(WebHookEventMessage) },
+            { "purchaseDate", new StatusPurchaseDateClass(WebHookEventMessage) },
+            { "expiryDate", new StatusExpiryDateClass(WebHookEventMessage) },
+            { "edit", new EditAddedResultConfirmClass(WebHookEventMessage) }
+        };
+        // var _StatusProcessor = new Dictionary<string, Func<Task>>
+        // {
+        //     { "init", StatusInit },
+        //     { "place", () => StatusPlace(WebHookEventMessage!) },
+        //     { "name", () => StatusName(WebHookEventMessage!) },
+        //     { "amount", () => StatusAmount(WebHookEventMessage!) },
+        //     { "location", () => StatusLocation(WebHookEventMessage!) },
+        //     { "purchaseDate", () => StatusPurchaseDate(WebHookEventMessage!) },
+        //     { "expiryDate", () => StatusExpiryDate(WebHookEventMessage!) },
+        //     { "edit", () => EditAddedResultConfirm(WebHookEventMessage!) }
+        // };
+
+
+
         Console.WriteLine(WebHookEventMessage);
 
-        await _StatusProcessor[_InputStorageInfoStatic.Status]();
+        _StatusProcessorClass[_InputStorageInfoStatic.Status].Init();
 
         LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
         {
@@ -75,6 +700,14 @@ public class StorageManagementPurchaseService
         };
     }
 
+    //? 新增完成 還沒做或改為 填寫完成
+    //! function Type
+    /*
+        var _StatusProcessor = new Dictionary<string, Func<Task>>
+        {
+        { "init", StatusInit },
+        { "place", () => StatusPlace(WebHookEventMessage!) },
+    */
     //! C# new List<List<string>>(); 變成 array
     //! 重啟 database? 有時出問題會重啟
     //! var data = new List() data[0]??
@@ -143,668 +776,5 @@ public class StorageManagementPurchaseService
             ReplyToken = WebHookEventDto.ReplyToken!,
             Messages = _ReplyMessageListStatic
         };
-    }
-
-    public async Task InputPlaceHint()
-    {
-        _ReplyMessageListStatic = new List<object>(
-            [
-                new TextMessageObject { Text = "依儲存位置,物品名稱,詳細位置,購買時間,過期時間輸入", },
-                new TextMessageObject { Text = "儲存位置及物品名稱一定要填入, 沒填入將無法紀錄", },
-                new TextMessageObject
-                {
-                    Text = "請輸入儲存位置:",
-                    QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "取消新增",
-                                    Text = "取消新增",
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        );
-    }
-
-    public async Task InputNameHint()
-    {
-        _ReplyMessageListStatic = new List<object>(
-            [
-                new TextMessageObject { Text = "此欄位為必填, 沒填入將無法紀錄", },
-                new TextMessageObject
-                {
-                    Text = "請輸入物品名稱:",
-                    QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "取消新增",
-                                    Text = "取消新增",
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        );
-    }
-
-    public async Task InputAmountHint()
-    {
-        _ReplyMessageListStatic = new List<object>(
-            [
-                new TextMessageObject
-                {
-                    Text = "請輸入數量:",
-                    QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "取消新增",
-                                    Text = "取消新增",
-                                }
-                            },
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "略過",
-                                    Text = "略過",
-                                }
-                            },
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "新增完成",
-                                    Text = "新增完成",
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        );
-    }
-
-    public async Task InputLocationHint()
-    { //! 還沒做 略過 完成輸入
-        _ReplyMessageListStatic = new List<object>(
-            [
-                new TextMessageObject
-                {
-                    Text = "請輸入詳細位置:",
-                    QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "取消新增",
-                                    Text = "取消新增",
-                                }
-                            },
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "略過",
-                                    Text = "略過",
-                                }
-                            },
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "新增完成",
-                                    Text = "新增完成",
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        );
-    }
-
-    public async Task InputPurchaseDateHint()
-    { //!  略過 完成輸入還沒做
-        _ReplyMessageListStatic = new List<object>(
-            [
-                new TextMessageObject
-                {
-                    Text = "請輸入購買時間(格式: YYYYMMDD):",
-                    QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "取消新增",
-                                    Text = "取消新增",
-                                }
-                            },
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "略過",
-                                    Text = "略過",
-                                }
-                            },
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "新增完成",
-                                    Text = "新增完成",
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        );
-    }
-
-    public async Task InputExpiryDateHint()
-    { //!  略過 完成輸入還沒做
-        _ReplyMessageListStatic = new List<object>(
-            [
-                new TextMessageObject
-                {
-                    Text = "請輸入過期時間(格式: YYYYMMDD):",
-                    QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "取消新增",
-                                    Text = "取消新增",
-                                }
-                            },
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "略過",
-                                    Text = "略過",
-                                }
-                            },
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "新增完成",
-                                    Text = "新增完成",
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        );
-    }
-
-    public async Task DateTypeErrorHint(string HintText)
-    {
-        _ReplyMessageListStatic = new List<object>
-        {
-            new TextMessageObject
-            {
-                Text = HintText,
-                Emojis = new List<TextMessageEmojiDto>
-                {
-                    new TextMessageEmojiDto
-                    {
-                        Index = 0,
-                        ProductId = "5ac21ae3040ab15980c9b440",
-                        EmojiId = "067"
-                    }
-                },
-                QuickReply = new QuickReplyItemDto
-                {
-                    Items = new List<QuickReplyButtonDto>
-                    {
-                        new QuickReplyButtonDto
-                        {
-                            Action = new ActionDto
-                            {
-                                Type = ActionTypeEnum.Message,
-                                Label = "取消新增",
-                                Text = "取消新增",
-                            }
-                        },
-                        new QuickReplyButtonDto
-                        {
-                            Action = new ActionDto
-                            {
-                                Type = ActionTypeEnum.Message,
-                                Label = "略過",
-                                Text = "略過",
-                            }
-                        },
-                        new QuickReplyButtonDto
-                        {
-                            Action = new ActionDto
-                            {
-                                Type = ActionTypeEnum.Message,
-                                Label = "新增完成",
-                                Text = "新增完成",
-                            }
-                        }
-                    }
-                }
-            }
-        };
-    }
-
-    public async Task AddedResultConfirm()
-    {
-        //? 要button 字大一點?
-        //? button 上面要有線嗎?
-        //? 樣式還要改
-        // ! 新增 取消還沒做
-        var NameField = FieldFlexComponent(
-            StorageManagementKeywordGroup.Name,
-            _InputStorageInfoStatic.Name
-        );
-        var AmountField = FieldFlexComponent(
-            StorageManagementKeywordGroup.Amount,
-            _InputStorageInfoStatic.Amount
-        );
-        var LocationField = FieldFlexComponent(
-            StorageManagementKeywordGroup.Location,
-            _InputStorageInfoStatic.Location
-        );
-        FlexComponent? PurchaseDateField;
-        if (_InputStorageInfoStatic.PurchaseDate != null)
-        {
-            string customFormat = "yyyy-MM-dd";
-            string PurchaseDateString = _InputStorageInfoStatic
-                .PurchaseDate.Value.ToDateTime(new TimeOnly(0, 0))
-                .ToString(customFormat);
-
-            PurchaseDateField = FieldFlexComponent(
-                StorageManagementKeywordGroup.PurchaseDate,
-                PurchaseDateString
-            );
-        }
-        else
-        {
-            PurchaseDateField = null;
-        }
-        FlexComponent? ExpiryDateField;
-        if (_InputStorageInfoStatic.ExpiryDate != null)
-        {
-            string customFormat = "yyyy-MM-dd";
-            string ExpiryDateString = _InputStorageInfoStatic
-                .ExpiryDate.Value.ToDateTime(new TimeOnly(0, 0))
-                .ToString(customFormat);
-
-            ExpiryDateField = FieldFlexComponent(
-                StorageManagementKeywordGroup.ExpiryDate,
-                ExpiryDateString
-            );
-        }
-        else
-        {
-            ExpiryDateField = null;
-        }
-
-        List<FlexComponent> FieldTable = new List<FlexComponent> { };
-
-        if (NameField != null)
-            FieldTable.Add(NameField);
-        if (AmountField != null)
-            FieldTable.Add(AmountField);
-        if (LocationField != null)
-            FieldTable.Add(LocationField);
-        if (PurchaseDateField != null)
-            FieldTable.Add(PurchaseDateField);
-        if (ExpiryDateField != null)
-            FieldTable.Add(ExpiryDateField);
-
-        _ReplyMessageListStatic = new List<object>
-        {
-            new FlexMessageObject<FlexBubbleContainer>
-            {
-                AltText = "Display Temporary Input",
-                Contents = new FlexBubbleContainer
-                {
-                    Type = FlexContainerTypeEnum.Bubble,
-                    Styles = new FlexBubbleContainerStyle
-                    {
-                        Footer = new FlexBlockStyle { Separator = false }
-                    },
-                    Body = new FlexComponent
-                    {
-                        Type = FlexComponentTypeEnum.Box,
-                        Layout = FlexComponentLayoutTypeEnum.Vertical,
-
-                        Contents = new List<FlexComponent>
-                        {
-                            new FlexComponent
-                            {
-                                Type = FlexComponentTypeEnum.Box,
-                                Layout = FlexComponentLayoutTypeEnum.Horizontal,
-                                AlignItems = "center",
-                                Contents = new List<FlexComponent>
-                                {
-                                    new FlexComponent
-                                    {
-                                        Type = FlexComponentTypeEnum.Text,
-                                        Text = StorageManagementKeywordGroup.Place,
-                                        Size = "xs",
-                                    },
-                                    new FlexComponent
-                                    {
-                                        Type = FlexComponentTypeEnum.Text,
-                                        Text = _InputStorageInfoStatic.Place,
-                                        Size = "xl",
-                                        Align = "end"
-                                    }
-                                }
-                            },
-                            new FlexComponent
-                            {
-                                Type = FlexComponentTypeEnum.Box,
-                                Layout = FlexComponentLayoutTypeEnum.Vertical,
-                                Margin = "xxl",
-                                Spacing = "sm",
-                                Contents = FieldTable
-                            },
-                            new FlexComponent
-                            {
-                                Type = FlexComponentTypeEnum.Separator,
-                                Margin = "xxl"
-                            },
-                            new FlexComponent
-                            {
-                                Type = FlexComponentTypeEnum.Box,
-                                Layout = FlexComponentLayoutTypeEnum.Vertical,
-                                Contents = new List<FlexComponent>
-                                {
-                                    new FlexComponent
-                                    {
-                                        Type = FlexComponentTypeEnum.Button,
-                                        Action = new ActionDto
-                                        {
-                                            Type = ActionTypeEnum.Message,
-                                            Label = "新增",
-                                            Text = "新增"
-                                        }
-                                    },
-                                    new FlexComponent
-                                    {
-                                        Type = FlexComponentTypeEnum.Button,
-                                        Action = new ActionDto
-                                        {
-                                            Type = ActionTypeEnum.Postback,
-                                            Label = "修改",
-                                            Data = "修改",
-                                            InputOption = PostbackInputOptionEnum.OpenKeyboard
-                                        }
-                                    },
-                                    new FlexComponent
-                                    {
-                                        Type = FlexComponentTypeEnum.Button,
-                                        Action = new ActionDto
-                                        {
-                                            Type = ActionTypeEnum.Message,
-                                            Label = "取消新增",
-                                            Text = "取消新增",
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        };
-    }
-
-    public FlexComponent? FieldFlexComponent(string? keyString, string? valueString)
-    {
-        if (valueString != null && valueString != "")
-        {
-            return new FlexComponent
-            {
-                Type = FlexComponentTypeEnum.Box,
-                Layout = FlexComponentLayoutTypeEnum.Horizontal,
-                Contents = new List<FlexComponent>
-                {
-                    new FlexComponent
-                    {
-                        Type = FlexComponentTypeEnum.Text,
-                        Text = keyString,
-                        Size = "sm",
-                        Color = "#555555",
-                    },
-                    new FlexComponent
-                    {
-                        Type = FlexComponentTypeEnum.Text,
-                        Text = valueString,
-                        Size = "sm",
-                        Color = "#111111",
-                        Align = "end"
-                    }
-                }
-            };
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    public async Task EditAddedResultConfirm(string InputEditString)
-    {
-        // 將使用者輸入字串, 解析成可以輸入 Field 的格式, 並檢查有沒有輸入錯誤, 沒有錯誤則 重新顯示給使用者確認 AddedResultConfirm
-        // 有錯誤則 告知使用者哪邊出錯, 並回到AddedResultConfirm
-
-        var FieldArray = InputEditString!.Split("/", StringSplitOptions.RemoveEmptyEntries);
-        var StorageTableList = new List<List<string>>();
-        var GetError = "";
-
-        try
-        {
-            foreach (var item in FieldArray)
-            {
-                char[] Colon = { ':', '：' };
-                var ValuePairArray = item.Split(Colon, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim())
-                    .ToArray();
-
-                var ExamineKey = ValuePairArray[0];
-
-                if (ExamineKey == "購買日期" || ExamineKey == "有效日期")
-                {
-                    if (DateOnly.TryParseExact(ValuePairArray[1], "yyyyMMdd", out DateOnly Date))
-                    {
-                        StorageTableList.Add(ValuePairArray.ToList());
-                    }
-                    else
-                    {
-                        GetError = $"{ValuePairArray[0]}, {ValuePairArray[1]}";
-                        break;
-                    }
-                }
-
-                if (
-                    (
-                        Array.Find(
-                            StorageManagementKeywordGroup.ExamineArray,
-                            Key => Key == ExamineKey
-                        )
-                    ) != null
-                )
-                {
-                    StorageTableList.Add(ValuePairArray.ToList());
-                }
-                else
-                {
-                    GetError = $"{ValuePairArray[0]}, {ValuePairArray[1]}";
-                    break;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-
-            Console.WriteLine(ex.StackTrace);
-        }
-
-        if (GetError == "")
-        {
-            foreach (var KeyValueList in StorageTableList)
-            {
-                Console.WriteLine(KeyValueList[0]);
-                switch (KeyValueList[0])
-                {
-                    case StorageManagementKeywordGroup.Place:
-                        _InputStorageInfoStatic.Place = KeyValueList[1];
-                        break;
-                    case StorageManagementKeywordGroup.Name:
-                        _InputStorageInfoStatic.Name = KeyValueList[1];
-                        break;
-                    case StorageManagementKeywordGroup.Location:
-                        _InputStorageInfoStatic.Location = KeyValueList[1];
-                        break;
-                    case StorageManagementKeywordGroup.Amount:
-                        _InputStorageInfoStatic.Amount = KeyValueList[1];
-                        break;
-                    case StorageManagementKeywordGroup.PurchaseDate:
-                        DateOnly PurchaseDate = DateOnly.ParseExact(KeyValueList[1], "yyyyMMdd");
-                        _InputStorageInfoStatic.PurchaseDate = PurchaseDate;
-                        break;
-                    case StorageManagementKeywordGroup.ExpiryDate:
-                        DateOnly ExpiryDate = DateOnly.ParseExact(KeyValueList[1], "yyyyMMdd");
-                        _InputStorageInfoStatic.ExpiryDate = ExpiryDate;
-                        break;
-                }
-            }
-            await AddedResultConfirm();
-        }
-        else
-        {
-            await AddedResultConfirm();
-            _ReplyMessageListStatic.Add(
-                new TextMessageObject { Text = "發生錯誤: 此欄位出現問題 " + GetError }
-            );
-        }
-    }
-
-    public async Task StatusInit()
-    {
-        LineBotService._WebhookEventStateStatic = "新增物品至庫存";
-        await InputPlaceHint();
-        _InputStorageInfoStatic.Status = "place";
-    }
-
-    public async Task StatusPlace(string WebHookEventMessage)
-    {
-        _InputStorageInfoStatic.Place = WebHookEventMessage;
-        await InputNameHint();
-        _InputStorageInfoStatic.Status = "name";
-    }
-
-    public async Task StatusName(string WebHookEventMessage)
-    {
-        _InputStorageInfoStatic.Name = WebHookEventMessage!;
-        await InputAmountHint();
-        _InputStorageInfoStatic.Status = "amount";
-    }
-
-    public async Task StatusAmount(string WebHookEventMessage)
-    {
-        _InputStorageInfoStatic.Amount = WebHookEventMessage!;
-        await InputLocationHint();
-        _InputStorageInfoStatic.Status = "location";
-    }
-
-    public async Task StatusLocation(string WebHookEventMessage)
-    {
-        _InputStorageInfoStatic.Location = WebHookEventMessage!;
-        await InputPurchaseDateHint();
-        _InputStorageInfoStatic.Status = "purchaseDate";
-    }
-
-    public async Task StatusPurchaseDate(string WebHookEventMessage)
-    {
-        var dateString = WebHookEventMessage;
-        if (dateString == null)
-        {
-            _InputStorageInfoStatic.PurchaseDate = null;
-            await InputExpiryDateHint();
-            _InputStorageInfoStatic.Status = "expiryDate";
-        }
-        else if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly PurchaseDate))
-        {
-            _InputStorageInfoStatic.PurchaseDate = PurchaseDate;
-            await InputExpiryDateHint();
-            _InputStorageInfoStatic.Status = "expiryDate";
-        }
-        else
-        {
-            await DateTypeErrorHint("$ 購買日期格式錯誤, 請重新輸入(格式: YYYYMMDD)");
-        }
-    }
-
-    public async Task StatusExpiryDate(string WebHookEventMessage)
-    {
-        var dateString = WebHookEventMessage;
-        if (dateString == null)
-        {
-            _InputStorageInfoStatic.ExpiryDate = null;
-            await AddedResultConfirm();
-        }
-        else if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly ExpiryDate))
-        {
-            _InputStorageInfoStatic.ExpiryDate = ExpiryDate;
-            await AddedResultConfirm();
-        }
-        else
-        {
-            await DateTypeErrorHint("$ 過期日期格式錯誤, 請重新輸入(格式: YYYYMMDD)");
-        }
     }
 }
