@@ -4,21 +4,7 @@ using static CookingHelper.LineDto.BaseMessageObject;
 
 namespace CookingHelper.LineDtoService;
 
-/*
-
-*/
 //! 寫完要更新 Database migrations
-//! interface?? 宣告的
-//! abstract 功用
-//! virtual
-//! override
-//! 一功用整理 筆記
-//! 看看 DbContext 寫法
-//! DI 注入?? 整理一篇
-//! Dictionary??
-//! Func<>
-
-//? interface 可以換成 abstract?
 
 public class StorageManagementPurchaseService
 {
@@ -31,9 +17,9 @@ public class StorageManagementPurchaseService
 
     public static InputStorageInfo _InputStorageInfoStatic = new InputStorageInfo();
 
-    public static dynamic _ReplyMessageListStatic = new List<object>();
+    private static dynamic _ReplyMessageListStatic = new List<object>();
 
-    class StatusInitClass : Status
+    class InitStatus : StorageInputStatus
     {
         public override void Init()
         {
@@ -59,11 +45,11 @@ public class StorageManagementPurchaseService
         }
     }
 
-    class StatusPlaceClass : Status
+    class PlaceStatus : StorageInputStatus
     {
         private readonly string _WebHookEventMessage;
 
-        public StatusPlaceClass(string WebHookEventMessage)
+        public PlaceStatus(string WebHookEventMessage)
         {
             _WebHookEventMessage = WebHookEventMessage;
         }
@@ -91,11 +77,11 @@ public class StorageManagementPurchaseService
         }
     }
 
-    class StatusNameClass : Status
+    class NameStatus : StorageInputStatus
     {
         private readonly string _WebHookEventMessage;
 
-        public StatusNameClass(string WebHookEventMessage)
+        public NameStatus(string WebHookEventMessage)
         {
             _WebHookEventMessage = WebHookEventMessage;
         }
@@ -124,11 +110,11 @@ public class StorageManagementPurchaseService
         }
     }
 
-    class StatusAmountClass : Status
+    class AmountStatus : StorageInputStatus
     {
         private readonly string? _WebHookEventMessage;
 
-        public StatusAmountClass(string? WebHookEventMessage)
+        public AmountStatus(string? WebHookEventMessage)
         {
             _WebHookEventMessage = WebHookEventMessage;
         }
@@ -157,11 +143,11 @@ public class StorageManagementPurchaseService
         }
     }
 
-    class StatusLocationClass : Status
+    class LocationStatus : StorageInputStatus
     {
         private readonly string? _WebHookEventMessage;
 
-        public StatusLocationClass(string? WebHookEventMessage)
+        public LocationStatus(string? WebHookEventMessage)
         {
             _WebHookEventMessage = WebHookEventMessage;
         }
@@ -190,11 +176,11 @@ public class StorageManagementPurchaseService
         }
     }
 
-    class StatusPurchaseDateClass : Status
+    class PurchaseDateStatus : StorageInputStatus
     {
         private readonly string? _WebHookEventMessage;
 
-        public StatusPurchaseDateClass(string? WebHookEventMessage)
+        public PurchaseDateStatus(string? WebHookEventMessage)
         {
             _WebHookEventMessage = WebHookEventMessage;
         }
@@ -254,11 +240,11 @@ public class StorageManagementPurchaseService
         }
     }
 
-    class StatusExpiryDateClass : Status
+    class ExpiryDateStatus : StorageInputStatus
     {
         private readonly string? _WebHookEventMessage;
 
-        public StatusExpiryDateClass(string? WebHookEventMessage)
+        public ExpiryDateStatus(string? WebHookEventMessage)
         {
             _WebHookEventMessage = WebHookEventMessage;
         }
@@ -269,136 +255,12 @@ public class StorageManagementPurchaseService
             if (dateString == null)
             {
                 _InputStorageInfoStatic.ExpiryDate = null;
-                var NameField = FieldFlexComponent(
-                    StorageManagementKeywordGroup.Name,
-                    _InputStorageInfoStatic.Name
-                );
-                var AmountField = FieldFlexComponent(
-                    StorageManagementKeywordGroup.Amount,
-                    _InputStorageInfoStatic.Amount
-                );
-                var LocationField = FieldFlexComponent(
-                    StorageManagementKeywordGroup.Location,
-                    _InputStorageInfoStatic.Location
-                );
-                FlexComponent? PurchaseDateField;
-                if (_InputStorageInfoStatic.PurchaseDate != null)
-                {
-                    string customFormat = "yyyy-MM-dd";
-                    string PurchaseDateString = _InputStorageInfoStatic
-                        .PurchaseDate.Value.ToDateTime(new TimeOnly(0, 0))
-                        .ToString(customFormat);
-
-                    PurchaseDateField = FieldFlexComponent(
-                        StorageManagementKeywordGroup.PurchaseDate,
-                        PurchaseDateString
-                    );
-                }
-                else
-                {
-                    PurchaseDateField = null;
-                }
-                FlexComponent? ExpiryDateField;
-                if (_InputStorageInfoStatic.ExpiryDate != null)
-                {
-                    string customFormat = "yyyy-MM-dd";
-                    string ExpiryDateString = _InputStorageInfoStatic
-                        .ExpiryDate.Value.ToDateTime(new TimeOnly(0, 0))
-                        .ToString(customFormat);
-
-                    ExpiryDateField = FieldFlexComponent(
-                        StorageManagementKeywordGroup.ExpiryDate,
-                        ExpiryDateString
-                    );
-                }
-                else
-                {
-                    ExpiryDateField = null;
-                }
-
-                List<FlexComponent> FieldTable = new List<FlexComponent> { };
-
-                if (NameField != null)
-                    FieldTable.Add(NameField);
-                if (AmountField != null)
-                    FieldTable.Add(AmountField);
-                if (LocationField != null)
-                    FieldTable.Add(LocationField);
-                if (PurchaseDateField != null)
-                    FieldTable.Add(PurchaseDateField);
-                if (ExpiryDateField != null)
-                    FieldTable.Add(ExpiryDateField);
-                _ReplyMessageListStatic = new List<object>
-                {
-                    GetBubbleFlexMessageObject(_InputStorageInfoStatic.Place, FieldTable)
-                };
+                _ReplyMessageListStatic = GetAdditionConfirmHint(_InputStorageInfoStatic);
             }
             else if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly ExpiryDate))
             {
                 _InputStorageInfoStatic.ExpiryDate = ExpiryDate;
-                var NameField = FieldFlexComponent(
-                    StorageManagementKeywordGroup.Name,
-                    _InputStorageInfoStatic.Name
-                );
-                var AmountField = FieldFlexComponent(
-                    StorageManagementKeywordGroup.Amount,
-                    _InputStorageInfoStatic.Amount
-                );
-                var LocationField = FieldFlexComponent(
-                    StorageManagementKeywordGroup.Location,
-                    _InputStorageInfoStatic.Location
-                );
-                FlexComponent? PurchaseDateField;
-                if (_InputStorageInfoStatic.PurchaseDate != null)
-                {
-                    string customFormat = "yyyy-MM-dd";
-                    string PurchaseDateString = _InputStorageInfoStatic
-                        .PurchaseDate.Value.ToDateTime(new TimeOnly(0, 0))
-                        .ToString(customFormat);
-
-                    PurchaseDateField = FieldFlexComponent(
-                        StorageManagementKeywordGroup.PurchaseDate,
-                        PurchaseDateString
-                    );
-                }
-                else
-                {
-                    PurchaseDateField = null;
-                }
-                FlexComponent? ExpiryDateField;
-                if (_InputStorageInfoStatic.ExpiryDate != null)
-                {
-                    string customFormat = "yyyy-MM-dd";
-                    string ExpiryDateString = _InputStorageInfoStatic
-                        .ExpiryDate.Value.ToDateTime(new TimeOnly(0, 0))
-                        .ToString(customFormat);
-
-                    ExpiryDateField = FieldFlexComponent(
-                        StorageManagementKeywordGroup.ExpiryDate,
-                        ExpiryDateString
-                    );
-                }
-                else
-                {
-                    ExpiryDateField = null;
-                }
-
-                List<FlexComponent> FieldTable = new List<FlexComponent> { };
-
-                if (NameField != null)
-                    FieldTable.Add(NameField);
-                if (AmountField != null)
-                    FieldTable.Add(AmountField);
-                if (LocationField != null)
-                    FieldTable.Add(LocationField);
-                if (PurchaseDateField != null)
-                    FieldTable.Add(PurchaseDateField);
-                if (ExpiryDateField != null)
-                    FieldTable.Add(ExpiryDateField);
-                _ReplyMessageListStatic = new List<object>
-                {
-                    GetBubbleFlexMessageObject(_InputStorageInfoStatic.Place, FieldTable)
-                };
+                _ReplyMessageListStatic = GetAdditionConfirmHint(_InputStorageInfoStatic);
             }
             else
             {
@@ -407,18 +269,21 @@ public class StorageManagementPurchaseService
         }
     }
 
-    class EditAddedResultConfirmClass : Status
+    class EditStatus : StorageInputStatus
     {
         private readonly string? _WebHookEventMessage;
 
-        public EditAddedResultConfirmClass(string? WebHookEventMessage)
+        public EditStatus(string? WebHookEventMessage)
         {
             _WebHookEventMessage = WebHookEventMessage;
         }
 
         public override void Init()
         {
-            var FieldArray = _WebHookEventMessage!.Split(
+            // 將使用者輸入的字串, 依"/"切分成每個欄位, 依每個欄位":" 切分成Key, Value, 並驗證日期格式,
+            // 格式正確則顯示更新的資訊, 格式錯誤 顯示原本資訊
+
+            var UserTextFieldArray = _WebHookEventMessage!.Split(
                 "/",
                 StringSplitOptions.RemoveEmptyEntries
             );
@@ -426,7 +291,7 @@ public class StorageManagementPurchaseService
             var GetError = "";
             try
             {
-                foreach (var item in FieldArray)
+                foreach (var item in UserTextFieldArray)
                 {
                     char[] Colon = { ':', '：' };
                     var ValuePairArray = item.Split(Colon, StringSplitOptions.RemoveEmptyEntries)
@@ -459,6 +324,11 @@ public class StorageManagementPurchaseService
                         ) != null
                     )
                     {
+                        if (ExamineKey == "購買日期" || ExamineKey == "有效日期")
+                        {
+                            continue;
+                        }
+
                         StorageTableList.Add(ValuePairArray.ToList());
                     }
                     else
@@ -471,7 +341,6 @@ public class StorageManagementPurchaseService
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-
                 Console.WriteLine(ex.StackTrace);
             }
 
@@ -479,7 +348,6 @@ public class StorageManagementPurchaseService
             {
                 foreach (var KeyValueList in StorageTableList)
                 {
-                    Console.WriteLine(KeyValueList[0]);
                     switch (KeyValueList[0])
                     {
                         case StorageManagementKeywordGroup.Place:
@@ -507,136 +375,13 @@ public class StorageManagementPurchaseService
                             break;
                     }
                 }
-                _InputStorageInfoStatic.ExpiryDate = null;
-                var NameField = FieldFlexComponent(
-                    StorageManagementKeywordGroup.Name,
-                    _InputStorageInfoStatic.Name
-                );
-                var AmountField = FieldFlexComponent(
-                    StorageManagementKeywordGroup.Amount,
-                    _InputStorageInfoStatic.Amount
-                );
-                var LocationField = FieldFlexComponent(
-                    StorageManagementKeywordGroup.Location,
-                    _InputStorageInfoStatic.Location
-                );
-                FlexComponent? PurchaseDateField;
-                if (_InputStorageInfoStatic.PurchaseDate != null)
-                {
-                    string customFormat = "yyyy-MM-dd";
-                    string PurchaseDateString = _InputStorageInfoStatic
-                        .PurchaseDate.Value.ToDateTime(new TimeOnly(0, 0))
-                        .ToString(customFormat);
 
-                    PurchaseDateField = FieldFlexComponent(
-                        StorageManagementKeywordGroup.PurchaseDate,
-                        PurchaseDateString
-                    );
-                }
-                else
-                {
-                    PurchaseDateField = null;
-                }
-                FlexComponent? ExpiryDateField;
-                if (_InputStorageInfoStatic.ExpiryDate != null)
-                {
-                    string customFormat = "yyyy-MM-dd";
-                    string ExpiryDateString = _InputStorageInfoStatic
-                        .ExpiryDate.Value.ToDateTime(new TimeOnly(0, 0))
-                        .ToString(customFormat);
-
-                    ExpiryDateField = FieldFlexComponent(
-                        StorageManagementKeywordGroup.ExpiryDate,
-                        ExpiryDateString
-                    );
-                }
-                else
-                {
-                    ExpiryDateField = null;
-                }
-
-                List<FlexComponent> FieldTable = new List<FlexComponent> { };
-
-                if (NameField != null)
-                    FieldTable.Add(NameField);
-                if (AmountField != null)
-                    FieldTable.Add(AmountField);
-                if (LocationField != null)
-                    FieldTable.Add(LocationField);
-                if (PurchaseDateField != null)
-                    FieldTable.Add(PurchaseDateField);
-                if (ExpiryDateField != null)
-                    FieldTable.Add(ExpiryDateField);
-                _ReplyMessageListStatic = new List<object>
-                {
-                    GetBubbleFlexMessageObject(_InputStorageInfoStatic.Place, FieldTable)
-                };
+                _ReplyMessageListStatic = GetAdditionConfirmHint(_InputStorageInfoStatic);
             }
             else
             {
-                var NameField = FieldFlexComponent(
-                    StorageManagementKeywordGroup.Name,
-                    _InputStorageInfoStatic.Name
-                );
-                var AmountField = FieldFlexComponent(
-                    StorageManagementKeywordGroup.Amount,
-                    _InputStorageInfoStatic.Amount
-                );
-                var LocationField = FieldFlexComponent(
-                    StorageManagementKeywordGroup.Location,
-                    _InputStorageInfoStatic.Location
-                );
-                FlexComponent? PurchaseDateField;
-                if (_InputStorageInfoStatic.PurchaseDate != null)
-                {
-                    string customFormat = "yyyy-MM-dd";
-                    string PurchaseDateString = _InputStorageInfoStatic
-                        .PurchaseDate.Value.ToDateTime(new TimeOnly(0, 0))
-                        .ToString(customFormat);
+                _ReplyMessageListStatic = GetAdditionConfirmHint(_InputStorageInfoStatic);
 
-                    PurchaseDateField = FieldFlexComponent(
-                        StorageManagementKeywordGroup.PurchaseDate,
-                        PurchaseDateString
-                    );
-                }
-                else
-                {
-                    PurchaseDateField = null;
-                }
-                FlexComponent? ExpiryDateField;
-                if (_InputStorageInfoStatic.ExpiryDate != null)
-                {
-                    string customFormat = "yyyy-MM-dd";
-                    string ExpiryDateString = _InputStorageInfoStatic
-                        .ExpiryDate.Value.ToDateTime(new TimeOnly(0, 0))
-                        .ToString(customFormat);
-
-                    ExpiryDateField = FieldFlexComponent(
-                        StorageManagementKeywordGroup.ExpiryDate,
-                        ExpiryDateString
-                    );
-                }
-                else
-                {
-                    ExpiryDateField = null;
-                }
-
-                List<FlexComponent> FieldTable = new List<FlexComponent> { };
-
-                if (NameField != null)
-                    FieldTable.Add(NameField);
-                if (AmountField != null)
-                    FieldTable.Add(AmountField);
-                if (LocationField != null)
-                    FieldTable.Add(LocationField);
-                if (PurchaseDateField != null)
-                    FieldTable.Add(PurchaseDateField);
-                if (ExpiryDateField != null)
-                    FieldTable.Add(ExpiryDateField);
-                _ReplyMessageListStatic = new List<object>
-                {
-                    GetBubbleFlexMessageObject(_InputStorageInfoStatic.Place, FieldTable)
-                };
                 _ReplyMessageListStatic.Add(
                     new TextMessageObject { Text = "發生錯誤: 此欄位出現問題 " + GetError }
                 );
@@ -644,7 +389,6 @@ public class StorageManagementPurchaseService
         }
     }
 
-    //! FlexComponent
     public async Task InputStorage(WebhookEventDto WebHookEventDto)
     {
         string? WebHookEventMessage = WebHookEventDto.Message!.Text;
@@ -664,30 +408,25 @@ public class StorageManagementPurchaseService
             WebHookEventMessage = null;
         }
 
-        var _StatusProcessorClass = new Dictionary<string, Status>
+        if (WebHookEventMessage == "新增完成")
         {
-            { "init", new StatusInitClass() },
-            { "place", new StatusPlaceClass(WebHookEventMessage!) },
-            { "name", new StatusNameClass(WebHookEventMessage!) },
-            { "amount", new StatusAmountClass(WebHookEventMessage) },
-            { "location", new StatusLocationClass(WebHookEventMessage) },
-            { "purchaseDate", new StatusPurchaseDateClass(WebHookEventMessage) },
-            { "expiryDate", new StatusExpiryDateClass(WebHookEventMessage) },
-            { "edit", new EditAddedResultConfirmClass(WebHookEventMessage) }
+            // 使用 StorageManagementDatabase 呼叫 新增的方法
+            // 將 _InputStorageInfoStatic 清空
+            // return 回傳新增成功
+            // 回到 StorageManagement
+        }
+
+        var _StatusProcessorClass = new Dictionary<string, StorageInputStatus>
+        {
+            { "init", new InitStatus() },
+            { "place", new PlaceStatus(WebHookEventMessage!) },
+            { "name", new NameStatus(WebHookEventMessage!) },
+            { "amount", new AmountStatus(WebHookEventMessage) },
+            { "location", new LocationStatus(WebHookEventMessage) },
+            { "purchaseDate", new PurchaseDateStatus(WebHookEventMessage) },
+            { "expiryDate", new ExpiryDateStatus(WebHookEventMessage) },
+            { "edit", new EditStatus(WebHookEventMessage) }
         };
-        // var _StatusProcessor = new Dictionary<string, Func<Task>>
-        // {
-        //     { "init", StatusInit },
-        //     { "place", () => StatusPlace(WebHookEventMessage!) },
-        //     { "name", () => StatusName(WebHookEventMessage!) },
-        //     { "amount", () => StatusAmount(WebHookEventMessage!) },
-        //     { "location", () => StatusLocation(WebHookEventMessage!) },
-        //     { "purchaseDate", () => StatusPurchaseDate(WebHookEventMessage!) },
-        //     { "expiryDate", () => StatusExpiryDate(WebHookEventMessage!) },
-        //     { "edit", () => EditAddedResultConfirm(WebHookEventMessage!) }
-        // };
-
-
 
         Console.WriteLine(WebHookEventMessage);
 
@@ -701,31 +440,7 @@ public class StorageManagementPurchaseService
     }
 
     //? 新增完成 還沒做或改為 填寫完成
-    //! function Type
-    /*
-        var _StatusProcessor = new Dictionary<string, Func<Task>>
-        {
-        { "init", StatusInit },
-        { "place", () => StatusPlace(WebHookEventMessage!) },
-    */
-    //! C# new List<List<string>>(); 變成 array
-    //! 重啟 database? 有時出問題會重啟
-    //! var data = new List() data[0]??
-    //! 要怎麼寫錯誤處理
-    // 看 edit
-    //! 把get set 看一下
-    //! 看一下目前邏輯
-    //! Select??
-    //! search "out" 自己建立有 out 的function
-    //! AddedResultConfirm 在做修改
-    //! List<(string,int)>
     //? 完成修改 狀態要改嗎 _InputStorageInfoStatic.Status??
-    /*
-        ? 當使用者打修改時會觸發 修改的按鈕
-        ? 用 postBack 處理// 如果 webhookStatus = StorageManagement && postback Data == 修改
-        ? 觸發
-    */
-
     // 回覆一個 flexMessage 顯你使用者剛剛輸入的資料
     //      顯示按鈕完成, 修改, 取消
     //          修改 用字串表示 物品名稱:XXX/
@@ -734,13 +449,11 @@ public class StorageManagementPurchaseService
     // 清空 _InputStorageDataStatusStatic, _inputStorageStatus="init"
     // 回復成功訊息
     // 回到 有資料的那頁
-    //! 紀錄 在List 泛型中加入兩個類別 的方式 chatGPT
+
     public async Task EditAddedResultConfirmPostBack(WebhookEventDto WebHookEventDto)
     {
         //? 這樣寫好嗎
         //! FlexMessage Final Result 要改一下要加欄位名稱
-        // 要不要進 edit // 可以進, 進 edit 後做修改
-        //? 如果點取消修改 要不要用 postback
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject { Text = "若要修改欄位, 例如修改物品名稱, 請輸入: 物品名稱:XXX並送出. XXX為要修改的資料", },

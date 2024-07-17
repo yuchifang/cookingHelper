@@ -4,11 +4,78 @@ using static CookingHelper.LineDto.BaseMessageObject;
 
 namespace CookingHelper.LineDtoService;
 
-abstract class Status
+abstract class StorageInputStatus
 {
     public abstract void Init();
 
-    public virtual List<object> DateTypeErrorHint(string HintText)
+    public List<object> GetAdditionConfirmHint(InputStorageInfo InputStorageInfoStatic)
+    {
+        var NameField = FieldFlexComponent(
+            StorageManagementKeywordGroup.Name,
+            InputStorageInfoStatic.Name
+        );
+        var AmountField = FieldFlexComponent(
+            StorageManagementKeywordGroup.Amount,
+            InputStorageInfoStatic.Amount
+        );
+        var LocationField = FieldFlexComponent(
+            StorageManagementKeywordGroup.Location,
+            InputStorageInfoStatic.Location
+        );
+        FlexComponent? PurchaseDateField;
+        if (InputStorageInfoStatic.PurchaseDate != null)
+        {
+            string customFormat = "yyyy-MM-dd";
+            string PurchaseDateString = InputStorageInfoStatic
+                .PurchaseDate.Value.ToDateTime(new TimeOnly(0, 0))
+                .ToString(customFormat);
+
+            PurchaseDateField = FieldFlexComponent(
+                StorageManagementKeywordGroup.PurchaseDate,
+                PurchaseDateString
+            );
+        }
+        else
+        {
+            PurchaseDateField = null;
+        }
+        FlexComponent? ExpiryDateField;
+        if (InputStorageInfoStatic.ExpiryDate != null)
+        {
+            string customFormat = "yyyy-MM-dd";
+            string ExpiryDateString = InputStorageInfoStatic
+                .ExpiryDate.Value.ToDateTime(new TimeOnly(0, 0))
+                .ToString(customFormat);
+
+            ExpiryDateField = FieldFlexComponent(
+                StorageManagementKeywordGroup.ExpiryDate,
+                ExpiryDateString
+            );
+        }
+        else
+        {
+            ExpiryDateField = null;
+        }
+
+        List<FlexComponent> FieldTable = new List<FlexComponent> { };
+
+        if (NameField != null)
+            FieldTable.Add(NameField);
+        if (AmountField != null)
+            FieldTable.Add(AmountField);
+        if (LocationField != null)
+            FieldTable.Add(LocationField);
+        if (PurchaseDateField != null)
+            FieldTable.Add(PurchaseDateField);
+        if (ExpiryDateField != null)
+            FieldTable.Add(ExpiryDateField);
+        return new List<object>
+        {
+            GetBubbleFlexMessageObject(InputStorageInfoStatic.Place, FieldTable)
+        };
+    }
+
+    public List<object> DateTypeErrorHint(string HintText)
     {
         return new List<object>
         {
@@ -28,40 +95,16 @@ abstract class Status
                 {
                     Items = new List<QuickReplyButtonDto>
                     {
-                        new QuickReplyButtonDto
-                        {
-                            Action = new ActionDto
-                            {
-                                Type = ActionTypeEnum.Message,
-                                Label = "取消新增",
-                                Text = "取消新增",
-                            }
-                        },
-                        new QuickReplyButtonDto
-                        {
-                            Action = new ActionDto
-                            {
-                                Type = ActionTypeEnum.Message,
-                                Label = "略過",
-                                Text = "略過",
-                            }
-                        },
-                        new QuickReplyButtonDto
-                        {
-                            Action = new ActionDto
-                            {
-                                Type = ActionTypeEnum.Message,
-                                Label = "新增完成",
-                                Text = "新增完成",
-                            }
-                        }
+                        GetCancelAdditionQuickReplyButton(),
+                        GetSkipQuickReplyButton(),
+                        GetAdditionCompleteQuickReplyButton()
                     }
                 }
             }
         };
     }
 
-    public virtual FlexMessageObject<FlexBubbleContainer> GetBubbleFlexMessageObject(
+    public FlexMessageObject<FlexBubbleContainer> GetBubbleFlexMessageObject(
         string placeValueText,
         List<FlexComponent> FieldTable
     )
@@ -163,7 +206,7 @@ abstract class Status
         };
     }
 
-    protected virtual QuickReplyButtonDto GetCancelAdditionQuickReplyButton()
+    protected QuickReplyButtonDto GetCancelAdditionQuickReplyButton()
     {
         return new QuickReplyButtonDto
         {
@@ -176,7 +219,7 @@ abstract class Status
         };
     }
 
-    protected virtual QuickReplyButtonDto GetSkipQuickReplyButton()
+    protected QuickReplyButtonDto GetSkipQuickReplyButton()
     {
         return new QuickReplyButtonDto
         {
@@ -189,7 +232,7 @@ abstract class Status
         };
     }
 
-    protected virtual QuickReplyButtonDto GetAdditionCompleteQuickReplyButton()
+    protected QuickReplyButtonDto GetAdditionCompleteQuickReplyButton()
     {
         return new QuickReplyButtonDto
         {
@@ -202,7 +245,7 @@ abstract class Status
         };
     }
 
-    protected virtual FlexComponent? FieldFlexComponent(string? keyString, string? valueString)
+    protected FlexComponent? FieldFlexComponent(string? keyString, string? valueString)
     {
         if (valueString != null && valueString != "")
         {
