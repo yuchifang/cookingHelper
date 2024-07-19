@@ -45,7 +45,7 @@ public class ShoppingListLogicService
         );
 
         if (
-            LineBotService._WebhookEventStateStatic == KeywordGroup.InputPurchaseList
+            LineBotService._WebhookEventStatusStatic == KeywordGroup.InputPurchaseList
             && WebHookEventDto.Message!.Text != KeywordGroup.PurchaseList
         )
         {
@@ -78,7 +78,7 @@ public class ShoppingListLogicService
                     }
                 }
             );
-            LineBotService._WebhookEventStateStatic = "";
+            LineBotService._WebhookEventStatusStatic = "";
             LineBotService._ReplyMessageRequestStatic =
                 new ReplyMessageRequestDto<TextMessageObject>
                 {
@@ -91,7 +91,7 @@ public class ShoppingListLogicService
         if (UserData.ShoppingListText == "")
         {
             ReplyMessageList.Add(new TextMessageObject { Text = "採買清單中沒有物品, 開啟輸入框, 輸入想要紀錄的物品", });
-            LineBotService._WebhookEventStateStatic = KeywordGroup.InputPurchaseList;
+            LineBotService._WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
         }
         else
         {
@@ -121,7 +121,7 @@ public class ShoppingListLogicService
                     }
                 ]
             );
-            LineBotService._WebhookEventStateStatic = KeywordGroup.InputPurchaseList;
+            LineBotService._WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
         }
 
         LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>

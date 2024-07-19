@@ -1,3 +1,4 @@
+using CookingHelper.DatabaseService;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
 using static CookingHelper.LineDto.BaseMessageObject;
@@ -9,10 +10,15 @@ namespace CookingHelper.LineDtoService;
 public class StorageManagementPurchaseService
 {
     private readonly StorageManagementService _storageManagementService;
+    private readonly StorageManagementDatabaseService _storageManagementDatabaseService;
 
-    public StorageManagementPurchaseService(StorageManagementService StorageManagementService)
+    public StorageManagementPurchaseService(
+        StorageManagementService StorageManagementService,
+        StorageManagementDatabaseService StorageManagementDatabaseService
+    )
     {
         _storageManagementService = StorageManagementService;
+        _storageManagementDatabaseService = StorageManagementDatabaseService;
     }
 
     public static InputStorageInfo _InputStorageInfoStatic = new InputStorageInfo();
@@ -23,7 +29,7 @@ public class StorageManagementPurchaseService
     {
         public override void Init()
         {
-            LineBotService._WebhookEventStateStatic = "新增物品至庫存";
+            LineBotService._WebhookEventStatusStatic = "新增物品至庫存";
             _ReplyMessageListStatic = new List<object>(
                 [
                     new TextMessageObject { Text = "依儲存位置,物品名稱,詳細位置,購買日期,過期日期輸入", },
@@ -410,10 +416,21 @@ public class StorageManagementPurchaseService
 
         if (WebHookEventMessage == "新增完成")
         {
-            // 使用 StorageManagementDatabase 呼叫 新增的方法
-            // 將 _InputStorageInfoStatic 清空
-            // return 回傳新增成功
-            // 回到 StorageManagement
+            await _storageManagementDatabaseService.AddStoreItemData(
+                WebHookEventDto.Source!.UserId!,
+                _InputStorageInfoStatic
+            );
+            _InputStorageInfoStatic = new InputStorageInfo();
+            LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagement;
+            StorageManagementService._ReplyMessageListStatic.Add(
+                new TextMessageObject { Text = "新增完成" }
+            );
+            await _storageManagementService.Init(WebHookEventDto);
+            return;
+            //? 使用 StorageManagementDatabase 呼叫 新增的方法
+            //? 將 _InputStorageInfoStatic 清空
+            //? return 回傳新增成功
+            //? 回到 StorageManagement
         }
 
         var _StatusProcessorClass = new Dictionary<string, StorageInputStatus>

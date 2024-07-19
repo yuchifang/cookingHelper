@@ -27,7 +27,7 @@ public class LineBotService
     private readonly string replyMessageUri = "https://api.line.me/v2/bot/message/reply";
 
     private readonly IConfiguration _configuration;
-    public static string _WebhookEventStateStatic = "";
+    public static string _WebhookEventStatusStatic = "";
 
     public static dynamic? _ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>();
 
@@ -65,7 +65,7 @@ public class LineBotService
                     break;
                 case WebhookEventTypeEnum.Postback:
                     if (
-                        _WebhookEventStateStatic == "新增物品至庫存"
+                        _WebhookEventStatusStatic == "新增物品至庫存"
                         && WebHookEventDto.Postback.Data == "修改"
                     )
                     {
@@ -77,7 +77,7 @@ public class LineBotService
                     await _userListDatabaseService.AddEmptyShoppingListText(
                         WebHookEventDto.Source!.UserId!
                     );
-                    await _storageManagementDatabaseService.AddEmptyStorageData(
+                    await _storageManagementDatabaseService.AddEmptyStorageListData(
                         WebHookEventDto.Source!.UserId!
                     );
                     break;
@@ -96,24 +96,27 @@ public class LineBotService
     {
         if (WebHookEventDto.Message.Text == "返回目錄")
         {
-            _WebhookEventStateStatic = "";
+            _WebhookEventStatusStatic = "";
         }
         if (
             WebHookEventDto.Message.Text == KeywordGroup.PurchaseList
-            || _WebhookEventStateStatic == KeywordGroup.InputPurchaseList
+            || _WebhookEventStatusStatic == KeywordGroup.InputPurchaseList
         )
         {
-            _WebhookEventStateStatic = KeywordGroup.InputPurchaseList;
+            _WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
             await _shoppingListLogicService.Init(WebHookEventDto);
         }
         else if (
             WebHookEventDto.Message.Text == KeywordGroup.StorageManagement
-            || _WebhookEventStateStatic == KeywordGroup.StorageManagement
+            || _WebhookEventStatusStatic == KeywordGroup.StorageManagement
         )
         {
             await _storageManagementService.Init(WebHookEventDto);
         }
-        else if (WebHookEventDto.Message.Text == "新增物品至庫存" || _WebhookEventStateStatic == "新增物品至庫存")
+        else if (
+            WebHookEventDto.Message.Text == "新增物品至庫存"
+            || _WebhookEventStatusStatic == "新增物品至庫存"
+        )
         {
             await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
         }
