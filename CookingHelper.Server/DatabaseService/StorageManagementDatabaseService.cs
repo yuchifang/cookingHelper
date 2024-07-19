@@ -1,8 +1,53 @@
 using CookingHelper.Data;
+using CookingHelper.LineDtoService;
 using CookingHelper.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace CookingHelper.DatabaseService;
+
+// var UserDataAdded = await GetStoreListData(userId);
+
+// if (UserDataAdded != null)
+// {
+//     var StoreItemData = await _userListDbContext
+//         .StoreItem.AsNoTracking()
+//         .FirstOrDefaultAsync(StoreItem =>
+//             StoreItem.StoreListId == UserDataAdded.StoreListId
+//         );
+//     if (StoreItemData == null)
+//     {
+//         await _userListDbContext.StoreItem.AddAsync(
+//             new StoreItem
+//             {
+//                 Name = "",
+//                 Place = "",
+//                 StoreListId = UserDataAdded.StoreListId
+//             }
+//         );
+//         await _userListDbContext.SaveChangesAsync();
+//         var StoreItemDataAdded =
+//             await _userListDbContext.StoreItem.FirstOrDefaultAsync(StoreItem =>
+//                 StoreItem.StoreListId == UserDataAdded.StoreListId
+//             );
+//         if (StoreItemDataAdded != null)
+//         {
+//             UserDataAdded.StoreItemList.Add(StoreItemDataAdded);
+//             await _userListDbContext.SaveChangesAsync();
+//         }
+//         else
+//         {
+//             throw new Exception("StoreItemDataAdded not Found");
+//         }
+//     }
+//     else
+//     {
+//         throw new Exception("StoreItemGroupData not Found");
+//     }
+// }
+// else
+// {
+//     throw new Exception("UserDataAdded not Found");
+// }
 
 public class StorageManagementDatabaseService
 {
@@ -14,7 +59,7 @@ public class StorageManagementDatabaseService
     }
 
     // 新增空資料至 StoreList
-    public async Task AddEmptyStorageData(string userId)
+    public async Task AddEmptyStorageListData(string userId)
     {
         try
         {
@@ -23,49 +68,6 @@ public class StorageManagementDatabaseService
             {
                 await _userListDbContext.StoreList.AddAsync(new StoreList { UserId = userId, });
                 await _userListDbContext.SaveChangesAsync();
-                // var UserDataAdded = await GetStoreListData(userId);
-
-                // if (UserDataAdded != null)
-                // {
-                //     var StoreItemData = await _userListDbContext
-                //         .StoreItem.AsNoTracking()
-                //         .FirstOrDefaultAsync(StoreItem =>
-                //             StoreItem.StoreListId == UserDataAdded.StoreListId
-                //         );
-                //     if (StoreItemData == null)
-                //     {
-                //         await _userListDbContext.StoreItem.AddAsync(
-                //             new StoreItem
-                //             {
-                //                 Name = "",
-                //                 Place = "",
-                //                 StoreListId = UserDataAdded.StoreListId
-                //             }
-                //         );
-                //         await _userListDbContext.SaveChangesAsync();
-                //         var StoreItemDataAdded =
-                //             await _userListDbContext.StoreItem.FirstOrDefaultAsync(StoreItem =>
-                //                 StoreItem.StoreListId == UserDataAdded.StoreListId
-                //             );
-                //         if (StoreItemDataAdded != null)
-                //         {
-                //             UserDataAdded.StoreItemList.Add(StoreItemDataAdded);
-                //             await _userListDbContext.SaveChangesAsync();
-                //         }
-                //         else
-                //         {
-                //             throw new Exception("StoreItemDataAdded not Found");
-                //         }
-                //     }
-                //     else
-                //     {
-                //         throw new Exception("StoreItemGroupData not Found");
-                //     }
-                // }
-                // else
-                // {
-                //     throw new Exception("UserDataAdded not Found");
-                // }
             }
         }
         catch (Exception ex)
@@ -92,6 +94,28 @@ public class StorageManagementDatabaseService
             Console.WriteLine(ex.Message);
             Console.WriteLine(ex?.InnerException?.Message);
             throw new Exception(nameof(ex));
+        }
+    }
+
+    // 新增資料
+    public async Task AddStoreItemData(string userId, InputStorageInfo InputStorageInfo)
+    {
+        var UserData = await GetStoreListData(userId);
+        if (UserData != null)
+        {
+            UserData.StoreItemList.Add(
+                new StoreItem
+                {
+                    Name = InputStorageInfo.Name,
+                    Place = InputStorageInfo.Place,
+                    Location = InputStorageInfo.Location,
+                    Amount = InputStorageInfo.Amount,
+                    PurchaseDate = InputStorageInfo.PurchaseDate,
+                    ExpiryDate = InputStorageInfo.ExpiryDate,
+                    StoreListId = UserData.StoreListId
+                }
+            );
+            await _userListDbContext.SaveChangesAsync();
         }
     }
 }
