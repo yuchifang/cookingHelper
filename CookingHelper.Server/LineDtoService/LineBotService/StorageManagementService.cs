@@ -57,13 +57,13 @@ public class StorageManagementService
             //! 在 Status 引用另一個 class FlexComponent的class
             //! 取資料 查 取資料的方式
             /*
-
-                把所有的資料 依照存放地方排序 TextMessage 顯示 複製編號
-                "依編號,存放位置,物品名稱,詳細位置,數量,購買日期(p),有效日期(e)排列"
+                把所有的資料 依照存放地方排序 FlexMessage 顯示 複製編號
+                "依編號,存放位置,物品名稱,詳細位置,數量,購買日期(p),有效日期(e)排列" MaxWidth?? [] 測試
                 1 冰箱 蘋果 8 (p)2022-08-07 (e)2023-09-07
 
                 選擇排序方式 文字
                 button	依存放日期近排序/遠切換,依存放位置排序,//? 可不可以橫列 box maxWidth
+                換頁,
                 查詢 button,
                 刪除 button
                 ? 預設存放地方排序
