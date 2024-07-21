@@ -41,7 +41,7 @@ public class StorageManagementPurchaseService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                GetCancelAdditionQuickReplyButton()
+                                GetQuickReplyButton(ActionTypeEnum.Message, "取消新增", "取消新增")
                             }
                         }
                     }
@@ -73,7 +73,7 @@ public class StorageManagementPurchaseService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                GetCancelAdditionQuickReplyButton()
+                                GetQuickReplyButton(ActionTypeEnum.Message, "取消新增", "取消新增")
                             }
                         }
                     }
@@ -104,9 +104,9 @@ public class StorageManagementPurchaseService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                GetCancelAdditionQuickReplyButton(),
-                                GetSkipQuickReplyButton(),
-                                GetAdditionCompleteQuickReplyButton()
+                                GetQuickReplyButton(ActionTypeEnum.Message, "新增完成", "新增完成"),
+                                GetQuickReplyButton(ActionTypeEnum.Message, "略過", "略過"),
+                                GetQuickReplyButton(ActionTypeEnum.Message, "取消新增", "取消新增")
                             }
                         }
                     }
@@ -137,9 +137,9 @@ public class StorageManagementPurchaseService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                GetCancelAdditionQuickReplyButton(),
-                                GetSkipQuickReplyButton(),
-                                GetAdditionCompleteQuickReplyButton()
+                                GetQuickReplyButton(ActionTypeEnum.Message, "新增完成", "新增完成"),
+                                GetQuickReplyButton(ActionTypeEnum.Message, "略過", "略過"),
+                                GetQuickReplyButton(ActionTypeEnum.Message, "取消新增", "取消新增")
                             }
                         }
                     }
@@ -170,9 +170,9 @@ public class StorageManagementPurchaseService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                GetCancelAdditionQuickReplyButton(),
-                                GetSkipQuickReplyButton(),
-                                GetAdditionCompleteQuickReplyButton()
+                                GetQuickReplyButton(ActionTypeEnum.Message, "新增完成", "新增完成"),
+                                GetQuickReplyButton(ActionTypeEnum.Message, "略過", "略過"),
+                                GetQuickReplyButton(ActionTypeEnum.Message, "取消新增", "取消新增")
                             }
                         }
                     }
@@ -207,9 +207,9 @@ public class StorageManagementPurchaseService
                             {
                                 Items = new List<QuickReplyButtonDto>
                                 {
-                                    GetCancelAdditionQuickReplyButton(),
-                                    GetSkipQuickReplyButton(),
-                                    GetAdditionCompleteQuickReplyButton()
+                                    GetQuickReplyButton(ActionTypeEnum.Message, "新增完成", "新增完成"),
+                                    GetQuickReplyButton(ActionTypeEnum.Message, "略過", "略過"),
+                                    GetQuickReplyButton(ActionTypeEnum.Message, "取消新增", "取消新增")
                                 }
                             }
                         }
@@ -229,9 +229,9 @@ public class StorageManagementPurchaseService
                             {
                                 Items = new List<QuickReplyButtonDto>
                                 {
-                                    GetCancelAdditionQuickReplyButton(),
-                                    GetSkipQuickReplyButton(),
-                                    GetAdditionCompleteQuickReplyButton()
+                                    GetQuickReplyButton(ActionTypeEnum.Message, "新增完成", "新增完成"),
+                                    GetQuickReplyButton(ActionTypeEnum.Message, "略過", "略過"),
+                                    GetQuickReplyButton(ActionTypeEnum.Message, "取消新增", "取消新增")
                                 }
                             }
                         }
