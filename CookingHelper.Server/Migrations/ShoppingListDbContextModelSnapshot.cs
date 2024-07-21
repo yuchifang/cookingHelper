@@ -22,25 +22,14 @@ namespace CookingHelper.Server.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("CookingHelper.Model.UserList", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("ShoppingListText")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("UserList", (string)null);
-                });
-
-            modelBuilder.Entity("StoreItemGroup", b =>
+            modelBuilder.Entity("CookingHelper.Model.StoreItem", b =>
                 {
                     b.Property<int>("StoreItemGroupId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    b.Property<string>("Amount")
+                        .HasColumnType("longtext");
 
                     b.Property<DateOnly?>("ExpiryDate")
                         .HasColumnType("date");
@@ -67,7 +56,7 @@ namespace CookingHelper.Server.Migrations
                     b.ToTable("StoreItemGroup", (string)null);
                 });
 
-            modelBuilder.Entity("StoreList", b =>
+            modelBuilder.Entity("CookingHelper.Model.StoreList", b =>
                 {
                     b.Property<int>("StoreListId")
                         .ValueGeneratedOnAdd()
@@ -87,10 +76,24 @@ namespace CookingHelper.Server.Migrations
                     b.ToTable("StoreList", (string)null);
                 });
 
-            modelBuilder.Entity("StoreItemGroup", b =>
+            modelBuilder.Entity("CookingHelper.Model.UserList", b =>
                 {
-                    b.HasOne("StoreList", "StoreList")
-                        .WithMany("StoreItemGroup")
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("ShoppingListText")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("UserList", (string)null);
+                });
+
+            modelBuilder.Entity("CookingHelper.Model.StoreItem", b =>
+                {
+                    b.HasOne("CookingHelper.Model.StoreList", "StoreList")
+                        .WithMany("StoreItemList")
                         .HasForeignKey("StoreItemGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -98,25 +101,25 @@ namespace CookingHelper.Server.Migrations
                     b.Navigation("StoreList");
                 });
 
-            modelBuilder.Entity("StoreList", b =>
+            modelBuilder.Entity("CookingHelper.Model.StoreList", b =>
                 {
                     b.HasOne("CookingHelper.Model.UserList", "UserList")
                         .WithOne("StoreList")
-                        .HasForeignKey("StoreList", "UserId")
+                        .HasForeignKey("CookingHelper.Model.StoreList", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("UserList");
                 });
 
+            modelBuilder.Entity("CookingHelper.Model.StoreList", b =>
+                {
+                    b.Navigation("StoreItemList");
+                });
+
             modelBuilder.Entity("CookingHelper.Model.UserList", b =>
                 {
                     b.Navigation("StoreList");
-                });
-
-            modelBuilder.Entity("StoreList", b =>
-                {
-                    b.Navigation("StoreItemGroup");
                 });
 #pragma warning restore 612, 618
         }
