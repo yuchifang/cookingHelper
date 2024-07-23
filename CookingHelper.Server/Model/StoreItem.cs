@@ -7,7 +7,7 @@ public class StoreItem
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int StoreItemGroupId { get; set; } = default!;
+    public int StoreItemId { get; set; } = default!;
     public string Name { get; set; } = default!;
     public string Place { get; set; } = default!;
     public string? Location { get; set; }

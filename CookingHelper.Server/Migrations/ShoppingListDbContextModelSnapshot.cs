@@ -24,9 +24,11 @@ namespace CookingHelper.Server.Migrations
 
             modelBuilder.Entity("CookingHelper.Model.StoreItem", b =>
                 {
-                    b.Property<int>("StoreItemGroupId")
+                    b.Property<int>("StoreItemId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("StoreItemId"));
 
                     b.Property<string>("Amount")
                         .HasColumnType("longtext");
@@ -51,9 +53,11 @@ namespace CookingHelper.Server.Migrations
                     b.Property<int>("StoreListId")
                         .HasColumnType("int");
 
-                    b.HasKey("StoreItemGroupId");
+                    b.HasKey("StoreItemId");
 
-                    b.ToTable("StoreItemGroup", (string)null);
+                    b.HasIndex("StoreListId");
+
+                    b.ToTable("StoreItem", (string)null);
                 });
 
             modelBuilder.Entity("CookingHelper.Model.StoreList", b =>
@@ -94,7 +98,7 @@ namespace CookingHelper.Server.Migrations
                 {
                     b.HasOne("CookingHelper.Model.StoreList", "StoreList")
                         .WithMany("StoreItemList")
-                        .HasForeignKey("StoreItemGroupId")
+                        .HasForeignKey("StoreListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

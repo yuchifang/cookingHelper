@@ -14,6 +14,11 @@ public class UserListDbContext : DbContext
     public DbSet<StoreItem> StoreItem { get; set; }
     public DbSet<StoreList> StoreList { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.EnableSensitiveDataLogging();
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserList>(entityBuilder =>
@@ -37,19 +42,19 @@ public class UserListDbContext : DbContext
         modelBuilder
             .Entity<StoreList>()
             .HasMany(StoreList => StoreList.StoreItemList)
-            .WithOne(StoreItemGroup => StoreItemGroup.StoreList)
-            .HasForeignKey(StoreItemGroup => StoreItemGroup.StoreItemGroupId);
+            .WithOne(StoreItem => StoreItem.StoreList)
+            .HasForeignKey(StoreItem => StoreItem.StoreListId);
 
-        modelBuilder.Entity<StoreItem>().HasKey(StoreItemGroup => StoreItemGroup.StoreItemGroupId);
+        modelBuilder.Entity<StoreItem>().HasKey(StoreItem => StoreItem.StoreItemId);
         modelBuilder
             .Entity<StoreItem>()
-            .Property(StoreItemGroup => StoreItemGroup.StoreItemGroupId)
+            .Property(StoreItem => StoreItem.StoreItemId)
             .ValueGeneratedOnAdd();
 
         modelBuilder.Entity<UserList>().ToTable("UserList");
 
         modelBuilder.Entity<StoreList>().ToTable("StoreList");
 
-        modelBuilder.Entity<StoreItem>().ToTable("StoreItemGroup");
+        modelBuilder.Entity<StoreItem>().ToTable("StoreItem");
     }
 }

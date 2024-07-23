@@ -1,0 +1,69 @@
+StorageManagement sort button
+
+_ReplyMessageListStatic = new List<object>(
+            [
+                new FlexMessageObject<FlexBubbleContainer>
+                {
+                    AltText = "Display Temporary Input",
+                    Contents = new FlexBubbleContainer
+                    {
+                        Type = FlexContainerTypeEnum.Bubble,
+                        Size = "micro",
+                        Styles = new FlexBubbleContainerStyle
+                        {
+                            Footer = new FlexBlockStyle { Separator = false }
+                        },
+                        Body = new FlexComponent
+                        {
+                            PaddingAll = "0px",
+                            Type = FlexComponentTypeEnum.Box,
+                            Layout = FlexComponentLayoutTypeEnum.Vertical,
+
+                            Contents = new List<FlexComponent>
+                            {
+                                new FlexComponent
+                                {
+                                    PaddingAll = "0px",
+                                    Type = FlexComponentTypeEnum.Box,
+                                    Layout = FlexComponentLayoutTypeEnum.Vertical,
+                                    AlignItems = "center",
+                                    Contents = new List<FlexComponent>
+                                    {
+                                        new FlexComponent
+                                        {
+                                            Type = FlexComponentTypeEnum.Button,
+                                            Action = new ActionDto
+                                            {
+                                                Type = "message",
+                                                Label = "依購買日期排序",
+                                                Text = "依購買日期排序",
+                                            }
+                                        },
+                                        new FlexComponent
+                                        {
+                                            Type = FlexComponentTypeEnum.Button,
+                                            Action = new ActionDto
+                                            {
+                                                Type = "message",
+                                                Label = "依購買日期排序",
+                                                Text = "依購買日期排序",
+                                            }
+                                        },
+                                        new FlexComponent
+                                        {
+                                            Type = FlexComponentTypeEnum.Button,
+                                            Action = new ActionDto
+                                            {
+                                                Type = "message",
+                                                Label = "依購買日期排序",
+                                                Text = "依購買日期排序",
+                                            }
+                                        },
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }
+            ]
+        );
