@@ -28,7 +28,8 @@ public class StorageManagementService
         // 創建 一個 Purchase
         if (StoreList.StoreItemList.Count == 0)
         {
-            _ReplyMessageListStatic.Add(
+            _ReplyMessageListStatic = new List<object>
+            {
                 new TextMessageObject
                 {
                     //? 只能按輸入按鈕才能輸入 要黨無效輸入
@@ -42,16 +43,17 @@ public class StorageManagementService
                             {
                                 Action = new ActionDto
                                 {
-                                    Type = ActionTypeEnum.Message,
+                                    Type = ActionTypeEnum.Postback,
                                     Label = "新增物品至庫存",
                                     Text = "新增物品至庫存",
+                                    Data = "新增物品至庫存",
                                     InputOption = PostbackInputOptionEnum.OpenKeyboard,
                                 }
                             }
                         }
                     }
-                }
-            );
+                },
+            };
         }
         else
         {
@@ -101,28 +103,6 @@ public class StorageManagementService
             _ReplyMessageListStatic = new List<object>
             {
                 GetButton(), //? 像是 StorageManagement 在方一個中間class
-                new TextMessageObject
-                {
-                    //? 只能按輸入按鈕才能輸入 要黨無效輸入
-                    //? 按了按鈕 _WebhookEventState = KeywordGroup.StorageManagement
-                    Text = "庫存中沒有物品, 點擊按鈕, 輸入想要紀錄的物品",
-                    QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "新增物品至庫存",
-                                    Text = "新增物品至庫存",
-                                    InputOption = PostbackInputOptionEnum.OpenKeyboard,
-                                }
-                            }
-                        }
-                    }
-                }
             };
         }
 
