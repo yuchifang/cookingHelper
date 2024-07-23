@@ -61,10 +61,11 @@ public class StorageManagementService
 
             // 取得 StoreList
             // 排成 Text string builder??
-            // 整理 FlexMessage
-            // 加入 StorageManagement sort button
-            // 換頁 功能 flexMessage
-            // Quick reply 查詢 刪除
+            //! 利用 string builder 把欄位完成
+            //! 如果欄位超過幾個就換頁/ 用 take??
+            //!
+
+
 
 
 
@@ -118,10 +119,22 @@ public class StorageManagementService
         return new FlexMessageObject<FlexBubbleContainer>
         {
             AltText = "text",
+
             QuickReply = new QuickReplyItemDto
             {
                 Items = new List<QuickReplyButtonDto>
                 {
+                    new QuickReplyButtonDto
+                    {
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Postback,
+                            Label = "新增物品至庫存",
+                            Text = "新增物品至庫存",
+                            Data = "新增物品至庫存",
+                            InputOption = PostbackInputOptionEnum.OpenKeyboard,
+                        }
+                    },
                     new QuickReplyButtonDto
                     {
                         Action = new ActionDto
@@ -146,11 +159,14 @@ public class StorageManagementService
             },
             Contents = new FlexBubbleContainer
             {
+                Size = "giga",
                 Type = FlexContainerTypeEnum.Bubble,
                 Body = new FlexComponent
                 {
                     Type = FlexComponentTypeEnum.Box,
                     Layout = FlexComponentLayoutTypeEnum.Vertical,
+                    PaddingAll = "10px",
+                    PaddingBottom = "0px",
                     Contents = new List<FlexComponent>
                     {
                         new FlexComponent
@@ -161,6 +177,7 @@ public class StorageManagementService
                             {
                                 new FlexComponent
                                 {
+                                    Wrap = true,
                                     Type = FlexComponentTypeEnum.Text,
                                     Text = "依編號,存放位置,物品名稱,詳細位置,數量,購買日期(p),有效日期(e)排列"
                                 },
@@ -198,10 +215,12 @@ public class StorageManagementService
                         {
                             Type = FlexComponentTypeEnum.Box,
                             Layout = FlexComponentLayoutTypeEnum.Vertical,
+                            PaddingAll = "3px",
                             Contents = new List<FlexComponent>
                             {
                                 new FlexComponent
                                 {
+                                    Wrap = true,
                                     Type = FlexComponentTypeEnum.Text,
                                     Text = "1 冰箱 蘋果 (p)2022-08-07 (e)2023-08-09"
                                 },
@@ -211,12 +230,14 @@ public class StorageManagementService
                         {
                             Type = FlexComponentTypeEnum.Box,
                             Layout = FlexComponentLayoutTypeEnum.Vertical,
+                            PaddingAll = "3px",
                             Contents = new List<FlexComponent>
                             {
                                 new FlexComponent
                                 {
+                                    Wrap = true,
                                     Type = FlexComponentTypeEnum.Text,
-                                    Text = "2 冰箱 鳳梨 (p)2022-08-07 (e)2023-08-09"
+                                    Text = "2 冰箱 鳳梨 第二層換下一行 (p)2022-08-07 (e)2023-08-09"
                                 },
                             }
                         },
@@ -228,6 +249,8 @@ public class StorageManagementService
                             {
                                 new FlexComponent
                                 {
+                                    Align = "center",
+                                    Gravity = "center",
                                     Type = FlexComponentTypeEnum.Text,
                                     Text = "目前頁數 1/15"
                                 },
