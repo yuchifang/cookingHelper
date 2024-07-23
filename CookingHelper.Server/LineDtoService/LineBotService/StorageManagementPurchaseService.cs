@@ -104,7 +104,7 @@ public class StorageManagementPurchaseService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                GetQuickReplyButton(ActionTypeEnum.Message, "新增完成", "新增完成"),
+                                GetQuickReplyButton(ActionTypeEnum.Message, "填寫完成", "填寫完成"),
                                 GetQuickReplyButton(ActionTypeEnum.Message, "略過", "略過"),
                                 GetQuickReplyButton(ActionTypeEnum.Message, "取消新增", "取消新增")
                             }
@@ -137,7 +137,7 @@ public class StorageManagementPurchaseService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                GetQuickReplyButton(ActionTypeEnum.Message, "新增完成", "新增完成"),
+                                GetQuickReplyButton(ActionTypeEnum.Message, "填寫完成", "填寫完成"),
                                 GetQuickReplyButton(ActionTypeEnum.Message, "略過", "略過"),
                                 GetQuickReplyButton(ActionTypeEnum.Message, "取消新增", "取消新增")
                             }
@@ -170,7 +170,7 @@ public class StorageManagementPurchaseService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                GetQuickReplyButton(ActionTypeEnum.Message, "新增完成", "新增完成"),
+                                GetQuickReplyButton(ActionTypeEnum.Message, "填寫完成", "填寫完成"),
                                 GetQuickReplyButton(ActionTypeEnum.Message, "略過", "略過"),
                                 GetQuickReplyButton(ActionTypeEnum.Message, "取消新增", "取消新增")
                             }
@@ -207,7 +207,7 @@ public class StorageManagementPurchaseService
                             {
                                 Items = new List<QuickReplyButtonDto>
                                 {
-                                    GetQuickReplyButton(ActionTypeEnum.Message, "新增完成", "新增完成"),
+                                    GetQuickReplyButton(ActionTypeEnum.Message, "填寫完成", "填寫完成"),
                                     GetQuickReplyButton(ActionTypeEnum.Message, "略過", "略過"),
                                     GetQuickReplyButton(ActionTypeEnum.Message, "取消新增", "取消新增")
                                 }
@@ -229,7 +229,7 @@ public class StorageManagementPurchaseService
                             {
                                 Items = new List<QuickReplyButtonDto>
                                 {
-                                    GetQuickReplyButton(ActionTypeEnum.Message, "新增完成", "新增完成"),
+                                    GetQuickReplyButton(ActionTypeEnum.Message, "填寫完成", "填寫完成"),
                                     GetQuickReplyButton(ActionTypeEnum.Message, "略過", "略過"),
                                     GetQuickReplyButton(ActionTypeEnum.Message, "取消新增", "取消新增")
                                 }
@@ -413,19 +413,30 @@ public class StorageManagementPurchaseService
         {
             WebHookEventMessage = null;
         }
+        //! 填寫完成 跳到 確認 => 新增
+        if (WebHookEventMessage == "填寫完成")
+        {
+            LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
+            {
+                ReplyToken = WebHookEventDto.ReplyToken!,
+                Messages = new StorageInputStatus().GetAdditionConfirmHint(_InputStorageInfoStatic)
+            };
+            return;
+        }
 
-        if (WebHookEventMessage == "新增完成")
+        if (WebHookEventMessage == "新增")
         {
             await _storageManagementDatabaseService.AddStoreItemData(
                 WebHookEventDto.Source!.UserId!,
                 _InputStorageInfoStatic
             );
             _InputStorageInfoStatic = new InputStorageInfo();
-            LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagement;
-            StorageManagementService._ReplyMessageListStatic.Add(
+
+            await _storageManagementService.Init(WebHookEventDto);
+            StorageManagementService._ReplyMessageListStatic.Insert(
+                0,
                 new TextMessageObject { Text = "新增完成" }
             );
-            await _storageManagementService.Init(WebHookEventDto);
             return;
             //? 使用 StorageManagementDatabase 呼叫 新增的方法
             //? 將 _InputStorageInfoStatic 清空
