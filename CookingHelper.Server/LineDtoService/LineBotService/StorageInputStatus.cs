@@ -4,9 +4,9 @@ using static CookingHelper.LineDto.BaseMessageObject;
 
 namespace CookingHelper.LineDtoService;
 
-abstract class StorageInputStatus : MessageUI
+class StorageInputStatus : MessageUI
 {
-    public abstract void Init();
+    public virtual void Init() { }
 
     public List<object> GetAdditionConfirmHint(InputStorageInfo InputStorageInfoStatic)
     {
