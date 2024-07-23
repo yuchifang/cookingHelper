@@ -63,7 +63,7 @@ public class StorageManagementDatabaseService
     {
         try
         {
-            var UserData = await GetStoreListData(userId);
+            var UserData = await GetStoreListNoStrackingData(userId);
             if (UserData == null)
             {
                 await _userListDbContext.StoreList.AddAsync(new StoreList { UserId = userId, });
@@ -80,7 +80,7 @@ public class StorageManagementDatabaseService
 
     //? 新增一個 GetStoreItemGroup 的function 或 改GetStoreListData
 
-    public async Task<StoreList> GetStoreListData(string userId)
+    public async Task<StoreList> GetStoreListNoStrackingData(string userId)
     {
         try
         {
@@ -97,25 +97,59 @@ public class StorageManagementDatabaseService
         }
     }
 
+    //! 這邊有沒有比較好的寫法 或許可以合併 GetStoreListNoStrackingData
+    //! 新增的地方看一下
+    //! 讀取的地方看一下
+    //! 看看目前UI
+
+    public async Task<StoreList> GetStoreListData(string userId)
+    {
+        try
+        {
+            var StoreListData = await _userListDbContext
+                .StoreList.Include(s => s.StoreItemList)
+                .FirstOrDefaultAsync(StoreList => StoreList.UserId == userId);
+            return StoreListData!;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex?.InnerException?.Message);
+            throw new Exception(nameof(ex));
+        }
+    }
+
     // 新增資料
     public async Task AddStoreItemData(string userId, InputStorageInfo InputStorageInfo)
     {
-        var UserData = await GetStoreListData(userId);
-        if (UserData != null)
+        var StoreListData = await GetStoreListNoStrackingData(userId);
+        try
         {
-            UserData.StoreItemList.Add(
-                new StoreItem
-                {
-                    Name = InputStorageInfo.Name,
-                    Place = InputStorageInfo.Place,
-                    Location = InputStorageInfo.Location,
-                    Amount = InputStorageInfo.Amount,
-                    PurchaseDate = InputStorageInfo.PurchaseDate,
-                    ExpiryDate = InputStorageInfo.ExpiryDate,
-                    StoreListId = UserData.StoreListId
-                }
-            );
-            await _userListDbContext.SaveChangesAsync();
+            if (StoreListData != null)
+            {
+                await _userListDbContext.StoreItem.AddAsync(
+                    new StoreItem
+                    {
+                        Name = InputStorageInfo.Name,
+                        Place = InputStorageInfo.Place,
+                        Location = InputStorageInfo.Location,
+                        Amount = InputStorageInfo.Amount,
+                        PurchaseDate = InputStorageInfo.PurchaseDate,
+                        ExpiryDate = InputStorageInfo.ExpiryDate,
+                        StoreListId = StoreListData.StoreListId,
+                    }
+                );
+
+                await _userListDbContext.SaveChangesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine("********");
+            Console.WriteLine(ex?.InnerException?.Message);
+            Console.WriteLine("********");
+            throw new Exception(nameof(ex));
         }
     }
 }
