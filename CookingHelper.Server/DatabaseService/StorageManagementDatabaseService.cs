@@ -78,8 +78,6 @@ public class StorageManagementDatabaseService
         }
     }
 
-    //? 新增一個 GetStoreItemGroup 的function 或 改GetStoreListData
-
     public async Task<StoreList> GetStoreListNoStrackingData(string userId)
     {
         try
@@ -96,11 +94,6 @@ public class StorageManagementDatabaseService
             throw new Exception(nameof(ex));
         }
     }
-
-    //! 這邊有沒有比較好的寫法 或許可以合併 GetStoreListNoStrackingData
-    //! 新增的地方看一下
-    //! 讀取的地方看一下
-    //! 看看目前UI
 
     public async Task<StoreList> GetStoreListData(string userId)
     {
@@ -127,7 +120,7 @@ public class StorageManagementDatabaseService
         {
             if (StoreListData != null)
             {
-                await _userListDbContext.StoreItem.AddAsync(
+                await _userListDbContext.AddAsync(
                     new StoreItem
                     {
                         Name = InputStorageInfo.Name,
