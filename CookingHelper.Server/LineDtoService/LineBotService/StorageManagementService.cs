@@ -2,6 +2,7 @@ using CookingHelper.DatabaseService;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
 using CookingHelper.LineDtoService;
+using CookingHelper.Model;
 using static CookingHelper.LineDto.BaseMessageObject;
 
 namespace CookingHelper.LineDtoService;
@@ -57,20 +58,33 @@ public class StorageManagementService
         }
         else
         {
+            var OrderedStoreItemList = StoreList.StoreItemList.OrderBy(Item => Item.Place);
+
+            LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagement;
             // todo
+            //? 簡化程式碼 引用 UI??
+            //? 如果欄位超過幾個就換頁/ 用 take??
+            //? 字體大一點??
+            //? orderBy 空值??
+            //? 加入假資料
 
-            // 取得 StoreList
-            // 排成 Text string builder??
-            //! 利用 string builder 把欄位完成
-            //! 如果欄位超過幾個就換頁/ 用 take??
-            //!
+            if (WebHookEventDto.Message!.Text == "依購買日期排序")
+            {
+                OrderedStoreItemList = OrderedStoreItemList.ThenBy(
+                    Item => Item.PurchaseDate,
+                    new CustomComparer()
+                );
+            }
+            if (WebHookEventDto.Message!.Text == "依過期日期排序")
+            {
+                OrderedStoreItemList = OrderedStoreItemList.ThenBy(
+                    Item => Item.ExpiryDate,
+                    new CustomComparer()
+                );
+            }
 
+            var StorageFieldUIList = OrderedStoreItemList.Select(GetStorageUIField).ToList();
 
-
-
-
-
-            //! 在 Status 引用另一個 class FlexComponent的class
             //! 取資料 查 取資料的方式
             /*
                 把所有的資料 依照存放地方排序 FlexMessage 顯示 複製編號
@@ -103,7 +117,7 @@ public class StorageManagementService
             */
             _ReplyMessageListStatic = new List<object>
             {
-                GetButton(), //? 像是 StorageManagement 在方一個中間class
+                GetStorageUIBlock(StorageFieldUIList), //? 像是 StorageManagement 在方一個中間class
             };
         }
 
@@ -114,8 +128,107 @@ public class StorageManagementService
         };
     }
 
-    public FlexMessageObject<FlexBubbleContainer> GetButton()
+    public FlexComponent GetStorageUIField(StoreItem StoreItem, int index)
     {
+        var LocationText = StoreItem.Location != null ? $" {StoreItem.Location}" : "";
+        var AmountText = StoreItem.Amount != null ? $" {StoreItem.Amount}" : "";
+        var PurchaseDateText =
+            StoreItem.PurchaseDate != null ? $" (p){StoreItem.PurchaseDate}" : "";
+        var ExpiryDateText = StoreItem.ExpiryDate != null ? $" (e){StoreItem.ExpiryDate}" : "";
+
+        return new FlexComponent
+        {
+            Type = FlexComponentTypeEnum.Box,
+            Layout = FlexComponentLayoutTypeEnum.Vertical,
+            PaddingAll = "3px",
+            Contents = new List<FlexComponent>
+            {
+                new FlexComponent
+                {
+                    Wrap = true,
+                    Type = FlexComponentTypeEnum.Text,
+                    Text =
+                        $"{index + 1} {StoreItem.Place} {StoreItem.Name}{LocationText}{AmountText}{PurchaseDateText}{ExpiryDateText}"
+                },
+            }
+        };
+    }
+
+    public FlexMessageObject<FlexBubbleContainer> GetStorageUIBlock(
+        List<FlexComponent> StorageFieldUIList
+    )
+    {
+        var StorageUITable = new List<FlexComponent>
+        {
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Box,
+                Layout = FlexComponentLayoutTypeEnum.Vertical,
+                Contents = new List<FlexComponent>
+                {
+                    new FlexComponent
+                    {
+                        Wrap = true,
+                        Type = FlexComponentTypeEnum.Text,
+                        Text = "依編號,存放位置,物品名稱,詳細位置,數量,購買日期(p),有效日期(e)排列"
+                    },
+                }
+            },
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Box,
+                Layout = FlexComponentLayoutTypeEnum.Horizontal,
+                Contents = new List<FlexComponent>
+                {
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Message,
+                            Label = "依購買日期排序",
+                            Text = "依購買日期排序"
+                        }
+                    },
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Message,
+                            Label = "依過期日期排序",
+                            Text = "依過期日期排序"
+                        }
+                    },
+                }
+            },
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Box,
+                Layout = FlexComponentLayoutTypeEnum.Horizontal,
+                Contents = new List<FlexComponent>
+                {
+                    new FlexComponent
+                    {
+                        Align = "center",
+                        Gravity = "center",
+                        Type = FlexComponentTypeEnum.Text,
+                        Text = "目前頁數 1/15"
+                    },
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Message,
+                            Label = "換下一頁",
+                            Text = "換下一頁"
+                        }
+                    },
+                }
+            },
+        };
+        StorageUITable.InsertRange(2, StorageFieldUIList);
         return new FlexMessageObject<FlexBubbleContainer>
         {
             AltText = "text",
@@ -167,109 +280,38 @@ public class StorageManagementService
                     Layout = FlexComponentLayoutTypeEnum.Vertical,
                     PaddingAll = "10px",
                     PaddingBottom = "0px",
-                    Contents = new List<FlexComponent>
-                    {
-                        new FlexComponent
-                        {
-                            Type = FlexComponentTypeEnum.Box,
-                            Layout = FlexComponentLayoutTypeEnum.Vertical,
-                            Contents = new List<FlexComponent>
-                            {
-                                new FlexComponent
-                                {
-                                    Wrap = true,
-                                    Type = FlexComponentTypeEnum.Text,
-                                    Text = "依編號,存放位置,物品名稱,詳細位置,數量,購買日期(p),有效日期(e)排列"
-                                },
-                            }
-                        },
-                        new FlexComponent
-                        {
-                            Type = FlexComponentTypeEnum.Box,
-                            Layout = FlexComponentLayoutTypeEnum.Horizontal,
-                            Contents = new List<FlexComponent>
-                            {
-                                new FlexComponent
-                                {
-                                    Type = FlexComponentTypeEnum.Button,
-                                    Action = new ActionDto
-                                    {
-                                        Type = ActionTypeEnum.Message,
-                                        Label = "依購買日期排序",
-                                        Text = "依購買日期排序"
-                                    }
-                                },
-                                new FlexComponent
-                                {
-                                    Type = FlexComponentTypeEnum.Button,
-                                    Action = new ActionDto
-                                    {
-                                        Type = ActionTypeEnum.Message,
-                                        Label = "依過期日期排序",
-                                        Text = "依過期日期排序"
-                                    }
-                                },
-                            }
-                        },
-                        new FlexComponent
-                        {
-                            Type = FlexComponentTypeEnum.Box,
-                            Layout = FlexComponentLayoutTypeEnum.Vertical,
-                            PaddingAll = "3px",
-                            Contents = new List<FlexComponent>
-                            {
-                                new FlexComponent
-                                {
-                                    Wrap = true,
-                                    Type = FlexComponentTypeEnum.Text,
-                                    Text = "1 冰箱 蘋果 (p)2022-08-07 (e)2023-08-09"
-                                },
-                            }
-                        },
-                        new FlexComponent
-                        {
-                            Type = FlexComponentTypeEnum.Box,
-                            Layout = FlexComponentLayoutTypeEnum.Vertical,
-                            PaddingAll = "3px",
-                            Contents = new List<FlexComponent>
-                            {
-                                new FlexComponent
-                                {
-                                    Wrap = true,
-                                    Type = FlexComponentTypeEnum.Text,
-                                    Text = "2 冰箱 鳳梨 第二層換下一行 (p)2022-08-07 (e)2023-08-09"
-                                },
-                            }
-                        },
-                        new FlexComponent
-                        {
-                            Type = FlexComponentTypeEnum.Box,
-                            Layout = FlexComponentLayoutTypeEnum.Horizontal,
-                            Contents = new List<FlexComponent>
-                            {
-                                new FlexComponent
-                                {
-                                    Align = "center",
-                                    Gravity = "center",
-                                    Type = FlexComponentTypeEnum.Text,
-                                    Text = "目前頁數 1/15"
-                                },
-                                new FlexComponent
-                                {
-                                    Type = FlexComponentTypeEnum.Button,
-                                    Action = new ActionDto
-                                    {
-                                        Type = ActionTypeEnum.Message,
-                                        Label = "換下一頁",
-                                        Text = "換下一頁"
-                                    }
-                                },
-                            }
-                        },
-                    }
+                    Contents = StorageUITable
                 }
             }
         };
+    }
+}
+
+public class CustomComparer : IComparer<DateOnly?>
+{
+    public int Compare(DateOnly? x, DateOnly? y)
+    {
+        if (x == null)
+        {
+            return 1;
+        }
+        else if (y == null)
+        {
+            return -1;
+        }
+
+        if (x < y)
+        {
+            return 1;
+        }
+        else if (x > y)
+        {
+            return -1;
+        }
+        else
+        {
+            return 0;
+        }
     }
 }
 
