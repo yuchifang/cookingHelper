@@ -107,18 +107,18 @@ public class LineBotService
             await _shoppingListLogicService.Init(WebHookEventDto);
         }
         else if (
-            WebHookEventDto.Message.Text == KeywordGroup.StorageManagement
-            || _WebhookEventStatusStatic == KeywordGroup.StorageManagement
-        )
-        {
-            await _storageManagementService.Init(WebHookEventDto);
-        }
-        else if (
             WebHookEventDto.Message.Text == "新增物品至庫存"
             || _WebhookEventStatusStatic == "新增物品至庫存"
         )
         {
             await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
+        }
+        else if (
+            WebHookEventDto.Message.Text == KeywordGroup.StorageManagement
+            || _WebhookEventStatusStatic == KeywordGroup.StorageManagement
+        )
+        {
+            await _storageManagementService.Init(WebHookEventDto);
         }
         else
         {
