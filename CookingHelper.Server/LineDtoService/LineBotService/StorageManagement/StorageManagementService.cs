@@ -1,9 +1,9 @@
 using CookingHelper.DatabaseService;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
-using CookingHelper.LineDtoService;
 using CookingHelper.Model;
 using static CookingHelper.LineDto.BaseMessageObject;
+using static CookingHelper.Utils;
 
 namespace CookingHelper.LineDtoService;
 
@@ -20,8 +20,9 @@ public class StorageManagementService
         _storageManagementDatabaseService = StorageManagementDatabaseService;
     }
 
-    public async Task Init(WebhookEventDto WebHookEventDto)
+    public async Task GetStorage(WebhookEventDto WebHookEventDto)
     {
+        var WebHookEventMessage = WebHookEventDto.Message!.Text!;
         var StoreList = await _storageManagementDatabaseService.GetStoreListData(
             WebHookEventDto!.Source!.UserId!
         );
@@ -46,7 +47,7 @@ public class StorageManagementService
                                 {
                                     Type = ActionTypeEnum.Postback,
                                     Label = "新增物品至庫存",
-                                    Text = "新增物品至庫存",
+                                    Text = "新增物品至庫存", // 有用
                                     Data = "新增物品至庫存",
                                     InputOption = PostbackInputOptionEnum.OpenKeyboard,
                                 }
@@ -63,19 +64,18 @@ public class StorageManagementService
             LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagement;
             // todo
             //? 簡化程式碼 引用 UI??
-            //? 如果欄位超過幾個就換頁/ 用 take??
-            //? 字體大一點??
-            //? orderBy 空值??
             //? 加入假資料
+            //? 如果欄位超過幾個就換頁/ 用 take??
+            //? 換頁, 顯示總共有幾筆資料, 決定顯示 15筆或其他  FlexMessage
 
-            if (WebHookEventDto.Message!.Text == "依購買日期排序")
+            if (WebHookEventMessage == "依購買日期排序")
             {
                 OrderedStoreItemList = OrderedStoreItemList.ThenBy(
                     Item => Item.PurchaseDate,
                     new CustomComparer()
                 );
             }
-            if (WebHookEventDto.Message!.Text == "依過期日期排序")
+            if (WebHookEventMessage == "依過期日期排序")
             {
                 OrderedStoreItemList = OrderedStoreItemList.ThenBy(
                     Item => Item.ExpiryDate,
@@ -87,33 +87,17 @@ public class StorageManagementService
 
             //! 取資料 查 取資料的方式
             /*
-                把所有的資料 依照存放地方排序 FlexMessage 顯示 複製編號
-                "依編號,存放位置,物品名稱,詳細位置,數量,購買日期(p),有效日期(e)排列" MaxWidth?? [] 測試
-                1 冰箱 蘋果 8 (p)2022-08-07 (e)2023-09-07
-
-                選擇排序方式 文字 FlexMessage
-                button	依購買日期近排序/過期日期排序切換,
-                依存放位置排序//? 可不可以橫列 box maxWidth
-                    沒輸入就不排, 預設再存方位置的方式
-                        可以用 System.Linq 找這種功能
-                
-                換頁, 顯示總共有幾筆資料, 決定顯示 15筆或其他  FlexMessage
-
-                quicky reply??
-                查詢 button,
-                刪除 button
-                ? 預設存放地方排序
-
-
                 編號 存放位置 物品名稱 ...
                 資料 ...
                 ?編號server 產生
 
                 查詢功能 Flexmessage
                     查到用 flex message 顯示
+                    取消查詢
                     最下面加個 修改,刪除, 返回
 
                 刪除功能 選擇編號 ex: 010/020
+                    取消刪除
             */
             _ReplyMessageListStatic = new List<object>
             {
@@ -133,20 +117,27 @@ public class StorageManagementService
         var LocationText = StoreItem.Location != null ? $" {StoreItem.Location}" : "";
         var AmountText = StoreItem.Amount != null ? $" {StoreItem.Amount}" : "";
         var PurchaseDateText =
-            StoreItem.PurchaseDate != null ? $" (p){StoreItem.PurchaseDate}" : "";
-        var ExpiryDateText = StoreItem.ExpiryDate != null ? $" (e){StoreItem.ExpiryDate}" : "";
+            StoreItem.PurchaseDate != null
+                ? $" (p){DateOnlyToString((DateOnly)StoreItem.PurchaseDate, null)}"
+                : "";
+        var ExpiryDateText =
+            StoreItem.ExpiryDate != null
+                ? $" (e){DateOnlyToString((DateOnly)StoreItem.ExpiryDate, null)}"
+                : "";
 
         return new FlexComponent
         {
             Type = FlexComponentTypeEnum.Box,
             Layout = FlexComponentLayoutTypeEnum.Vertical,
-            PaddingAll = "3px",
+            PaddingBottom = "10px",
             Contents = new List<FlexComponent>
             {
                 new FlexComponent
                 {
                     Wrap = true,
                     Type = FlexComponentTypeEnum.Text,
+                    Size = "xl",
+
                     Text =
                         $"{index + 1} {StoreItem.Place} {StoreItem.Name}{LocationText}{AmountText}{PurchaseDateText}{ExpiryDateText}"
                 },
@@ -168,6 +159,7 @@ public class StorageManagementService
                 {
                     new FlexComponent
                     {
+                        Size = "md",
                         Wrap = true,
                         Type = FlexComponentTypeEnum.Text,
                         Text = "依編號,存放位置,物品名稱,詳細位置,數量,購買日期(p),有效日期(e)排列"
@@ -243,7 +235,7 @@ public class StorageManagementService
                         {
                             Type = ActionTypeEnum.Postback,
                             Label = "新增物品至庫存",
-                            Text = "新增物品至庫存",
+                            Text = "新增物品至庫存", // 有用
                             Data = "新增物品至庫存",
                             InputOption = PostbackInputOptionEnum.OpenKeyboard,
                         }
@@ -252,9 +244,9 @@ public class StorageManagementService
                     {
                         Action = new ActionDto
                         {
-                            Type = ActionTypeEnum.Message,
-                            Label = "查詢",
-                            Text = "查詢",
+                            Type = ActionTypeEnum.Postback,
+                            Label = "庫存查詢",
+                            Data = "庫存查詢",
                             InputOption = PostbackInputOptionEnum.OpenKeyboard,
                         }
                     },
@@ -262,9 +254,10 @@ public class StorageManagementService
                     {
                         Action = new ActionDto
                         {
-                            Type = ActionTypeEnum.Message,
+                            Type = ActionTypeEnum.Postback,
                             Label = "刪除",
                             Text = "刪除",
+                            Data = "刪除",
                             InputOption = PostbackInputOptionEnum.OpenKeyboard,
                         }
                     }
@@ -287,35 +280,7 @@ public class StorageManagementService
     }
 }
 
-public class CustomComparer : IComparer<DateOnly?>
-{
-    public int Compare(DateOnly? x, DateOnly? y)
-    {
-        if (x == null)
-        {
-            return 1;
-        }
-        else if (y == null)
-        {
-            return -1;
-        }
-
-        if (x < y)
-        {
-            return 1;
-        }
-        else if (x > y)
-        {
-            return -1;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-}
-
-public class InputStorageInfo
+public class InputStorageInfo : StorageInfo
 {
     private string _Status = "init";
     public string Status
@@ -340,7 +305,10 @@ public class InputStorageInfo
             _Status = value;
         }
     }
+}
 
+public class StorageInfo
+{
     // 儲存位置
     // 物品名稱
     // 詳細位置

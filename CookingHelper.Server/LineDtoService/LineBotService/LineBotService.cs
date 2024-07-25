@@ -19,6 +19,8 @@ public class LineBotService
 
     private readonly StorageManagementPurchaseService _storageManagementPurchaseService;
 
+    private readonly StorageManagementSearchService _storageManagementSearchService;
+
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly HttpClient _client;
 
@@ -38,7 +40,8 @@ public class LineBotService
         ShoppingListLogicService ShoppingListLogicService,
         StorageManagementService StorageManagementService,
         StorageManagementDatabaseService StorageManagementDatabaseService,
-        StorageManagementPurchaseService StorageManagementPurchaseService
+        StorageManagementPurchaseService StorageManagementPurchaseService,
+        StorageManagementSearchService StorageManagementSearchService
     )
     {
         _httpClientFactory = httpClientFactory;
@@ -49,6 +52,7 @@ public class LineBotService
         _storageManagementService = StorageManagementService;
         _storageManagementDatabaseService = StorageManagementDatabaseService;
         _storageManagementPurchaseService = StorageManagementPurchaseService;
+        _storageManagementSearchService = StorageManagementSearchService;
     }
 
     public async Task ReceiveWebhook(WebhookRequestBodyDto WebHookRequestBody)
@@ -64,13 +68,8 @@ public class LineBotService
                     }
                     break;
                 case WebhookEventTypeEnum.Postback:
-                    if (
-                        _WebhookEventStatusStatic == "新增物品至庫存"
-                        && WebHookEventDto.Postback.Data == "修改"
-                    )
-                    {
-                        await ReceivePostbackWebhookEvent(WebHookEventDto);
-                    }
+                    await ReceivePostbackWebhookEvent(WebHookEventDto);
+
                     break;
                 case WebhookEventTypeEnum.Follow:
                     Console.WriteLine($"使用者{WebHookEventDto.Source!.UserId}將我們新增為好友！");
@@ -87,7 +86,14 @@ public class LineBotService
 
     private async Task ReceivePostbackWebhookEvent(WebhookEventDto WebHookEventDto)
     {
-        await _storageManagementPurchaseService.EditAddedResultConfirmPostBack(WebHookEventDto);
+        if (_WebhookEventStatusStatic == "新增物品至庫存" && WebHookEventDto.Postback.Data == "修改")
+        {
+            await _storageManagementPurchaseService.EditAddedResultConfirmPostBack(WebHookEventDto);
+        }
+        if (WebHookEventDto.Postback.Data == "庫存查詢")
+        {
+            await _storageManagementSearchService.SearchStoragePostBack(WebHookEventDto);
+        }
 
         await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
     }
@@ -106,6 +112,10 @@ public class LineBotService
             _WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
             await _shoppingListLogicService.Init(WebHookEventDto);
         }
+        else if (_WebhookEventStatusStatic == "庫存查詢")
+        {
+            await _storageManagementSearchService.SearchStorage(WebHookEventDto);
+        }
         else if (
             WebHookEventDto.Message.Text == "新增物品至庫存"
             || _WebhookEventStatusStatic == "新增物品至庫存"
@@ -118,7 +128,7 @@ public class LineBotService
             || _WebhookEventStatusStatic == KeywordGroup.StorageManagement
         )
         {
-            await _storageManagementService.Init(WebHookEventDto);
+            await _storageManagementService.GetStorage(WebHookEventDto);
         }
         else
         {

@@ -2,6 +2,7 @@ using CookingHelper.DatabaseService;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
 using static CookingHelper.LineDto.BaseMessageObject;
+using static CookingHelper.Utils;
 
 namespace CookingHelper.LineDtoService;
 
@@ -286,111 +287,35 @@ public class StorageManagementPurchaseService
 
         public override void Init()
         {
-            // 將使用者輸入的字串, 依"/"切分成每個欄位, 依每個欄位":" 切分成Key, Value, 並驗證日期格式,
-            // 格式正確則顯示更新的資訊, 格式錯誤 顯示原本資訊
-
-            var UserTextFieldArray = _WebHookEventMessage!.Split(
-                "/",
-                StringSplitOptions.RemoveEmptyEntries
+            StringToStorageInfo(
+                _WebHookEventMessage!,
+                out StorageInfo StorageInfoData,
+                out string ErrorText
             );
-            var StorageTableList = new List<List<string>>();
-            var GetError = "";
-            try
-            {
-                foreach (var item in UserTextFieldArray)
-                {
-                    char[] Colon = { ':', '：' };
-                    var ValuePairArray = item.Split(Colon, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(x => x.Trim())
-                        .ToArray();
-
-                    var ExamineKey = ValuePairArray[0];
-
-                    if (ExamineKey == "購買日期" || ExamineKey == "有效日期")
-                    {
-                        if (
-                            DateOnly.TryParseExact(ValuePairArray[1], "yyyyMMdd", out DateOnly Date)
-                        )
-                        {
-                            StorageTableList.Add(ValuePairArray.ToList());
-                        }
-                        else
-                        {
-                            GetError = $"{ValuePairArray[0]}, {ValuePairArray[1]}";
-                            break;
-                        }
-                    }
-
-                    if (
-                        (
-                            Array.Find(
-                                StorageManagementKeywordGroup.ExamineArray,
-                                Key => Key == ExamineKey
-                            )
-                        ) != null
-                    )
-                    {
-                        if (ExamineKey == "購買日期" || ExamineKey == "有效日期")
-                        {
-                            continue;
-                        }
-
-                        StorageTableList.Add(ValuePairArray.ToList());
-                    }
-                    else
-                    {
-                        GetError = $"{ValuePairArray[0]}, {ValuePairArray[1]}";
-                        break;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
-            }
-
-            if (GetError == "")
-            {
-                foreach (var KeyValueList in StorageTableList)
-                {
-                    switch (KeyValueList[0])
-                    {
-                        case StorageManagementKeywordGroup.Place:
-                            _InputStorageInfoStatic.Place = KeyValueList[1];
-                            break;
-                        case StorageManagementKeywordGroup.Name:
-                            _InputStorageInfoStatic.Name = KeyValueList[1];
-                            break;
-                        case StorageManagementKeywordGroup.Location:
-                            _InputStorageInfoStatic.Location = KeyValueList[1];
-                            break;
-                        case StorageManagementKeywordGroup.Amount:
-                            _InputStorageInfoStatic.Amount = KeyValueList[1];
-                            break;
-                        case StorageManagementKeywordGroup.PurchaseDate:
-                            DateOnly PurchaseDate = DateOnly.ParseExact(
-                                KeyValueList[1],
-                                "yyyyMMdd"
-                            );
-                            _InputStorageInfoStatic.PurchaseDate = PurchaseDate;
-                            break;
-                        case StorageManagementKeywordGroup.ExpiryDate:
-                            DateOnly ExpiryDate = DateOnly.ParseExact(KeyValueList[1], "yyyyMMdd");
-                            _InputStorageInfoStatic.ExpiryDate = ExpiryDate;
-                            break;
-                    }
-                }
-
-                _ReplyMessageListStatic = GetAdditionConfirmHint(_InputStorageInfoStatic);
-            }
-            else
+            if (ErrorText != "")
             {
                 _ReplyMessageListStatic = GetAdditionConfirmHint(_InputStorageInfoStatic);
 
                 _ReplyMessageListStatic.Add(
-                    new TextMessageObject { Text = "發生錯誤: 此欄位出現問題 " + GetError }
+                    new TextMessageObject { Text = "發生錯誤: 此欄位出現問題 " + ErrorText }
                 );
+            }
+            else
+            {
+                if (StorageInfoData.Place != null)
+                    _InputStorageInfoStatic.Place = StorageInfoData.Place;
+                if (StorageInfoData.Name != null)
+                    _InputStorageInfoStatic.Name = StorageInfoData.Name;
+                if (StorageInfoData.Location != null)
+                    _InputStorageInfoStatic.Location = StorageInfoData.Location;
+                if (StorageInfoData.Amount != null)
+                    _InputStorageInfoStatic.Amount = StorageInfoData.Amount;
+                if (StorageInfoData.PurchaseDate != null)
+                    _InputStorageInfoStatic.PurchaseDate = StorageInfoData.PurchaseDate;
+                if (StorageInfoData.ExpiryDate != null)
+                    _InputStorageInfoStatic.ExpiryDate = StorageInfoData.ExpiryDate;
+
+                _ReplyMessageListStatic = GetAdditionConfirmHint(_InputStorageInfoStatic);
             }
         }
     }
@@ -405,7 +330,7 @@ public class StorageManagementPurchaseService
         if (WebHookEventMessage == "取消新增")
         {
             _InputStorageInfoStatic = new InputStorageInfo();
-            await _storageManagementService.Init(WebHookEventDto);
+            await _storageManagementService.GetStorage(WebHookEventDto);
             return;
         }
 
@@ -432,7 +357,7 @@ public class StorageManagementPurchaseService
             );
             _InputStorageInfoStatic = new InputStorageInfo();
 
-            await _storageManagementService.Init(WebHookEventDto);
+            await _storageManagementService.GetStorage(WebHookEventDto);
             StorageManagementService._ReplyMessageListStatic.Insert(
                 0,
                 new TextMessageObject { Text = "新增完成" }

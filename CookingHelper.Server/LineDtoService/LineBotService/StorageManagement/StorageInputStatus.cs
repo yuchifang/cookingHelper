@@ -1,6 +1,5 @@
-using CookingHelper.Enum;
 using CookingHelper.LineDto;
-using static CookingHelper.LineDto.BaseMessageObject;
+using static CookingHelper.Utils;
 
 namespace CookingHelper.LineDtoService;
 
@@ -25,11 +24,10 @@ class StorageInputStatus : MessageUI
         FlexComponent? PurchaseDateField;
         if (InputStorageInfoStatic.PurchaseDate != null)
         {
-            string customFormat = "yyyy-MM-dd";
-            string PurchaseDateString = InputStorageInfoStatic
-                .PurchaseDate.Value.ToDateTime(new TimeOnly(0, 0))
-                .ToString(customFormat);
-
+            string PurchaseDateString = DateOnlyToString(
+                InputStorageInfoStatic.PurchaseDate.Value,
+                null
+            );
             PurchaseDateField = FieldFlexComponent(
                 StorageManagementKeywordGroup.PurchaseDate,
                 PurchaseDateString
@@ -42,10 +40,10 @@ class StorageInputStatus : MessageUI
         FlexComponent? ExpiryDateField;
         if (InputStorageInfoStatic.ExpiryDate != null)
         {
-            string customFormat = "yyyy-MM-dd";
-            string ExpiryDateString = InputStorageInfoStatic
-                .ExpiryDate.Value.ToDateTime(new TimeOnly(0, 0))
-                .ToString(customFormat);
+            string ExpiryDateString = DateOnlyToString(
+                InputStorageInfoStatic.ExpiryDate.Value,
+                null
+            );
 
             ExpiryDateField = FieldFlexComponent(
                 StorageManagementKeywordGroup.ExpiryDate,
