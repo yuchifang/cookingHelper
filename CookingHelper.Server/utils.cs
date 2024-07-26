@@ -8,14 +8,14 @@ public class Utils
 
     public static void StringToStorageInfo(
         string inputText,
-        out StorageInfo returnObject,
+        out Dictionary<string, string> outDic,
         out string ErrorText
     )
     {
         // 將使用者輸入的字串, 依"/"切分成每個欄位, 依每個欄位":" 切分成Key, Value, 並驗證日期格式,
         // 格式正確則回傳更新的資訊, 格式錯誤 回傳錯誤資訊
         ErrorText = "";
-        returnObject = new StorageInfo();
+        outDic = new Dictionary<string, string>();
         var UserTextFieldArray = inputText.Split("/", StringSplitOptions.RemoveEmptyEntries);
         var TDList = new List<List<string>>();
 
@@ -96,24 +96,24 @@ public class Utils
                 switch (KeyValueList[0])
                 {
                     case StorageManagementKeywordGroup.Place:
-                        returnObject.Place = KeyValueList[1];
+                        outDic["Place"] = KeyValueList[1];
                         break;
                     case StorageManagementKeywordGroup.Name:
-                        returnObject.Name = KeyValueList[1];
+                        outDic["Name"] = KeyValueList[1];
                         break;
                     case StorageManagementKeywordGroup.Location:
-                        returnObject.Location = KeyValueList[1];
+                        outDic["Location"] = KeyValueList[1];
                         break;
                     case StorageManagementKeywordGroup.Amount:
-                        returnObject.Amount = KeyValueList[1];
+                        outDic["Amount"] = KeyValueList[1];
                         break;
                     case StorageManagementKeywordGroup.PurchaseDate:
                         DateOnly PurchaseDate = DateOnly.ParseExact(KeyValueList[1], "yyyyMMdd");
-                        returnObject.PurchaseDate = PurchaseDate;
+                        outDic["PurchaseDate"] = KeyValueList[1];
                         break;
                     case StorageManagementKeywordGroup.ExpiryDate:
                         DateOnly ExpiryDate = DateOnly.ParseExact(KeyValueList[1], "yyyyMMdd");
-                        returnObject.ExpiryDate = ExpiryDate;
+                        outDic["ExpiryDate"] = KeyValueList[1];
                         break;
                 }
             }
