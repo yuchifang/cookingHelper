@@ -8,6 +8,8 @@ public class StorageManagementSearchService
 {
     private readonly StorageManagementService _storageManagementService;
 
+    private static List<object> _ReplyMessageListStatic = new List<object>();
+
     public StorageManagementSearchService(StorageManagementService StorageManagementService)
     {
         _storageManagementService = StorageManagementService;
@@ -25,10 +27,36 @@ public class StorageManagementSearchService
         {
             StringToStorageInfo(
                 WebHookEventMessage,
-                out StorageInfo StorageInfo,
+                out Dictionary<string, string> StorageInfoDic,
                 out string ErrorText
             );
+            if (ErrorText != "")
+            {
+                _ReplyMessageListStatic = new List<object>
+                {
+                    new TextMessageObject { Text = "發生錯誤: 此欄位出現問題 " + ErrorText },
+                };
+            }
+            else
+            {
+                // StorageInfo 做 search
+                //產生 FlexMessage 供選擇
+
+                //?
+                /*
+                    查詢功能 Flexmessage
+                    查到用 flex message 顯示
+                    取消查詢
+                    最下面加個 修改,刪除, 返回
+                */
+            }
         }
+
+        LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
+        {
+            ReplyToken = WebHookEventDto.ReplyToken!,
+            Messages = _ReplyMessageListStatic
+        };
     }
 
     public async Task SearchStoragePostBack(WebhookEventDto WebHookEventDto)
