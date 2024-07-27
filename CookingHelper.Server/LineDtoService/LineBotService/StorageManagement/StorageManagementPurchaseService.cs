@@ -289,7 +289,7 @@ public class StorageManagementPurchaseService
         {
             StringToStorageInfo(
                 _WebHookEventMessage!,
-                out Dictionary<string, string> StorageInfoDic,
+                out StorageInfo StorageInfoData,
                 out string ErrorText
             );
             if (ErrorText != "")
@@ -302,18 +302,18 @@ public class StorageManagementPurchaseService
             }
             else
             {
-                var properties = _InputStorageInfoStatic.GetType().GetProperties();
-
-                foreach (var property in properties)
-                {
-                    if (StorageInfoDic.ContainsKey(property.Name))
-                    {
-                        var value = StorageInfoDic[property.Name];
-
-                        property.SetValue(_InputStorageInfoStatic, value);
-                    }
-                }
-
+                if (StorageInfoData.Place != null)
+                    _InputStorageInfoStatic.Place = StorageInfoData.Place;
+                if (StorageInfoData.Name != null)
+                    _InputStorageInfoStatic.Name = StorageInfoData.Name;
+                if (StorageInfoData.Location != null)
+                    _InputStorageInfoStatic.Location = StorageInfoData.Location;
+                if (StorageInfoData.Amount != null)
+                    _InputStorageInfoStatic.Amount = StorageInfoData.Amount;
+                if (StorageInfoData.PurchaseDate != null)
+                    _InputStorageInfoStatic.PurchaseDate = StorageInfoData.PurchaseDate;
+                if (StorageInfoData.ExpiryDate != null)
+                    _InputStorageInfoStatic.ExpiryDate = StorageInfoData.ExpiryDate;
                 _ReplyMessageListStatic = GetAdditionConfirmHint(_InputStorageInfoStatic);
             }
         }
