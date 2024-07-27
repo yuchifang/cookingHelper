@@ -162,7 +162,7 @@ public class StorageManagementService
                         Size = "md",
                         Wrap = true,
                         Type = FlexComponentTypeEnum.Text,
-                        Text = "依編號,存放位置,物品名稱,詳細位置,數量,購買日期(p),有效日期(e)排列"
+                        Text = "依編號,儲存位置,物品名稱,詳細位置,數量,購買日期(p),有效日期(e)排列"
                     },
                 }
             },
