@@ -5,50 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CookingHelper.DatabaseService;
 
-// var UserDataAdded = await GetStoreListData(userId);
-
-// if (UserDataAdded != null)
-// {
-//     var StoreItemData = await _userListDbContext
-//         .StoreItem.AsNoTracking()
-//         .FirstOrDefaultAsync(StoreItem =>
-//             StoreItem.StoreListId == UserDataAdded.StoreListId
-//         );
-//     if (StoreItemData == null)
-//     {
-//         await _userListDbContext.StoreItem.AddAsync(
-//             new StoreItem
-//             {
-//                 Name = "",
-//                 Place = "",
-//                 StoreListId = UserDataAdded.StoreListId
-//             }
-//         );
-//         await _userListDbContext.SaveChangesAsync();
-//         var StoreItemDataAdded =
-//             await _userListDbContext.StoreItem.FirstOrDefaultAsync(StoreItem =>
-//                 StoreItem.StoreListId == UserDataAdded.StoreListId
-//             );
-//         if (StoreItemDataAdded != null)
-//         {
-//             UserDataAdded.StoreItemList.Add(StoreItemDataAdded);
-//             await _userListDbContext.SaveChangesAsync();
-//         }
-//         else
-//         {
-//             throw new Exception("StoreItemDataAdded not Found");
-//         }
-//     }
-//     else
-//     {
-//         throw new Exception("StoreItemGroupData not Found");
-//     }
-// }
-// else
-// {
-//     throw new Exception("UserDataAdded not Found");
-// }
-
 public class StorageManagementDatabaseService
 {
     private readonly UserListDbContext _userListDbContext;
@@ -134,6 +90,43 @@ public class StorageManagementDatabaseService
                 );
 
                 await _userListDbContext.SaveChangesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine("********");
+            Console.WriteLine(ex?.InnerException?.Message);
+            Console.WriteLine("********");
+            throw new Exception(nameof(ex));
+        }
+    }
+
+    public async Task<List<StoreItem>> SearchStorageList(StorageInfo StorageInfo, string userId)
+    {
+        try
+        {
+            var StorageInfoValue = StorageInfo
+                .GetType()
+                .GetProperties()
+                .Select(item => item.GetValue(StorageInfo))
+                .ToHashSet();
+            var StoreListData = await GetStoreListData(userId);
+            if (StoreListData != null)
+            {
+                var SearchStoreItemData = StoreListData
+                    .StoreItemList.Where(item =>
+                        item.GetType()
+                            .GetProperties()
+                            .Select(p => p.GetValue(item))
+                            .Any(value => StorageInfoValue.Contains(value))
+                    )
+                    .ToList();
+                return SearchStoreItemData;
+            }
+            else
+            {
+                return new List<StoreItem>();
             }
         }
         catch (Exception ex)
