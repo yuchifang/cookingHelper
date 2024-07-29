@@ -128,6 +128,47 @@ public class Utils
         }
     }
 
+    public static bool ClassMatch<Class>(Class item, Class target)
+    {
+        foreach (var prop in typeof(Class).GetProperties())
+        {
+            var targetValue = prop.GetValue(target);
+            if (targetValue != null)
+            {
+                var itemValue = prop.GetValue(item);
+                if (!targetValue.Equals(itemValue))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public static IEnumerable<T> Paginate<T>(
+        IEnumerable<T> source,
+        int pageIndex,
+        int pageSize,
+        out bool hasNextPage,
+        out bool hasPrevPage
+    )
+    {
+        hasPrevPage = false;
+        hasNextPage = false;
+        var count = source.Count();
+        var totalPage = (int)Math.Ceiling(count / (double)pageSize);
+        if (pageIndex > 1)
+        {
+            hasPrevPage = true;
+        }
+        if (totalPage > pageIndex)
+        {
+            hasNextPage = true;
+        }
+
+        return source.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+    }
+
     public static string DateOnlyToString(DateOnly dateOnly, string? format)
     {
         if (format == null)
