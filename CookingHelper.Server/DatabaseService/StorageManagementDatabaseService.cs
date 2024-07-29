@@ -2,6 +2,7 @@ using CookingHelper.Data;
 using CookingHelper.LineDtoService;
 using CookingHelper.Model;
 using Microsoft.EntityFrameworkCore;
+using static CookingHelper.Utils;
 
 namespace CookingHelper.DatabaseService;
 
@@ -102,27 +103,19 @@ public class StorageManagementDatabaseService
         }
     }
 
-    public async Task<List<StoreItem>> SearchStorageList(StorageInfo StorageInfo, string userId)
+    public async Task<IEnumerable<StoreItem>> SearchStorageList(
+        StorageInfo UserInputStorageInfo,
+        string userId
+    )
     {
         try
         {
-            var StorageInfoValue = StorageInfo
-                .GetType()
-                .GetProperties()
-                .Select(item => item.GetValue(StorageInfo))
-                .ToHashSet();
             var StoreListData = await GetStoreListData(userId);
             if (StoreListData != null)
             {
-                var SearchStoreItemData = StoreListData
-                    .StoreItemList.Where(item =>
-                        item.GetType()
-                            .GetProperties()
-                            .Select(p => p.GetValue(item))
-                            .Any(value => StorageInfoValue.Contains(value))
-                    )
-                    .ToList();
-                return SearchStoreItemData;
+                return StoreListData.StoreItemList.Where(item =>
+                    ClassMatch(item, UserInputStorageInfo)
+                );
             }
             else
             {
