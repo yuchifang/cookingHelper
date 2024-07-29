@@ -368,7 +368,7 @@ public class StorageManagementPurchaseService
             //? 回到 StorageManagement
         }
 
-        var _StatusProcessorClass = new Dictionary<string, StorageInputStatus>
+        var StatusProcessor = new Dictionary<string, StorageInputStatus>
         {
             { "init", new InitStatus() },
             { "place", new PlaceStatus(WebHookEventMessage!) },
@@ -380,9 +380,7 @@ public class StorageManagementPurchaseService
             { "edit", new EditStatus(WebHookEventMessage) }
         };
 
-        Console.WriteLine(WebHookEventMessage);
-
-        _StatusProcessorClass[_InputStorageInfoStatic.Status].Init();
+        StatusProcessor[_InputStorageInfoStatic.Status].Init();
 
         LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
         {
