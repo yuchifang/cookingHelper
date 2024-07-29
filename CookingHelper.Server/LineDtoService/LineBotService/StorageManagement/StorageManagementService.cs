@@ -86,6 +86,9 @@ public class StorageManagementService
             var StorageFieldUIList = OrderedStoreItemList.Select(GetStorageUIField).ToList();
 
             //! 取資料 查 取資料的方式
+            //! Storage 查詢 下一頁用 postBack
+            //! 建立假資料
+            //! IEnumerable and Queryable
             /*
                 編號 存放位置 物品名稱 ...
                 資料 ...
@@ -98,10 +101,12 @@ public class StorageManagementService
 
                 刪除功能 選擇編號 ex: 010/020
                     取消刪除
+                全部刪除
+
             */
             _ReplyMessageListStatic = new List<object>
             {
-                GetStorageUIBlock(StorageFieldUIList), //? 像是 StorageManagement 在方一個中間class
+                GetStorageManagementUIBlock(StorageFieldUIList), //? 像是 StorageManagement 在方一個中間class
             };
         }
 
@@ -145,7 +150,7 @@ public class StorageManagementService
         };
     }
 
-    public FlexMessageObject<FlexBubbleContainer> GetStorageUIBlock(
+    public FlexMessageObject<FlexBubbleContainer> GetStorageManagementUIBlock(
         List<FlexComponent> StorageFieldUIList
     )
     {
@@ -223,7 +228,7 @@ public class StorageManagementService
         StorageUITable.InsertRange(2, StorageFieldUIList);
         return new FlexMessageObject<FlexBubbleContainer>
         {
-            AltText = "text",
+            AltText = "StorageManagementUIBlock",
 
             QuickReply = new QuickReplyItemDto
             {
