@@ -1,75 +1,83 @@
+using CookingHelper.Enum;
 using CookingHelper.LineDto;
 using static CookingHelper.Utils;
 
 namespace CookingHelper.LineDtoService;
 
-class StorageInputStatus : MessageUI
+class StorageInputStatus : UIWithData
 {
     public virtual void Init() { }
 
+    // 新增結果
+    // 查詢結果合併
     public List<object> GetAdditionConfirmHint(InputStorageInfo InputStorageInfoStatic)
     {
-        var NameField = FieldFlexComponent(
-            StorageManagementKeywordGroup.Name,
-            InputStorageInfoStatic.Name
-        );
-        var AmountField = FieldFlexComponent(
-            StorageManagementKeywordGroup.Amount,
-            InputStorageInfoStatic.Amount
-        );
-        var LocationField = FieldFlexComponent(
-            StorageManagementKeywordGroup.Location,
-            InputStorageInfoStatic.Location
-        );
-        FlexComponent? PurchaseDateField;
-        if (InputStorageInfoStatic.PurchaseDate != null)
+        var StorageInfoTable = GetStorageInfoTable(InputStorageInfoStatic);
+        var StorageTable = new List<FlexComponent>
         {
-            string PurchaseDateString = DateOnlyToString(
-                InputStorageInfoStatic.PurchaseDate.Value,
-                null
-            );
-            PurchaseDateField = FieldFlexComponent(
-                StorageManagementKeywordGroup.PurchaseDate,
-                PurchaseDateString
-            );
-        }
-        else
-        {
-            PurchaseDateField = null;
-        }
-        FlexComponent? ExpiryDateField;
-        if (InputStorageInfoStatic.ExpiryDate != null)
-        {
-            string ExpiryDateString = DateOnlyToString(
-                InputStorageInfoStatic.ExpiryDate.Value,
-                null
-            );
-
-            ExpiryDateField = FieldFlexComponent(
-                StorageManagementKeywordGroup.ExpiryDate,
-                ExpiryDateString
-            );
-        }
-        else
-        {
-            ExpiryDateField = null;
-        }
-
-        List<FlexComponent> FieldTable = new List<FlexComponent> { };
-
-        if (NameField != null)
-            FieldTable.Add(NameField);
-        if (AmountField != null)
-            FieldTable.Add(AmountField);
-        if (LocationField != null)
-            FieldTable.Add(LocationField);
-        if (PurchaseDateField != null)
-            FieldTable.Add(PurchaseDateField);
-        if (ExpiryDateField != null)
-            FieldTable.Add(ExpiryDateField);
+            new FlexComponent { Type = FlexComponentTypeEnum.Separator, Margin = "xxl" },
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Box,
+                Layout = FlexComponentLayoutTypeEnum.Vertical,
+                Contents = new List<FlexComponent>
+                {
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Message,
+                            Label = "新增",
+                            Text = "新增"
+                        }
+                    },
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Postback,
+                            Label = "修改",
+                            Data = "修改",
+                            InputOption = PostbackInputOptionEnum.OpenKeyboard
+                        }
+                    },
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Message,
+                            Label = "取消新增",
+                            Text = "取消新增",
+                        }
+                    }
+                }
+            }
+        };
+        StorageTable.InsertRange(0, StorageInfoTable);
         return new List<object>
         {
-            GetBubbleFlexMessageObject(InputStorageInfoStatic.Place, FieldTable)
+            new FlexMessageObject<FlexBubbleContainer>
+            {
+                AltText = "庫存新增結果",
+                Contents = new FlexBubbleContainer
+                {
+                    Type = FlexContainerTypeEnum.Bubble,
+                    Styles = new FlexBubbleContainerStyle
+                    {
+                        Footer = new FlexBlockStyle { Separator = false }
+                    },
+                    Body = new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Box,
+                        Layout = FlexComponentLayoutTypeEnum.Vertical,
+
+                        Contents = StorageTable
+                    }
+                }
+            },
         };
     }
 }
