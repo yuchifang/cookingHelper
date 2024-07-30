@@ -5,7 +5,6 @@ namespace CookingHelper.Data;
 
 public class UserListDbContext : DbContext
 {
-    // DI 注入
     public UserListDbContext(DbContextOptions<UserListDbContext> options)
         : base(options) { }
 
@@ -13,11 +12,6 @@ public class UserListDbContext : DbContext
 
     public DbSet<StoreItem> StoreItem { get; set; }
     public DbSet<StoreList> StoreList { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.EnableSensitiveDataLogging();
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

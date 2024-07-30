@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using CookingHelper.LineDto;
 using CookingHelper.LineDtoService;
 using CookingHelper.ProviderGroup;
-
+using Microsoft.AspNetCore.Mvc;
 
 namespace CookingHelper.Controllers;
 
@@ -21,7 +20,6 @@ public class LineBotController : ControllerBase
         _jsonProvider = new JsonProvider();
     }
 
-    // 使用者傳訊息會由此API接收
     [HttpPost("Webhook")]
     public async Task<IActionResult> Webhook(WebhookRequestBodyDto body)
     {

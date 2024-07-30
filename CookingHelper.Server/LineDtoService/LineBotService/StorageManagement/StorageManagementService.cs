@@ -27,15 +27,12 @@ public class StorageManagementService
             WebHookEventDto!.Source!.UserId!
         );
 
-        // 創建 一個 Purchase
         if (StoreList.StoreItemList.Count == 0)
         {
             _ReplyMessageListStatic = new List<object>
             {
                 new TextMessageObject
                 {
-                    //? 只能按輸入按鈕才能輸入 要黨無效輸入
-                    //? 按了按鈕 _WebhookEventState = KeywordGroup.StorageManagement
                     Text = "庫存中沒有物品, 點擊按鈕, 輸入想要紀錄的物品",
                     QuickReply = new QuickReplyItemDto
                     {

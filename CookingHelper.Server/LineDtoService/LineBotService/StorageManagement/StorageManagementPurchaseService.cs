@@ -337,7 +337,7 @@ public class StorageManagementPurchaseService
         {
             WebHookEventMessage = null;
         }
-        //! 填寫完成 跳到 確認 => 新增
+
         if (WebHookEventMessage == "填寫完成")
         {
             LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
@@ -362,10 +362,6 @@ public class StorageManagementPurchaseService
                 new TextMessageObject { Text = "新增完成" }
             );
             return;
-            //? 使用 StorageManagementDatabase 呼叫 新增的方法
-            //? 將 _InputStorageInfoStatic 清空
-            //? return 回傳新增成功
-            //? 回到 StorageManagement
         }
 
         var StatusProcessor = new Dictionary<string, StorageInputStatus>
@@ -389,21 +385,8 @@ public class StorageManagementPurchaseService
         };
     }
 
-    //? 新增完成 還沒做或改為 填寫完成
-    //? 完成修改 狀態要改嗎 _InputStorageInfoStatic.Status??
-    // 回覆一個 flexMessage 顯你使用者剛剛輸入的資料
-    //      顯示按鈕完成, 修改, 取消
-    //          修改 用字串表示 物品名稱:XXX/
-    //          錯誤顯示輸入錯誤
-    // 將資料樹入到資料庫?
-    // 清空 _InputStorageDataStatusStatic, _inputStorageStatus="init"
-    // 回復成功訊息
-    // 回到 有資料的那頁
-
     public async Task EditAddedResultConfirmPostBack(WebhookEventDto WebHookEventDto)
     {
-        //? 這樣寫好嗎
-        //! FlexMessage Final Result 要改一下要加欄位名稱
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject { Text = "若要修改欄位, 例如修改物品名稱, 請輸入: 物品名稱:XXX並送出. XXX為要修改的資料", },

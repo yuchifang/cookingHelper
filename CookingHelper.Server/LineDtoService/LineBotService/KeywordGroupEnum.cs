@@ -11,18 +11,12 @@ public static class KeywordGroup
     public const string Feedback = "意見反饋";
     public const string InputFeedback = "輸入意見反饋";
 
-    //庫存管理
+    // 庫存管理
     public const string StorageManagement = "庫存管理";
 }
 
 public static class StorageManagementKeywordGroup
 {
-    // 儲存位置
-    // 物品名稱
-    // 詳細位置
-    // 數量
-    // 購買日期
-    // 有效日期
     public const string Place = "儲存位置";
     public const string Name = "物品名稱";
     public const string Location = "詳細位置";

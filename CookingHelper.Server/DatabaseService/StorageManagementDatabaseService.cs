@@ -69,7 +69,6 @@ public class StorageManagementDatabaseService
         }
     }
 
-    // 新增資料
     public async Task AddStoreItemData(string userId, InputStorageInfo InputStorageInfo)
     {
         var StoreListData = await GetStoreListNoStrackingData(userId);

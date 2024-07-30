@@ -34,12 +34,10 @@ public class FlexCarouselContainer
     public List<FlexBubbleContainer> Contents { get; set; }
 }
 
-// component
 public class FlexComponent
 {
     public string Type { get; set; }
 
-    // box component
     public string? Layout { get; set; }
     public List<FlexComponent>? Contents { get; set; }
     public string? BackgroundColor { get; set; }
@@ -68,31 +66,24 @@ public class FlexComponent
     public string? AlignItems { get; set; }
     public FlexBackgroundDto? Background { get; set; }
 
-    // button coponent
     public string? Style { get; set; }
     public string? Color { get; set; }
     public string? Gravity { get; set; }
     public string? AdjustMode { get; set; }
 
-    //image component
     public string? Url { get; set; }
     public string? Align { get; set; }
     public string? Size { get; set; }
     public string? AspectRatio { get; set; }
     public string? AspectMode { get; set; }
     public bool? Animated { get; set; }
-
-    //text component
     public string? Text { get; set; }
     public bool? Wrap { get; set; }
     public string? LineSpaceing { get; set; }
     public int? Maxlines { get; set; }
     public string? Weight { get; set; }
     public string? Decoration { get; set; }
-
     public string? Margin { get; set; }
-
-    //icon, span, separator, filler 這四個元件所需屬性已在上面宣告過，故不用重複宣告
 }
 
 public class FlexBackgroundDto
@@ -105,7 +96,6 @@ public class FlexBackgroundDto
     public string? CenterPosition { get; set; }
 }
 
-// bubble container styles
 public class FlexBubbleContainerStyle
 {
     public FlexBlockStyle? Header { get; set; }

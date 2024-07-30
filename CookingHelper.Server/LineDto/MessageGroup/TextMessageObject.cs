@@ -12,7 +12,6 @@ public class TextMessageObject : BaseMessageObject
 
     public string Text { get; set; }
 
-    // add text emojiDto
     public List<TextMessageEmojiDto>? Emojis { get; set; }
 }
 

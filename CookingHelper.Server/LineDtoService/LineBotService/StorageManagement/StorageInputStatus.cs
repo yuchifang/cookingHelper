@@ -8,8 +8,6 @@ class StorageInputStatus : UIWithData
 {
     public virtual void Init() { }
 
-    // 新增結果
-    // 查詢結果合併
     public List<object> GetAdditionConfirmHint(InputStorageInfo InputStorageInfoStatic)
     {
         var StorageInfoTable = GetStorageInfoTable(InputStorageInfoStatic);

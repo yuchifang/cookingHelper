@@ -1,16 +1,17 @@
 using CookingHelper.LineDto;
+
 namespace CookingHelper.LineDto;
+
 public class RichMenuModel
 {
-    // 建立的時候沒有Id
     public string? RichMenuId { get; set; }
     public Size Size { get; set; }
     public bool Selected { get; set; }
     public string Name { get; set; }
     public string ChatBarText { get; set; }
     public Area[] Areas { get; set; }
-
 }
+
 public class Size
 {
     public int Width { get; set; }
