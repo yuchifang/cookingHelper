@@ -4,7 +4,7 @@ using static CookingHelper.Utils;
 
 namespace CookingHelper.LineDtoService;
 
-class UIWithData : MessageUI
+public class UIWithData : MessageUI
 {
     public List<FlexComponent> GetStorageInfoTable(StorageInfo StorageInfo)
     {

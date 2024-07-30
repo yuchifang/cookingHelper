@@ -4,7 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace CookingHelper.LineDtoService;
 
-class StorageSearch : UIWithData
+public class StorageSearch : UIWithData
 {
     public virtual void Init(IMemoryCache memoryCache) { }
 

@@ -112,7 +112,10 @@ public class LineBotService
             _WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
             await _shoppingListLogicService.Init(WebHookEventDto);
         }
-        else if (_WebhookEventStatusStatic == "庫存查詢")
+        else if (
+            _WebhookEventStatusStatic == "庫存查詢"
+            && WebHookEventDto.Message.Text != KeywordGroup.StorageManagement
+        )
         {
             await _storageManagementSearchService.SearchStorage(WebHookEventDto);
         }

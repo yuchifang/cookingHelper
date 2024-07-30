@@ -4,7 +4,7 @@ using static CookingHelper.LineDto.BaseMessageObject;
 
 namespace CookingHelper.LineDtoService;
 
-class MessageUI
+public class MessageUI
 {
     public List<object> DateTypeErrorHint(string HintText)
     {
