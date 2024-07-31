@@ -72,7 +72,7 @@ public class StorageManagementService
                     new CustomComparer()
                 );
             }
-            if (WebHookEventMessage == "依過期日期排序")
+            if (WebHookEventMessage == "依有效日期排序")
             {
                 OrderedStoreItemList = OrderedStoreItemList.ThenBy(
                     Item => Item.ExpiryDate,
@@ -190,8 +190,8 @@ public class StorageManagementService
                         Action = new ActionDto
                         {
                             Type = ActionTypeEnum.Message,
-                            Label = "依過期日期排序",
-                            Text = "依過期日期排序"
+                            Label = "依有效日期排序",
+                            Text = "依有效日期排序"
                         }
                     },
                 }

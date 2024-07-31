@@ -166,7 +166,7 @@ public class StorageManagementSearchService : StorageSearch
                 new TextMessageObject { Text = "依格式輸入查詢資訊" },
                 new TextMessageObject
                 {
-                    Text = "若要尋找物品名稱為蘋果, 請輸入物品名稱:蘋果. \n要填入多筆資訊, 請用/號隔開, 如物品名稱:蘋果/過期日期:20230809",
+                    Text = "若要尋找物品名稱為蘋果, 請輸入物品名稱:蘋果. \n要填入多筆資訊, 請用/號隔開, 如物品名稱:蘋果/有效日期:20230809",
                     QuickReply = new QuickReplyItemDto
                     {
                         Items = new List<QuickReplyButtonDto>
