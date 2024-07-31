@@ -35,7 +35,7 @@ public class MessageUI
         };
     }
 
-    protected FlexComponent? FieldFlexComponent(string? keyString, string? valueString)
+    public FlexComponent? FieldFlexComponent(string? keyString, string? valueString)
     {
         if (valueString != null && valueString != "")
         {
@@ -69,7 +69,7 @@ public class MessageUI
         }
     }
 
-    protected QuickReplyButtonDto GetQuickReplyButton(string Type, string Text, string Label)
+    public QuickReplyButtonDto GetQuickReplyButton(string Type, string Text, string Label)
     {
         return new QuickReplyButtonDto
         {
