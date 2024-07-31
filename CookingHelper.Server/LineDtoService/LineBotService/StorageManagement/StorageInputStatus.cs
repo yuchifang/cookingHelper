@@ -9,8 +9,6 @@ class InputStorageStatus : UIWithData
 {
     public static InputStorageStatus Instance = new InputStorageStatus();
 
-    public virtual void Init() { }
-
     public List<object> GetAdditionConfirmHint(InputStorageInfo InputStorageInfoStatic)
     {
         var StorageInfoTable = GetStorageInfoTable(InputStorageInfoStatic);
