@@ -1,4 +1,4 @@
-public static class KeywordGroup
+public struct KeywordGroup
 {
     // 採買清單
     public const string InputPurchaseList = "輸入採買清單";
@@ -15,7 +15,7 @@ public static class KeywordGroup
     public const string StorageManagement = "庫存管理";
 }
 
-public static class StorageManagementKeywordGroup
+public struct StorageManagementKeywordGroup
 {
     public const string Place = "儲存位置";
     public const string Name = "物品名稱";
