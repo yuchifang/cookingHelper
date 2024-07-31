@@ -50,7 +50,9 @@ public class StorageManagementPurchaseService
             LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
             {
                 ReplyToken = WebHookEventDto.ReplyToken!,
-                Messages = new InputStorageStatus().GetAdditionConfirmHint(_InputStorageInfoStatic)
+                Messages = InputStorageStatus.Instance.GetAdditionConfirmHint(
+                    _InputStorageInfoStatic
+                )
             };
             return;
         }
