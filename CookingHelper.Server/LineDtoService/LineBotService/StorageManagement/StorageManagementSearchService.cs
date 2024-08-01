@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using static CookingHelper.LineDto.BaseMessageObject;
 using static CookingHelper.Utils;
 
-public class StorageManagementSearchService : StorageSearch
+public class StorageManagementSearchService
 {
     private readonly StorageManagementService _storageManagementService;
     private readonly StorageManagementDatabaseService _storageManagementDatabaseService;
@@ -31,18 +31,26 @@ public class StorageManagementSearchService : StorageSearch
 
     public async Task SearchStorage(WebhookEventDto WebHookEventDto)
     {
+        IQueryable<StorageInfo> SearchResultDataList = Enumerable
+            .Empty<StorageInfo>()
+            .AsQueryable();
+
         string WebHookEventMessage = WebHookEventDto.Message!.Text!;
-        var SearchStorageProcessor = new Dictionary<string, StorageSearch>
-        {
-            { "上一頁", new PrevPage() },
-            { "下一頁", new NextPage() }
-        };
+
         if (WebHookEventMessage == "取消查詢")
         {
             await _storageManagementService.GetStorage(WebHookEventDto);
             return;
         }
-        else if (!SearchStorageProcessor.ContainsKey(WebHookEventMessage))
+        else if (WebHookEventMessage == "上一頁")
+        {
+            _PageIndexStatic -= 1;
+        }
+        else if (WebHookEventMessage == "下一頁")
+        {
+            _PageIndexStatic += 1;
+        }
+        else
         {
             _memoryCache.Remove("Storage");
 
@@ -62,12 +70,13 @@ public class StorageManagementSearchService : StorageSearch
 
                 return;
             }
-            var SearchedStoreItem = await _storageManagementDatabaseService.SearchStorageList(
-                UserTypeStorageInfo,
-                WebHookEventDto.Source.UserId
-            );
+            IQueryable<StoreItem>? SearchedStoreItemList =
+                await _storageManagementDatabaseService.GetSearchedStorageList(
+                    UserTypeStorageInfo,
+                    WebHookEventDto.Source.UserId
+                );
 
-            if (SearchedStoreItem.ToList().Count == 0)
+            if (SearchedStoreItemList.ToList().Count == 0)
             {
                 _ReplyMessageListStatic = new List<object>
                 {
@@ -75,69 +84,31 @@ public class StorageManagementSearchService : StorageSearch
                 };
                 return;
             }
-
-            _memoryCache.Set("Storage", SearchedStoreItem);
-
-            var SearchedStoreItemEnumerable = Paginate(
-                SearchedStoreItem,
-                _PageIndexStatic,
-                _PageSizeStatic,
-                out bool hasNextPage,
-                out bool hasPrevPage
-            );
-            var SearchedStorageInfoItem = SearchedStoreItemEnumerable.Select(x => (StorageInfo)x);
-
-            _ReplyMessageListStatic = GetSearchUIBlock(SearchedStorageInfoItem.ToList());
-
-            if (hasNextPage && hasPrevPage)
-            {
-                ((FlexMessageObject<FlexCarouselContainer>)_ReplyMessageListStatic[0]).QuickReply =
-                    new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            GetQuickReplyButton(ActionTypeEnum.Message, "下一頁", "下一頁"),
-                            GetQuickReplyButton(ActionTypeEnum.Message, "上一頁", "上一頁"),
-                        }
-                    };
-            }
-            else if (hasNextPage)
-            {
-                ((FlexMessageObject<FlexCarouselContainer>)_ReplyMessageListStatic[0]).QuickReply =
-                    new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            GetQuickReplyButton(ActionTypeEnum.Message, "下一頁", "下一頁"),
-                        }
-                    };
-            }
-            else if (hasPrevPage)
-            {
-                ((FlexMessageObject<FlexCarouselContainer>)_ReplyMessageListStatic[0]).QuickReply =
-                    new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            GetQuickReplyButton(ActionTypeEnum.Message, "上一頁", "上一頁"),
-                        }
-                    };
-            }
+            var SearchedStorageInfoList = SearchedStoreItemList.Select(x => (StorageInfo)x);
+            _memoryCache.Set("Storage", SearchedStorageInfoList);
+            SearchResultDataList = SearchedStorageInfoList;
         }
-        else
+        // 初始搜尋上面code會對 XXX付值, 不是則是從Cache拿值
+        var MethodGroup = StorageSearchBaseStruct.Instance;
+        if (SearchResultDataList.Count() == 0)
         {
-            SearchStorageProcessor[WebHookEventMessage].Init(_memoryCache);
+            if (_memoryCache.TryGetValue("Storage", out IQueryable<StorageInfo> SearchedList))
+            {
+                SearchResultDataList = SearchedList;
+            }
+        }
+        if (SearchResultDataList != null && SearchResultDataList.Any())
+        {
+            _ReplyMessageListStatic = MethodGroup.GetSearchResultUIBlock(
+                SearchResultDataList,
+                _PageIndexStatic,
+                _PageSizeStatic
+            );
         }
 
-        //? 整理 7/29 學到新的東西
-        // 整理 comment
-        // 整理 new Side project
-
-
-        //產生 FlexMessage 供選擇
         //! 修改,刪除, 返回
         //! Service 不能繼承
-        //! 下一頁有問題
+        // 這裡 StorageBase Class and StorageManageService
 
 
         //?
@@ -187,226 +158,4 @@ public class StorageManagementSearchService : StorageSearch
         };
         return;
     }
-
-    class PrevPage : StorageSearch
-    {
-        public override void Init(IMemoryCache _memoryCache)
-        {
-            _PageIndexStatic -= 1;
-            if (_memoryCache.TryGetValue("Storage", out IEnumerable<StorageInfo> SearchedList))
-            {
-                var SearchedStoreItemEnumerable = Paginate(
-                    SearchedList!,
-                    _PageIndexStatic,
-                    _PageSizeStatic,
-                    out bool hasNextPage,
-                    out bool hasPrevPage
-                );
-
-                _ReplyMessageListStatic = GetSearchUIBlock(SearchedStoreItemEnumerable.ToList());
-
-                if (hasNextPage && hasPrevPage)
-                {
-                    (
-                        (FlexMessageObject<FlexCarouselContainer>)_ReplyMessageListStatic[0]
-                    ).QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            GetQuickReplyButton(ActionTypeEnum.Message, "下一頁", "下一頁"),
-                            GetQuickReplyButton(ActionTypeEnum.Message, "上一頁", "上一頁"),
-                        }
-                    };
-                }
-                else if (hasNextPage)
-                {
-                    (
-                        (FlexMessageObject<FlexCarouselContainer>)_ReplyMessageListStatic[0]
-                    ).QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            GetQuickReplyButton(ActionTypeEnum.Message, "下一頁", "下一頁"),
-                        }
-                    };
-                }
-                else if (hasPrevPage)
-                {
-                    (
-                        (FlexMessageObject<FlexCarouselContainer>)_ReplyMessageListStatic[0]
-                    ).QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            GetQuickReplyButton(ActionTypeEnum.Message, "上一頁", "上一頁"),
-                        }
-                    };
-                }
-            }
-        }
-    }
-
-    class NextPage : StorageSearch
-    {
-        public override void Init(IMemoryCache _memoryCache)
-        {
-            _PageIndexStatic += 1;
-            if (_memoryCache.TryGetValue("Storage", out IEnumerable<StorageInfo> SearchedList))
-            {
-                var SearchedStoreItemEnumerable = Paginate(
-                    SearchedList,
-                    _PageIndexStatic,
-                    _PageSizeStatic,
-                    out bool hasNextPage,
-                    out bool hasPrevPage
-                );
-
-                _ReplyMessageListStatic = GetSearchUIBlock(SearchedStoreItemEnumerable.ToList());
-
-                if (hasNextPage && hasPrevPage)
-                {
-                    (
-                        (FlexMessageObject<FlexCarouselContainer>)_ReplyMessageListStatic[0]
-                    ).QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            GetQuickReplyButton(ActionTypeEnum.Message, "下一頁", "下一頁"),
-                            GetQuickReplyButton(ActionTypeEnum.Message, "上一頁", "上一頁"),
-                        }
-                    };
-                }
-                else if (hasNextPage)
-                {
-                    (
-                        (FlexMessageObject<FlexCarouselContainer>)_ReplyMessageListStatic[0]
-                    ).QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            GetQuickReplyButton(ActionTypeEnum.Message, "下一頁", "下一頁"),
-                        }
-                    };
-                }
-                else if (hasPrevPage)
-                {
-                    (
-                        (FlexMessageObject<FlexCarouselContainer>)_ReplyMessageListStatic[0]
-                    ).QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            GetQuickReplyButton(ActionTypeEnum.Message, "上一頁", "上一頁"),
-                        }
-                    };
-                }
-            }
-        }
-    }
 }
-/*
-    class SearchUserTypeText : StorageSearch
-    {
-        private readonly StorageManagementDatabaseService _storageManagementDatabaseService;
-        private readonly StorageManagementService _storageManagementService;
-        private readonly IMemoryCache _memoryCache;
-        private readonly WebhookEventDto _webhookEventDto;
-
-        public SearchUserTypeText(
-            StorageManagementDatabaseService StorageManagementDatabaseService,
-            StorageManagementService StorageManagementService,
-            IMemoryCache MemoryCache,
-            WebhookEventDto WebHookEventDto
-        )
-        {
-            _storageManagementDatabaseService = StorageManagementDatabaseService;
-            _storageManagementService = StorageManagementService;
-            _memoryCache = MemoryCache;
-            _webhookEventDto = WebHookEventDto;
-        }
-
-        public async void Init()
-        {
-            _memoryCache.Remove("Storage");
-            string WebHookEventMessage = _webhookEventDto.Message!.Text!;
-            StringToStorageInfo(
-                WebHookEventMessage,
-                out StorageInfo UserTypeStorageInfo,
-                out string InputErrorText
-            );
-            if (InputErrorText != "")
-            {
-                await _storageManagementService.GetStorage(_webhookEventDto);
-
-                StorageManagementService._ReplyMessageListStatic.Insert(
-                    0,
-                    new TextMessageObject { Text = "發生錯誤: 此欄位出現問題 " + InputErrorText }
-                );
-
-                return;
-            }
-            var SearchedStoreItem = await _storageManagementDatabaseService.SearchStorageList(
-                UserTypeStorageInfo,
-                _webhookEventDto.Source.UserId
-            );
-
-            if (SearchedStoreItem.ToList().Count == 0)
-            {
-                _ReplyMessageListStatic = new List<object>
-                {
-                    new TextMessageObject { Text = "找不到此物品" }
-                };
-                return;
-            }
-            //
-            _memoryCache.Set("Storage", SearchedStoreItem);
-
-            var SearchedStoreItemEnumerable = Paginate(
-                SearchedStoreItem,
-                _PageIndexStatic,
-                _PageSizeStatic,
-                out bool hasNextPage,
-                out bool hasPrevPage
-            );
-            var SearchedStorageInfoItem = SearchedStoreItemEnumerable.Select(x => (StorageInfo)x);
-
-            _ReplyMessageListStatic = GetSearchUIBlock(SearchedStorageInfoItem.ToList());
-
-            if (hasNextPage && hasPrevPage)
-            {
-                ((FlexMessageObject<FlexCarouselContainer>)_ReplyMessageListStatic[0]).QuickReply =
-                    new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            GetQuickReplyButton(ActionTypeEnum.Message, "下一頁", "下一頁"),
-                            GetQuickReplyButton(ActionTypeEnum.Message, "上一頁", "上一頁"),
-                        }
-                    };
-            }
-            else if (hasNextPage)
-            {
-                ((FlexMessageObject<FlexCarouselContainer>)_ReplyMessageListStatic[0]).QuickReply =
-                    new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            GetQuickReplyButton(ActionTypeEnum.Message, "下一頁", "下一頁"),
-                        }
-                    };
-            }
-            else if (hasPrevPage)
-            {
-                ((FlexMessageObject<FlexCarouselContainer>)_ReplyMessageListStatic[0]).QuickReply =
-                    new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            GetQuickReplyButton(ActionTypeEnum.Message, "上一頁", "上一頁"),
-                        }
-                    };
-            }
-        }
-    }
-}
-*/
