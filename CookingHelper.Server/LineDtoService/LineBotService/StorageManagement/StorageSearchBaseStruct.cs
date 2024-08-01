@@ -34,7 +34,7 @@ public class StorageSearchBaseStruct : UIWithData
     }
 
     public List<object> GetSearchResultUIBlock(
-        IEnumerable<StorageInfo> StorageInfoEnumerable,
+        IQueryable<StorageInfo> StorageInfoEnumerable,
         int PageIndex,
         int PageSize
     )
