@@ -6,6 +6,40 @@ namespace CookingHelper.LineDtoService;
 
 public class MessageUI
 {
+    public QuickReplyItemDto GetPrevAndNextPageQuickItem()
+    {
+        return new QuickReplyItemDto
+        {
+            Items = new List<QuickReplyButtonDto>
+            {
+                GetQuickReplyButton(ActionTypeEnum.Message, "下一頁", "下一頁"),
+                GetQuickReplyButton(ActionTypeEnum.Message, "上一頁", "上一頁"),
+            }
+        };
+    }
+
+    public QuickReplyItemDto GetNextPageQuickItem()
+    {
+        return new QuickReplyItemDto
+        {
+            Items = new List<QuickReplyButtonDto>
+            {
+                GetQuickReplyButton(ActionTypeEnum.Message, "下一頁", "下一頁"),
+            }
+        };
+    }
+
+    public QuickReplyItemDto GetPrevPageQuickItem()
+    {
+        return new QuickReplyItemDto
+        {
+            Items = new List<QuickReplyButtonDto>
+            {
+                GetQuickReplyButton(ActionTypeEnum.Message, "上一頁", "上一頁"),
+            }
+        };
+    }
+
     public List<object> DateTypeErrorHint(string HintText)
     {
         return new List<object>
