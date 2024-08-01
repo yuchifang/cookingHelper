@@ -145,8 +145,8 @@ public class Utils
         return true;
     }
 
-    public static IEnumerable<T> Paginate<T>(
-        IEnumerable<T> source,
+    public static IQueryable<T> Paginate<T>(
+        IQueryable<T> source,
         int pageIndex,
         int pageSize,
         out bool hasNextPage,

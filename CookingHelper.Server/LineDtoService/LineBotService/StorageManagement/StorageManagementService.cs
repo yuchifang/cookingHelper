@@ -56,7 +56,9 @@ public class StorageManagementService
         }
         else
         {
-            var OrderedStoreItemList = StoreList.StoreItemList.OrderBy(Item => Item.Place);
+            var OrderedStoreItemList = StoreList
+                .StoreItemList.OrderBy(Item => Item.Place)
+                .AsQueryable();
 
             LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagement;
             // todo
@@ -67,17 +69,21 @@ public class StorageManagementService
 
             if (WebHookEventMessage == "依購買日期排序")
             {
-                OrderedStoreItemList = OrderedStoreItemList.ThenBy(
-                    Item => Item.PurchaseDate,
-                    new CustomComparer()
-                );
+                OrderedStoreItemList =
+                    (IQueryable<StoreItem>)
+                        ((IOrderedEnumerable<StoreItem>)OrderedStoreItemList).ThenBy(
+                            Item => Item.PurchaseDate,
+                            new CustomComparer()
+                        );
             }
             if (WebHookEventMessage == "依有效日期排序")
             {
-                OrderedStoreItemList = OrderedStoreItemList.ThenBy(
-                    Item => Item.ExpiryDate,
-                    new CustomComparer()
-                );
+                OrderedStoreItemList =
+                    (IQueryable<StoreItem>)
+                        ((IOrderedEnumerable<StoreItem>)OrderedStoreItemList).ThenBy(
+                            Item => Item.ExpiryDate,
+                            new CustomComparer()
+                        );
             }
 
             var StorageFieldUIList = OrderedStoreItemList.Select(GetStorageUIField).ToList();

@@ -102,7 +102,7 @@ public class StorageManagementDatabaseService
         }
     }
 
-    public async Task<IEnumerable<StoreItem>> SearchStorageList(
+    public async Task<IQueryable<StoreItem>> GetSearchedStorageList(
         StorageInfo UserInputStorageInfo,
         string userId
     )
@@ -112,13 +112,14 @@ public class StorageManagementDatabaseService
             var StoreListData = await GetStoreListData(userId);
             if (StoreListData != null)
             {
-                return StoreListData.StoreItemList.Where(item =>
-                    ClassMatch(item, UserInputStorageInfo)
-                );
+                return StoreListData
+                    .StoreItemList.Where(item => ClassMatch(item, UserInputStorageInfo))
+                    .AsQueryable();
             }
             else
             {
-                return new List<StoreItem>();
+                return Enumerable.Empty<StoreItem>().AsQueryable();
+                ;
             }
         }
         catch (Exception ex)
