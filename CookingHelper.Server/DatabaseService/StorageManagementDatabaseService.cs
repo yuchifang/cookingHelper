@@ -131,4 +131,35 @@ public class StorageManagementDatabaseService
             throw new Exception(nameof(ex));
         }
     }
+
+    public async Task DeleteStorageInfo(StoreItem StoreItem, string userId)
+    {
+        try
+        {
+            var StoreListData = await GetStoreListData(userId);
+            if (StoreListData != null)
+            {
+                StoreItem? RemoveItem = StoreListData.StoreItemList.FirstOrDefault(item =>
+                    item.StoreItemId == StoreItem.StoreItemId
+                );
+                if (RemoveItem != null)
+                {
+                    _userListDbContext.StoreItem.Remove(RemoveItem);
+                    await _userListDbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception("Error");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine("********");
+            Console.WriteLine(ex?.InnerException?.Message);
+            Console.WriteLine("********");
+            throw new Exception(nameof(ex));
+        }
+    }
 }
