@@ -6,8 +6,6 @@ using static CookingHelper.Utils;
 
 namespace CookingHelper.LineDtoService;
 
-//! 寫完要更新 Database migrations
-
 public class StorageManagementPurchaseService
 {
     private readonly StorageManagementService _storageManagementService;
