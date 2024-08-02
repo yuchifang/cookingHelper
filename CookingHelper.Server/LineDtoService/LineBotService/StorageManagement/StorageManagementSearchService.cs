@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CookingHelper.DatabaseService;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
@@ -31,13 +32,11 @@ public class StorageManagementSearchService
 
     public async Task SearchStorage(WebhookEventDto WebHookEventDto)
     {
-        IQueryable<StorageInfo> SearchResultDataList = Enumerable
-            .Empty<StorageInfo>()
-            .AsQueryable();
+        IQueryable<StoreItem> SearchResultDataList = Enumerable.Empty<StoreItem>().AsQueryable();
 
         string WebHookEventMessage = WebHookEventDto.Message!.Text!;
 
-        if (WebHookEventMessage == "取消查詢")
+        if (WebHookEventMessage == "取消查詢" || WebHookEventMessage == "返回")
         {
             await _storageManagementService.GetStorage(WebHookEventDto);
             return;
@@ -50,8 +49,10 @@ public class StorageManagementSearchService
         {
             _PageIndexStatic += 1;
         }
+        else if (WebHookEventMessage == "返回查詢結果") { }
         else
         {
+            // 依使用者輸入查詢
             _memoryCache.Remove("Storage");
 
             StringToStorageInfo(
@@ -84,15 +85,16 @@ public class StorageManagementSearchService
                 };
                 return;
             }
-            var SearchedStorageInfoList = SearchedStoreItemList.Select(x => (StorageInfo)x);
-            _memoryCache.Set("Storage", SearchedStorageInfoList);
-            SearchResultDataList = SearchedStorageInfoList;
+
+            _memoryCache.Set("Storage", SearchedStoreItemList);
+            SearchResultDataList = SearchedStoreItemList;
         }
-        // 初始搜尋上面code會對 XXX付值, 不是則是從Cache拿值
+
+        // 初始查詢上面code會對 SearchResultDataList 付值, 不是則是從Cache拿值
         var MethodGroup = StorageSearchBaseStruct.Instance;
         if (SearchResultDataList.Count() == 0)
         {
-            if (_memoryCache.TryGetValue("Storage", out IQueryable<StorageInfo> SearchedList))
+            if (_memoryCache.TryGetValue("Storage", out IQueryable<StoreItem> SearchedList))
             {
                 SearchResultDataList = SearchedList;
             }
@@ -106,9 +108,18 @@ public class StorageManagementSearchService
             );
         }
 
-        //! 修改,刪除, 返回
-        //! Service 不能繼承
-        // 這裡 StorageBase Class and StorageManageService
+        //! 修改
+        /*
+            Text 進修改
+            描述
+            quickreply 返回查詢結果 Text //? 回到查詢結果
+            => FlexMessage 顯示修改完的資料
+            Flexbutton: 更新, 修改, 取消 //? 回到查詢結果
+            ?更新 => Database
+            
+
+        */
+
 
 
         //?
@@ -125,7 +136,7 @@ public class StorageManagementSearchService
         };
     }
 
-    public async Task SearchStoragePostBack(WebhookEventDto WebHookEventDto)
+    public async Task InitSearchStorageHintPostBack(WebhookEventDto WebHookEventDto)
     {
         LineBotService._WebhookEventStatusStatic = "庫存查詢";
 
@@ -157,5 +168,112 @@ public class StorageManagementSearchService
             }
         };
         return;
+    }
+
+    public async Task DeleteStoragePostBack(WebhookEventDto WebHookEventDto)
+    {
+        var userId = WebHookEventDto.Source!.UserId!;
+        var StoreItem = JsonSerializer.Deserialize<StoreItem>(WebHookEventDto.Postback!.Data![1..]);
+        if (StoreItem != null)
+        {
+            await _storageManagementDatabaseService.DeleteStorageInfo(StoreItem, userId);
+        }
+
+        LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
+        {
+            ReplyToken = WebHookEventDto.ReplyToken!,
+            Messages = new List<object>
+            {
+                new TextMessageObject
+                {
+                    Text = "刪除完成",
+                    QuickReply = new QuickReplyItemDto
+                    {
+                        Items = new List<QuickReplyButtonDto>
+                        {
+                            new QuickReplyButtonDto
+                            {
+                                Action = new ActionDto
+                                {
+                                    Type = ActionTypeEnum.Message,
+                                    Label = "返回",
+                                    Text = "返回",
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    public async Task DeleteStorageInfoConfirmPostBack(WebhookEventDto WebHookEventDto)
+    {
+        var MethodGroup = StorageSearchBaseStruct.Instance;
+        var StoreItem = JsonSerializer.Deserialize<StoreItem>(WebHookEventDto.Postback!.Data![1..]);
+        var StorageInfoTable = MethodGroup.GetStorageInfoTable(StoreItem!);
+
+        var StorageTable = new List<FlexComponent>
+        {
+            new FlexComponent { Type = FlexComponentTypeEnum.Text, Text = "確認刪除" },
+            new FlexComponent { Type = FlexComponentTypeEnum.Separator, Margin = "xxl" },
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Box,
+                Layout = FlexComponentLayoutTypeEnum.Vertical,
+                Contents = new List<FlexComponent>
+                {
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Postback,
+                            Label = "刪除",
+                            DisplayText = "刪除",
+                            Data = "d" + JsonSerializer.Serialize(StoreItem),
+                        }
+                    },
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Message,
+                            Label = "返回查詢結果",
+                            Text = "返回查詢結果",
+                        }
+                    }
+                }
+            }
+        };
+        StorageTable.InsertRange(1, StorageInfoTable);
+
+        LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
+        {
+            ReplyToken = WebHookEventDto.ReplyToken!,
+            Messages = new List<object>
+            {
+                new FlexMessageObject<FlexBubbleContainer>
+                {
+                    AltText = "確認刪除",
+                    Contents = new FlexBubbleContainer
+                    {
+                        Type = FlexContainerTypeEnum.Bubble,
+                        Styles = new FlexBubbleContainerStyle
+                        {
+                            Footer = new FlexBlockStyle { Separator = false }
+                        },
+                        Body = new FlexComponent
+                        {
+                            Type = FlexComponentTypeEnum.Box,
+                            Layout = FlexComponentLayoutTypeEnum.Vertical,
+
+                            Contents = StorageTable
+                        }
+                    }
+                },
+            }
+        };
     }
 }
