@@ -90,12 +90,28 @@ public class LineBotService
         {
             await _storageManagementPurchaseService.EditAddedResultConfirmPostBack(WebHookEventDto);
         }
-        if (WebHookEventDto.Postback.Data == "庫存查詢")
+        else if (WebHookEventDto.Postback.Data == "庫存查詢")
         {
-            await _storageManagementSearchService.SearchStoragePostBack(WebHookEventDto);
+            await _storageManagementSearchService.InitSearchStorageHintPostBack(WebHookEventDto);
+        }
+        else if (_WebhookEventStatusStatic == "庫存查詢")
+        {
+            if (WebHookEventDto.Postback.Data[0..1] == "c")
+            {
+                await _storageManagementSearchService.DeleteStorageInfoConfirmPostBack(
+                    WebHookEventDto
+                );
+            }
+            else if (WebHookEventDto.Postback.Data[0..1] == "d")
+            {
+                await _storageManagementSearchService.DeleteStoragePostBack(WebHookEventDto);
+            }
         }
 
-        await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
+        if (_ReplyMessageRequestStatic != null)
+        {
+            await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
+        }
     }
 
     private async Task ReceiveMessageWebhookEvent(WebhookEventDto WebHookEventDto)
