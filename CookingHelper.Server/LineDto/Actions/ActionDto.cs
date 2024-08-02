@@ -14,7 +14,7 @@ public class ActionDto
 
     public string? Text { get; set; }
 
-    public string? uri { get; set; }
+    public string? Uri { get; set; }
 }
 
 public static class PostbackInputOptionEnum
