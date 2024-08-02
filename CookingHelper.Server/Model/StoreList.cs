@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using CookingHelper.Model;
 
 namespace CookingHelper.Model;
@@ -13,5 +14,7 @@ public class StoreList
     [ForeignKey("UserId")]
     public string UserId { get; set; } = default!;
     public UserList UserList { get; set; } = default!;
+
+    [JsonIgnore]
     public ICollection<StoreItem> StoreItemList { get; set; } = new List<StoreItem>();
 }
