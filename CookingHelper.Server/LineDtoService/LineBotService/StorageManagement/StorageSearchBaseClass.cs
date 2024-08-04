@@ -2,7 +2,6 @@ using System.Text.Json;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
 using CookingHelper.Model;
-using Microsoft.Extensions.Caching.Memory;
 using static CookingHelper.LineDto.BaseMessageObject;
 using static CookingHelper.Utils;
 
@@ -11,6 +10,191 @@ namespace CookingHelper.LineDtoService;
 public class StorageSearchBaseClass : UIWithData
 {
     public static StorageSearchBaseClass Instance = new StorageSearchBaseClass();
+
+    public FlexComponent GetStorageUIField(StoreItem StoreItem, int index)
+    {
+        var LocationText = StoreItem.Location != null ? $" {StoreItem.Location}" : "";
+        var AmountText = StoreItem.Amount != null ? $" {StoreItem.Amount}" : "";
+        var PurchaseDateText =
+            StoreItem.PurchaseDate != null
+                ? $" (p){DateOnlyToString((DateOnly)StoreItem.PurchaseDate, null)}"
+                : "";
+        var ExpiryDateText =
+            StoreItem.ExpiryDate != null
+                ? $" (e){DateOnlyToString((DateOnly)StoreItem.ExpiryDate, null)}"
+                : "";
+
+        return new FlexComponent
+        {
+            Type = FlexComponentTypeEnum.Box,
+            Layout = FlexComponentLayoutTypeEnum.Vertical,
+            PaddingBottom = "10px",
+            Contents = new List<FlexComponent>
+            {
+                new FlexComponent
+                {
+                    Wrap = true,
+                    Type = FlexComponentTypeEnum.Text,
+                    Size = "xl",
+
+                    Text =
+                        $"{index + 1} {StoreItem.Place} {StoreItem.Name}{LocationText}{AmountText}{PurchaseDateText}{ExpiryDateText}"
+                },
+            }
+        };
+    }
+
+    public FlexMessageObject<FlexBubbleContainer> GetStorageManagementUIBlock(
+        List<FlexComponent> StorageFieldUIList,
+        bool hasNextPage,
+        bool hasPrevPage
+    )
+    {
+        FlexComponent ButtonList = new FlexComponent
+        {
+            Type = FlexComponentTypeEnum.Box,
+            Layout = FlexComponentLayoutTypeEnum.Horizontal,
+            Contents = new List<FlexComponent> { }
+        };
+        var StorageUITable = new List<FlexComponent>
+        {
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Box,
+                Layout = FlexComponentLayoutTypeEnum.Vertical,
+                Contents = new List<FlexComponent>
+                {
+                    new FlexComponent
+                    {
+                        Size = "md",
+                        Wrap = true,
+                        Type = FlexComponentTypeEnum.Text,
+                        Text = "依編號,儲存位置,物品名稱,詳細位置,數量,購買日期(p),有效日期(e)排列"
+                    },
+                }
+            },
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Box,
+                Layout = FlexComponentLayoutTypeEnum.Horizontal,
+                Contents = new List<FlexComponent>
+                {
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Message,
+                            Label = "依購買日期排序",
+                            Text = "依購買日期排序"
+                        }
+                    },
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Message,
+                            Label = "依有效日期排序",
+                            Text = "依有效日期排序"
+                        }
+                    },
+                }
+            },
+        };
+        if (hasPrevPage)
+        {
+            ButtonList.Contents.Add(
+                new FlexComponent
+                {
+                    Type = FlexComponentTypeEnum.Button,
+                    Action = new ActionDto
+                    {
+                        Type = ActionTypeEnum.Message,
+                        Label = "上一頁",
+                        Text = "上一頁"
+                    }
+                }
+            );
+        }
+        if (hasNextPage)
+        {
+            ButtonList.Contents.Add(
+                new FlexComponent
+                {
+                    Type = FlexComponentTypeEnum.Button,
+                    Action = new ActionDto
+                    {
+                        Type = ActionTypeEnum.Message,
+                        Label = "下一頁",
+                        Text = "下一頁"
+                    }
+                }
+            );
+        }
+        if (ButtonList.Contents.Count != 0)
+        {
+            StorageUITable.Add(ButtonList);
+        }
+
+        StorageUITable.InsertRange(2, StorageFieldUIList);
+        return new FlexMessageObject<FlexBubbleContainer>
+        {
+            AltText = "StorageManagementUIBlock",
+
+            QuickReply = new QuickReplyItemDto
+            {
+                Items = new List<QuickReplyButtonDto>
+                {
+                    new QuickReplyButtonDto
+                    {
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Postback,
+                            Label = "新增物品至庫存",
+                            Text = "新增物品至庫存", // 有用
+                            Data = "新增物品至庫存",
+                            InputOption = PostbackInputOptionEnum.OpenKeyboard,
+                        }
+                    },
+                    new QuickReplyButtonDto
+                    {
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Postback,
+                            Label = "庫存查詢",
+                            Data = "庫存查詢",
+                            InputOption = PostbackInputOptionEnum.OpenKeyboard,
+                        }
+                    },
+                    new QuickReplyButtonDto
+                    {
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Postback,
+                            Label = "刪除",
+                            Text = "刪除",
+                            Data = "刪除",
+                            InputOption = PostbackInputOptionEnum.OpenKeyboard,
+                        }
+                    }
+                }
+            },
+            Contents = new FlexBubbleContainer
+            {
+                Size = "giga",
+                Type = FlexContainerTypeEnum.Bubble,
+                Body = new FlexComponent
+                {
+                    Type = FlexComponentTypeEnum.Box,
+                    Layout = FlexComponentLayoutTypeEnum.Vertical,
+                    PaddingAll = "10px",
+                    PaddingBottom = "0px",
+                    Contents = StorageUITable
+                }
+            }
+        };
+    }
 
     public FlexBubbleContainer GetFlexBubbleContainer(StoreItem StoreItem)
     {
