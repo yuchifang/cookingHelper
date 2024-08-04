@@ -67,6 +67,21 @@ public class StorageManagementService
             //? 如果欄位超過幾個就換頁/ 用 take??
             //? 換頁, 顯示總共有幾筆資料, 決定顯示 15筆或其他  FlexMessage
 
+            //! 取資料 查 取資料的方式
+            //! 建立假資料
+
+            /*
+                編號 存放位置 物品名稱 ...
+                資料 ...
+                ?編號server 產生
+                
+
+                刪除功能 選擇編號 ex: 010/020
+                    取消刪除
+                全部刪除
+
+            */
+
             if (WebHookEventMessage == "依購買日期排序")
             {
                 OrderedStoreItemList =
@@ -88,25 +103,6 @@ public class StorageManagementService
 
             var StorageFieldUIList = OrderedStoreItemList.Select(GetStorageUIField).ToList();
 
-            //! 取資料 查 取資料的方式
-            //! Storage 查詢 下一頁用 postBack
-            //! 建立假資料
-            //! IEnumerable and Queryable
-            /*
-                編號 存放位置 物品名稱 ...
-                資料 ...
-                ?編號server 產生
-
-                查詢功能 Flexmessage
-                    查到用 flex message 顯示
-                    取消查詢
-                    最下面加個 修改,刪除, 返回
-
-                刪除功能 選擇編號 ex: 010/020
-                    取消刪除
-                全部刪除
-
-            */
             _ReplyMessageListStatic = new List<object>
             {
                 GetStorageManagementUIBlock(StorageFieldUIList), //? 像是 StorageManagement 在方一個中間class
