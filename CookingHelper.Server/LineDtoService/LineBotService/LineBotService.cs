@@ -106,6 +106,10 @@ public class LineBotService
             {
                 await _storageManagementSearchService.DeleteStoragePostBack(WebHookEventDto);
             }
+            else if (WebHookEventDto.Postback.Data[0..1] == "e")
+            {
+                await _storageManagementSearchService.EditStorageInfoPostBack(WebHookEventDto);
+            }
         }
 
         if (_ReplyMessageRequestStatic != null)
