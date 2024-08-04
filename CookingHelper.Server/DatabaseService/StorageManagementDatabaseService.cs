@@ -102,6 +102,44 @@ public class StorageManagementDatabaseService
         }
     }
 
+    public async Task UpdateStorageInfo(StoreItem StoreItem, string userId)
+    {
+        try
+        {
+            var StoreListData = await GetStoreListData(userId);
+            if (StoreListData != null)
+            {
+                StoreItem? UpdateItem = StoreListData.StoreItemList.FirstOrDefault(item =>
+                    item.StoreItemId == StoreItem.StoreItemId
+                );
+                if (UpdateItem != null)
+                {
+                    UpdateItem.Name = StoreItem.Name;
+                    UpdateItem.Place = StoreItem.Place;
+                    UpdateItem.Location = StoreItem.Location;
+                    UpdateItem.Amount = StoreItem.Amount;
+                    UpdateItem.PurchaseDate = StoreItem.PurchaseDate;
+                    UpdateItem.ExpiryDate = UpdateItem.ExpiryDate;
+
+                    _userListDbContext.Entry(UpdateItem).State = EntityState.Modified;
+                    await _userListDbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception("Error");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine("********");
+            Console.WriteLine(ex?.InnerException?.Message);
+            Console.WriteLine("********");
+            throw new Exception(nameof(ex));
+        }
+    }
+
     public async Task<IQueryable<StoreItem>> GetSearchedStorageList(
         StorageInfo UserInputStorageInfo,
         string userId
