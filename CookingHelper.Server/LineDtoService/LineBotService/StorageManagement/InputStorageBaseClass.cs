@@ -5,9 +5,9 @@ using static CookingHelper.Utils;
 
 namespace CookingHelper.LineDtoService;
 
-class InputStorageBaseStruct : UIWithData
+class InputStorageBaseClass : UIWithData
 {
-    public static InputStorageBaseStruct Instance = new InputStorageBaseStruct();
+    public static InputStorageBaseClass Instance = new InputStorageBaseClass();
 
     public List<object> GetAdditionConfirmHint(InputStorageInfo InputStorageInfoStatic)
     {

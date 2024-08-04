@@ -8,9 +8,9 @@ using static CookingHelper.Utils;
 
 namespace CookingHelper.LineDtoService;
 
-public class StorageSearchBaseStruct : UIWithData
+public class StorageSearchBaseClass : UIWithData
 {
-    public static StorageSearchBaseStruct Instance = new StorageSearchBaseStruct();
+    public static StorageSearchBaseClass Instance = new StorageSearchBaseClass();
 
     public FlexBubbleContainer GetFlexBubbleContainer(StoreItem StoreItem)
     {
