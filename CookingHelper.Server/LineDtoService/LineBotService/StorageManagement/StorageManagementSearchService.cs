@@ -13,6 +13,8 @@ public class StorageManagementSearchService
     private readonly StorageManagementService _storageManagementService;
     private readonly StorageManagementDatabaseService _storageManagementDatabaseService;
 
+    private static SearchStorageEditInfo _StorageEditInfoStatic = new SearchStorageEditInfo();
+
     private static int _PageIndexStatic = 1;
     private static int _PageSizeStatic = 12;
 
@@ -33,7 +35,7 @@ public class StorageManagementSearchService
     public async Task SearchStorage(WebhookEventDto WebHookEventDto)
     {
         IQueryable<StoreItem> SearchResultDataList = Enumerable.Empty<StoreItem>().AsQueryable();
-
+        var MethodGroup = StorageSearchBaseClass.Instance;
         string WebHookEventMessage = WebHookEventDto.Message!.Text!;
 
         if (WebHookEventMessage == "取消查詢" || WebHookEventMessage == "返回")
@@ -49,12 +51,26 @@ public class StorageManagementSearchService
         {
             _PageIndexStatic += 1;
         }
+        else if (WebHookEventMessage == "取消修改" || WebHookEventMessage == "取消")
+        {
+            _StorageEditInfoStatic.Status = "search";
+            _StorageEditInfoStatic = new SearchStorageEditInfo();
+        }
+        else if (WebHookEventMessage == "更新")
+        // !確認有沒有更新
+        //? 需不需要用靜態去存
+        {
+            _StorageEditInfoStatic.Status = "search";
+            await _storageManagementDatabaseService.UpdateStorageInfo(
+                _StorageEditInfoStatic,
+                WebHookEventDto.Source!.UserId!
+            );
+            _StorageEditInfoStatic = new SearchStorageEditInfo();
+        }
         else if (WebHookEventMessage == "返回查詢結果") { }
         else
-        {
-            // 依使用者輸入查詢
-            _memoryCache.Remove("Storage");
-
+        { // 處理使用者查詢及修改
+            // 依使用者輸入
             StringToStorageInfo(
                 WebHookEventMessage,
                 out StorageInfo UserTypeStorageInfo,
@@ -71,6 +87,73 @@ public class StorageManagementSearchService
 
                 return;
             }
+            // 修改
+            if (_StorageEditInfoStatic.Status == "edit")
+            {
+                if (UserTypeStorageInfo.Place != null)
+                    _StorageEditInfoStatic.Place = UserTypeStorageInfo.Place;
+                if (UserTypeStorageInfo.Name != null)
+                    _StorageEditInfoStatic.Name = UserTypeStorageInfo.Name;
+                if (UserTypeStorageInfo.Location != null)
+                    _StorageEditInfoStatic.Location = UserTypeStorageInfo.Location;
+                if (UserTypeStorageInfo.Amount != null)
+                    _StorageEditInfoStatic.Amount = UserTypeStorageInfo.Amount;
+                if (UserTypeStorageInfo.PurchaseDate != null)
+                    _StorageEditInfoStatic.PurchaseDate = UserTypeStorageInfo.PurchaseDate;
+                if (UserTypeStorageInfo.ExpiryDate != null)
+                    _StorageEditInfoStatic.ExpiryDate = UserTypeStorageInfo.ExpiryDate;
+
+                _ReplyMessageListStatic = MethodGroup.GetAdditionConfirmHint(
+                    _StorageEditInfoStatic,
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Box,
+                        Layout = FlexComponentLayoutTypeEnum.Vertical,
+                        Contents = new List<FlexComponent>
+                        {
+                            new FlexComponent
+                            {
+                                Type = FlexComponentTypeEnum.Button,
+                                Action = new ActionDto
+                                {
+                                    Type = ActionTypeEnum.Message,
+                                    Label = "更新",
+                                    Text = "更新"
+                                }
+                            },
+                            new FlexComponent
+                            {
+                                Type = FlexComponentTypeEnum.Button,
+                                Action = new ActionDto
+                                {
+                                    Type = ActionTypeEnum.Postback,
+                                    Label = "修改",
+                                    Data = "e" + JsonSerializer.Serialize(_StorageEditInfoStatic),
+                                    InputOption = PostbackInputOptionEnum.OpenKeyboard
+                                }
+                            },
+                            new FlexComponent
+                            {
+                                Type = FlexComponentTypeEnum.Button,
+                                Action = new ActionDto
+                                {
+                                    Type = ActionTypeEnum.Message,
+                                    Label = "取消",
+                                    Text = "取消",
+                                }
+                            }
+                        }
+                    }
+                );
+                LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
+                {
+                    ReplyToken = WebHookEventDto.ReplyToken!,
+                    Messages = _ReplyMessageListStatic
+                };
+                return;
+            }
+            // 查詢
+            _memoryCache.Remove("Storage");
             IQueryable<StoreItem>? SearchedStoreItemList =
                 await _storageManagementDatabaseService.GetSearchedStorageList(
                     UserTypeStorageInfo,
@@ -79,10 +162,12 @@ public class StorageManagementSearchService
 
             if (SearchedStoreItemList.ToList().Count == 0)
             {
-                _ReplyMessageListStatic = new List<object>
+                LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
                 {
-                    new TextMessageObject { Text = "找不到此物品" }
+                    ReplyToken = WebHookEventDto.ReplyToken!,
+                    Messages = new List<object> { new TextMessageObject { Text = "找不到此物品" } }
                 };
+
                 return;
             }
 
@@ -91,7 +176,7 @@ public class StorageManagementSearchService
         }
 
         // 初始查詢上面code會對 SearchResultDataList 付值, 不是則是從Cache拿值
-        var MethodGroup = StorageSearchBaseStruct.Instance;
+
         if (SearchResultDataList.Count() == 0)
         {
             if (_memoryCache.TryGetValue("Storage", out IQueryable<StoreItem> SearchedList))
@@ -116,19 +201,10 @@ public class StorageManagementSearchService
             => FlexMessage 顯示修改完的資料
             Flexbutton: 更新, 修改, 取消 //? 回到查詢結果
             ?更新 => Database
-            
+
 
         */
 
-
-
-        //?
-        /*
-            查詢功能 Flexmessage
-            查到用 flex message 顯示
-            取消查詢
-            最下面加個 修改,刪除, 返回
-        */
         LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
         {
             ReplyToken = WebHookEventDto.ReplyToken!,
@@ -209,7 +285,7 @@ public class StorageManagementSearchService
 
     public async Task DeleteStorageInfoConfirmPostBack(WebhookEventDto WebHookEventDto)
     {
-        var MethodGroup = StorageSearchBaseStruct.Instance;
+        var MethodGroup = StorageSearchBaseClass.Instance;
         var StoreItem = JsonSerializer.Deserialize<StoreItem>(WebHookEventDto.Postback!.Data![1..]);
         var StorageInfoTable = MethodGroup.GetStorageInfoTable(StoreItem!);
 
@@ -275,5 +351,77 @@ public class StorageManagementSearchService
                 },
             }
         };
+    }
+
+    public async Task EditStorageInfoPostBack(WebhookEventDto WebHookEventDto)
+    {
+        var StoreItem = JsonSerializer.Deserialize<StoreItem>(WebHookEventDto.Postback!.Data![1..]);
+        _ReplyMessageListStatic = new List<object>(
+            [
+                new TextMessageObject { Text = "若要修改欄位, 例如修改物品名稱, 請輸入: 物品名稱:XXX並送出. XXX為要修改的資料", },
+                new TextMessageObject { Text = "送出的結果為: 物品名稱:XXX", },
+                new TextMessageObject
+                {
+                    Text = "若要修改多個欄位, 請輸入: 購買日期:YYYYMMDD/有效日期:YYYYMMDD/數量:XX並送出",
+                },
+                new TextMessageObject
+                {
+                    Text = "請依上述說明, 輸入要改的欄位",
+                    QuickReply = new QuickReplyItemDto
+                    {
+                        Items = new List<QuickReplyButtonDto>
+                        {
+                            new QuickReplyButtonDto
+                            {
+                                Action = new ActionDto
+                                {
+                                    Type = ActionTypeEnum.Message,
+                                    Label = "取消修改",
+                                    Text = "取消修改",
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        );
+        _StorageEditInfoStatic.Status = "edit";
+        if (StoreItem.Place != null)
+            _StorageEditInfoStatic.Place = StoreItem.Place;
+        if (StoreItem.Name != null)
+            _StorageEditInfoStatic.Name = StoreItem.Name;
+        if (StoreItem.Location != null)
+            _StorageEditInfoStatic.Location = StoreItem.Location;
+        if (StoreItem.Amount != null)
+            _StorageEditInfoStatic.Amount = StoreItem.Amount;
+        if (StoreItem.PurchaseDate != null)
+            _StorageEditInfoStatic.PurchaseDate = StoreItem.PurchaseDate;
+        if (StoreItem.ExpiryDate != null)
+            _StorageEditInfoStatic.ExpiryDate = StoreItem.ExpiryDate;
+
+        _StorageEditInfoStatic.StoreItemId = StoreItem.StoreItemId;
+
+        LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
+        {
+            ReplyToken = WebHookEventDto.ReplyToken!,
+            Messages = _ReplyMessageListStatic
+        };
+    }
+}
+
+public class SearchStorageEditInfo : StoreItem
+{
+    private string _Status = "search";
+    public string Status
+    {
+        get => _Status;
+        set
+        {
+            if (value != "search" && value != "edit")
+            {
+                throw new ArgumentException("Value Error");
+            }
+            _Status = value;
+        }
     }
 }
