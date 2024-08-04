@@ -42,7 +42,7 @@ public class StorageSearchBaseClass : UIWithData
                         {
                             Type = ActionTypeEnum.Postback,
                             Label = "修改",
-                            Data = "修改",
+                            Data = "e" + JsonSerializer.Serialize(StoreItem),
                             InputOption = PostbackInputOptionEnum.OpenKeyboard
                         }
                     },
