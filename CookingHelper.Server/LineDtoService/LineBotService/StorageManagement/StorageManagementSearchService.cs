@@ -57,8 +57,6 @@ public class StorageManagementSearchService
             _StorageEditInfoStatic = new SearchStorageEditInfo();
         }
         else if (WebHookEventMessage == "更新")
-        // !確認有沒有更新
-        //? 需不需要用靜態去存
         {
             _StorageEditInfoStatic.Status = "search";
             await _storageManagementDatabaseService.UpdateStorageInfo(
@@ -66,10 +64,13 @@ public class StorageManagementSearchService
                 WebHookEventDto.Source!.UserId!
             );
             _StorageEditInfoStatic = new SearchStorageEditInfo();
+            await _storageManagementService.GetStorage(WebHookEventDto);
+            return;
         }
         else if (WebHookEventMessage == "返回查詢結果") { }
+        // 處理使用者查詢及修改
         else
-        { // 處理使用者查詢及修改
+        {
             // 依使用者輸入
             StringToStorageInfo(
                 WebHookEventMessage,
@@ -90,66 +91,7 @@ public class StorageManagementSearchService
             // 修改
             if (_StorageEditInfoStatic.Status == "edit")
             {
-                if (UserTypeStorageInfo.Place != null)
-                    _StorageEditInfoStatic.Place = UserTypeStorageInfo.Place;
-                if (UserTypeStorageInfo.Name != null)
-                    _StorageEditInfoStatic.Name = UserTypeStorageInfo.Name;
-                if (UserTypeStorageInfo.Location != null)
-                    _StorageEditInfoStatic.Location = UserTypeStorageInfo.Location;
-                if (UserTypeStorageInfo.Amount != null)
-                    _StorageEditInfoStatic.Amount = UserTypeStorageInfo.Amount;
-                if (UserTypeStorageInfo.PurchaseDate != null)
-                    _StorageEditInfoStatic.PurchaseDate = UserTypeStorageInfo.PurchaseDate;
-                if (UserTypeStorageInfo.ExpiryDate != null)
-                    _StorageEditInfoStatic.ExpiryDate = UserTypeStorageInfo.ExpiryDate;
-
-                _ReplyMessageListStatic = MethodGroup.GetAdditionConfirmHint(
-                    _StorageEditInfoStatic,
-                    new FlexComponent
-                    {
-                        Type = FlexComponentTypeEnum.Box,
-                        Layout = FlexComponentLayoutTypeEnum.Vertical,
-                        Contents = new List<FlexComponent>
-                        {
-                            new FlexComponent
-                            {
-                                Type = FlexComponentTypeEnum.Button,
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "更新",
-                                    Text = "更新"
-                                }
-                            },
-                            new FlexComponent
-                            {
-                                Type = FlexComponentTypeEnum.Button,
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Postback,
-                                    Label = "修改",
-                                    Data = "e" + JsonSerializer.Serialize(_StorageEditInfoStatic),
-                                    InputOption = PostbackInputOptionEnum.OpenKeyboard
-                                }
-                            },
-                            new FlexComponent
-                            {
-                                Type = FlexComponentTypeEnum.Button,
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Label = "取消",
-                                    Text = "取消",
-                                }
-                            }
-                        }
-                    }
-                );
-                LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
-                {
-                    ReplyToken = WebHookEventDto.ReplyToken!,
-                    Messages = _ReplyMessageListStatic
-                };
+                await GetSearchStorageConfirmHint(WebHookEventDto, UserTypeStorageInfo);
                 return;
             }
             // 查詢
@@ -176,7 +118,6 @@ public class StorageManagementSearchService
         }
 
         // 初始查詢上面code會對 SearchResultDataList 付值, 不是則是從Cache拿值
-
         if (SearchResultDataList.Count() == 0)
         {
             if (_memoryCache.TryGetValue("Storage", out IQueryable<StoreItem> SearchedList))
@@ -192,18 +133,6 @@ public class StorageManagementSearchService
                 _PageSizeStatic
             );
         }
-
-        //! 修改
-        /*
-            Text 進修改
-            描述
-            quickreply 返回查詢結果 Text //? 回到查詢結果
-            => FlexMessage 顯示修改完的資料
-            Flexbutton: 更新, 修改, 取消 //? 回到查詢結果
-            ?更新 => Database
-
-
-        */
 
         LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
         {
@@ -406,6 +335,75 @@ public class StorageManagementSearchService
             ReplyToken = WebHookEventDto.ReplyToken!,
             Messages = _ReplyMessageListStatic
         };
+    }
+
+    public async Task GetSearchStorageConfirmHint(
+        WebhookEventDto WebHookEventDto,
+        StorageInfo UserTypeStorageInfo
+    )
+    {
+        var MethodGroup = StorageSearchBaseClass.Instance;
+        if (UserTypeStorageInfo.Place != null)
+            _StorageEditInfoStatic.Place = UserTypeStorageInfo.Place;
+        if (UserTypeStorageInfo.Name != null)
+            _StorageEditInfoStatic.Name = UserTypeStorageInfo.Name;
+        if (UserTypeStorageInfo.Location != null)
+            _StorageEditInfoStatic.Location = UserTypeStorageInfo.Location;
+        if (UserTypeStorageInfo.Amount != null)
+            _StorageEditInfoStatic.Amount = UserTypeStorageInfo.Amount;
+        if (UserTypeStorageInfo.PurchaseDate != null)
+            _StorageEditInfoStatic.PurchaseDate = UserTypeStorageInfo.PurchaseDate;
+        if (UserTypeStorageInfo.ExpiryDate != null)
+            _StorageEditInfoStatic.ExpiryDate = UserTypeStorageInfo.ExpiryDate;
+
+        _ReplyMessageListStatic = MethodGroup.GetAdditionConfirmHint(
+            _StorageEditInfoStatic,
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Box,
+                Layout = FlexComponentLayoutTypeEnum.Vertical,
+                Contents = new List<FlexComponent>
+                {
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Message,
+                            Label = "更新",
+                            Text = "更新"
+                        }
+                    },
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Postback,
+                            Label = "修改",
+                            Data = "e" + JsonSerializer.Serialize(_StorageEditInfoStatic),
+                            InputOption = PostbackInputOptionEnum.OpenKeyboard
+                        }
+                    },
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Button,
+                        Action = new ActionDto
+                        {
+                            Type = ActionTypeEnum.Message,
+                            Label = "取消",
+                            Text = "取消",
+                        }
+                    }
+                }
+            }
+        );
+        LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
+        {
+            ReplyToken = WebHookEventDto.ReplyToken!,
+            Messages = _ReplyMessageListStatic
+        };
+        return;
     }
 }
 
