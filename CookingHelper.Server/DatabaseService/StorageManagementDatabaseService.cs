@@ -15,6 +15,18 @@ public class StorageManagementDatabaseService
         _userListDbContext = UserListDbContext;
     }
 
+    //!! 驗證是否正確
+    // 刪除
+    public async Task DeleteStorageInfo(IQueryable<StoreItem> Queryable)
+    {
+        var StorageItemIdQueryable = Queryable.Select(item => item.StoreItemId);
+        var DeleteStoreItemQueryable = _userListDbContext.StoreItem.Where(item =>
+            StorageItemIdQueryable.Contains(item.StoreItemId)
+        );
+        _userListDbContext.StoreItem.RemoveRange(DeleteStoreItemQueryable);
+        await _userListDbContext.SaveChangesAsync();
+    }
+
     // 新增空資料至 StoreList
     public async Task AddEmptyStorageListData(string userId)
     {
