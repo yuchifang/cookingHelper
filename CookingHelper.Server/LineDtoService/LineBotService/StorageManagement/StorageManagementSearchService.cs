@@ -72,7 +72,7 @@ public class StorageManagementSearchService
         else
         {
             // 依使用者輸入
-            StringToStorageInfo(
+            StringSlashAndColonToStorageInfo(
                 WebHookEventMessage,
                 out StorageInfo UserTypeStorageInfo,
                 out string InputErrorText
@@ -95,7 +95,7 @@ public class StorageManagementSearchService
                 return;
             }
             // 查詢
-            _memoryCache.Remove("Storage");
+            _memoryCache.Remove("StorageSearch");
             IQueryable<StoreItem>? SearchedStoreItemList =
                 await _storageManagementDatabaseService.GetSearchedStorageList(
                     UserTypeStorageInfo,
@@ -113,14 +113,14 @@ public class StorageManagementSearchService
                 return;
             }
 
-            _memoryCache.Set("Storage", SearchedStoreItemList);
+            _memoryCache.Set("StorageSearch", SearchedStoreItemList);
             SearchResultDataList = SearchedStoreItemList;
         }
 
         // 初始查詢上面code會對 SearchResultDataList 付值, 不是則是從Cache拿值
         if (SearchResultDataList.Count() == 0)
         {
-            if (_memoryCache.TryGetValue("Storage", out IQueryable<StoreItem> SearchedList))
+            if (_memoryCache.TryGetValue("StorageSearch", out IQueryable<StoreItem> SearchedList))
             {
                 SearchResultDataList = SearchedList;
             }
