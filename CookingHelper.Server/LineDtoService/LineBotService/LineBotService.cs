@@ -21,14 +21,14 @@ public class LineBotService
 
     private readonly StorageManagementSearchService _storageManagementSearchService;
 
-    private readonly IHttpClientFactory _httpClientFactory;
     private readonly HttpClient _client;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IConfiguration _configuration;
 
     private readonly JsonProvider _jsonProvider = new JsonProvider();
 
     private readonly string replyMessageUri = "https://api.line.me/v2/bot/message/reply";
 
-    private readonly IConfiguration _configuration;
     public static string _WebhookEventStatusStatic = "";
 
     public static dynamic? _ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>();
