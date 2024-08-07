@@ -58,7 +58,8 @@ public class Utils
                     .ToArray();
 
                 if (
-                    int.TryParse(stringArray[0], out int numberFirst)
+                    stringArray.Count() == 2
+                    && int.TryParse(stringArray[0], out int numberFirst)
                     && numberFirst > 0
                     && int.TryParse(stringArray[1], out int numberSecond)
                     && numberSecond > 0
@@ -75,7 +76,7 @@ public class Utils
                 }
                 else
                 {
-                    ErrorText += $"/{stringArray[0]},{stringArray[1]} 此項目輸入錯誤";
+                    ErrorText += $"/{stringArray[0]} 此項目輸入錯誤";
                     return;
                 }
             }
