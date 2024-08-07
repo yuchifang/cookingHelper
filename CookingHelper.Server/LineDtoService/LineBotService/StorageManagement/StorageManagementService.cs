@@ -2,6 +2,7 @@ using CookingHelper.DatabaseService;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
 using CookingHelper.Model;
+using Microsoft.Extensions.Caching.Memory;
 using static CookingHelper.LineDto.BaseMessageObject;
 using static CookingHelper.Utils;
 
@@ -9,21 +10,96 @@ namespace CookingHelper.LineDtoService;
 
 public class StorageManagementService
 {
+    private readonly IMemoryCache _memoryCache;
+
     private readonly StorageManagementDatabaseService _storageManagementDatabaseService;
     private static int _PageIndexStatic = 1;
     private static int _PageSizeStatic = 10;
+
+    private static string storageStatic = "display";
+    public static string _StorageStatic
+    {
+        get => storageStatic;
+        set
+        {
+            if (value != "delete" && value != "display")
+            {
+                throw new ArgumentException("Value Error");
+            }
+            storageStatic = value;
+        }
+    }
     public static dynamic _ReplyMessageListStatic = new List<object>();
 
     public StorageManagementService(
-        StorageManagementDatabaseService StorageManagementDatabaseService
+        StorageManagementDatabaseService StorageManagementDatabaseService,
+        IMemoryCache memoryCache
     )
     {
+        _memoryCache = memoryCache;
         _storageManagementDatabaseService = StorageManagementDatabaseService;
     }
 
     public async Task GetStorage(WebhookEventDto WebHookEventDto)
     {
         var WebHookEventMessage = WebHookEventDto.Message!.Text!;
+        if (WebHookEventMessage == "返回")
+        {
+            _StorageStatic = "display";
+        }
+        if (_StorageStatic == "delete")
+        {
+            if (
+                _memoryCache.TryGetValue(
+                    "StorageSearch",
+                    out IQueryable<StoreItem> StorageSearchList
+                )
+            )
+            {
+                StringSlashAndTildeToStorageInfo(
+                    WebHookEventMessage,
+                    out List<int> ListInt,
+                    out string ErrorText
+                );
+                if (ErrorText != "")
+                {
+                    _ReplyMessageListStatic = new List<object>
+                    {
+                        new TextMessageObject
+                        {
+                            Text = ErrorText,
+                            QuickReply = new QuickReplyItemDto
+                            {
+                                Items = new List<QuickReplyButtonDto>
+                                {
+                                    new QuickReplyButtonDto
+                                    {
+                                        Action = new ActionDto
+                                        {
+                                            Type = ActionTypeEnum.Message,
+                                            Text = "返回",
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    };
+                    LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
+                    {
+                        ReplyToken = WebHookEventDto.ReplyToken!,
+                        Messages = _ReplyMessageListStatic
+                    };
+                    return;
+                }
+                IQueryable<StoreItem>? SelectNumberQueryable = StorageSearchList!
+                    .Select((item, index) => new { Item = item, Index = index })
+                    .Where(item => ListInt.Contains(item.Index + 1))
+                    .Select(item => item.Item);
+
+                await _storageManagementDatabaseService.DeleteStorageInfo(SelectNumberQueryable);
+            }
+        }
+
         var StoreList = await _storageManagementDatabaseService.GetStoreListData(
             WebHookEventDto!.Source!.UserId!
         );
@@ -31,6 +107,40 @@ public class StorageManagementService
         {
             _PageIndexStatic = 1;
         }
+
+        if (WebHookEventMessage == "刪除")
+        {
+            _ReplyMessageListStatic = new List<object>
+            {
+                new TextMessageObject
+                {
+                    Text =
+                        "刪除請輸入編號, 刪除編號1的項目, 請輸入數字1即可, 刪除多個項目用/分隔如 1/5/2, 刪除相連編號可用~符號如1~3/5 及刪除編號1,編號2,編號3及編號5的項目",
+                    QuickReply = new QuickReplyItemDto
+                    {
+                        Items = new List<QuickReplyButtonDto>
+                        {
+                            new QuickReplyButtonDto
+                            {
+                                Action = new ActionDto
+                                {
+                                    Type = ActionTypeEnum.Message,
+                                    Text = "返回",
+                                }
+                            }
+                        }
+                    }
+                },
+            };
+            _StorageStatic = "delete";
+            LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
+            {
+                ReplyToken = WebHookEventDto.ReplyToken!,
+                Messages = _ReplyMessageListStatic
+            };
+            return;
+        }
+
         if (StoreList.StoreItemList.Count == 0)
         {
             _ReplyMessageListStatic = new List<object>
@@ -65,6 +175,7 @@ public class StorageManagementService
             var OrderedStoreItemList = StoreList
                 .StoreItemList.OrderBy(Item => Item.Place)
                 .AsQueryable();
+
             if (WebHookEventMessage == "下一頁")
             {
                 _PageIndexStatic += 1;
@@ -120,7 +231,7 @@ public class StorageManagementService
             var StorageFieldUIList = SplitStoreItemList
                 .Select(MethodGroup.GetStorageUIField)
                 .ToList();
-
+            _memoryCache.Set("StorageSearch", SplitStoreItemList);
             _ReplyMessageListStatic = new List<object>
             {
                 MethodGroup.GetStorageManagementUIBlock(
