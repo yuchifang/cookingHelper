@@ -33,6 +33,7 @@ public class Utils
     //  2~4/3/9
     //  2~2/3/9
     //  4~3/3/9
+    //  4~10/3/9
     public static void StringSlashAndTildeToStorageInfo(
         string inputText,
         out List<int> ListInt,
@@ -51,7 +52,7 @@ public class Utils
         }
         foreach (var text in UserTextDeleteNumberArray)
         {
-            if (text.Count() == 3)
+            if (text.Count() >= 3)
             {
                 var stringArray = text.Split(_tilde, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x.Trim())
@@ -80,17 +81,9 @@ public class Utils
                     return;
                 }
             }
-            else if (text.Count() == 1)
+            else if (int.TryParse(text, out int number) && number > 0)
             {
-                if (int.TryParse(text, out int number) && number > 0)
-                {
-                    ListInt.Add(number);
-                }
-                else
-                {
-                    ErrorText += $"/{text} 此項目輸入錯誤";
-                    return;
-                }
+                ListInt.Add(number);
             }
             else
             {
