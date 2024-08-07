@@ -267,7 +267,7 @@ public class StorageManagementPurchaseService
     public void EditStatus(string WebHookEventMessage)
     {
         var MethodGroup = InputStorageBaseClass.Instance;
-        StringToStorageInfo(
+        StringSlashAndColonToStorageInfo(
             WebHookEventMessage!,
             out StorageInfo StorageInfoData,
             out string ErrorText
