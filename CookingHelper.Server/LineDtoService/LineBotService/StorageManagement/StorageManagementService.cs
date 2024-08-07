@@ -78,6 +78,7 @@ public class StorageManagementService
                                         {
                                             Type = ActionTypeEnum.Message,
                                             Text = "返回",
+                                            Label = "返回",
                                         }
                                     }
                                 }
@@ -112,10 +113,11 @@ public class StorageManagementService
         {
             _ReplyMessageListStatic = new List<object>
             {
+                new TextMessageObject { Text = "刪除請輸入編號, 若刪除編號1的項目, 請輸入數字1即可.", },
                 new TextMessageObject
                 {
-                    Text =
-                        "刪除請輸入編號, 刪除編號1的項目, 請輸入數字1即可, 刪除多個項目用/分隔如 1/5/2, 刪除相連編號可用~符號如1~3/5 及刪除編號1,編號2,編號3及編號5的項目",
+                    Text = "刪除多個項目用/分隔如 1/5/2, 刪除相連編號可用~符號如1~3/5 及刪除編號1,編號2,編號3及編號5的項目",
+
                     QuickReply = new QuickReplyItemDto
                     {
                         Items = new List<QuickReplyButtonDto>
@@ -126,6 +128,7 @@ public class StorageManagementService
                                 {
                                     Type = ActionTypeEnum.Message,
                                     Text = "返回",
+                                    Label = "返回",
                                 }
                             }
                         }
