@@ -52,7 +52,7 @@ public class StorageManagementService
             if (
                 _memoryCache.TryGetValue(
                     "StorageSearch",
-                    out IQueryable<StoreItem> StorageSearchList
+                    out IEnumerable<StoreItem> StorageSearchList
                 )
             )
             {
@@ -92,12 +92,13 @@ public class StorageManagementService
                     };
                     return;
                 }
-                IQueryable<StoreItem>? SelectNumberQueryable = StorageSearchList!
+                var SelectNumberQueryable = StorageSearchList!
                     .Select((item, index) => new { Item = item, Index = index })
                     .Where(item => ListInt.Contains(item.Index + 1))
                     .Select(item => item.Item);
 
                 await _storageManagementDatabaseService.DeleteStorageInfo(SelectNumberQueryable);
+                _StorageStatic = "display";
             }
         }
 
@@ -234,7 +235,7 @@ public class StorageManagementService
             var StorageFieldUIList = SplitStoreItemList
                 .Select(MethodGroup.GetStorageUIField)
                 .ToList();
-            _memoryCache.Set("StorageSearch", SplitStoreItemList);
+            _memoryCache.Set("StorageSearch", (IEnumerable<StoreItem>)SplitStoreItemList);
             _ReplyMessageListStatic = new List<object>
             {
                 MethodGroup.GetStorageManagementUIBlock(

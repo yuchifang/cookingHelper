@@ -17,9 +17,10 @@ public class StorageManagementDatabaseService
 
     //!! 驗證是否正確
     // 刪除
-    public async Task DeleteStorageInfo(IQueryable<StoreItem> Queryable)
+    public async Task DeleteStorageInfo(IEnumerable<StoreItem> Queryable)
     {
         var StorageItemIdQueryable = Queryable.Select(item => item.StoreItemId);
+
         var DeleteStoreItemQueryable = _userListDbContext.StoreItem.Where(item =>
             StorageItemIdQueryable.Contains(item.StoreItemId)
         );
