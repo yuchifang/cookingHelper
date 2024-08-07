@@ -5,8 +5,102 @@ namespace CookingHelper;
 public class Utils
 {
     public static readonly char[] _colon = { ':', '：' };
+    public static readonly char[] _tilde = { '~' };
 
-    public static void StringToStorageInfo(
+    static IEnumerable<int> GenerateRange(int inputNumberFirst, int inputNumberSecond)
+    {
+        int start,
+            end;
+        if (inputNumberFirst > inputNumberSecond)
+        {
+            start = inputNumberFirst;
+            end = inputNumberSecond;
+        }
+        else
+        {
+            end = inputNumberFirst;
+            start = inputNumberSecond;
+        }
+        // 计算要生成的整数数量
+        int count = end - start + 1;
+
+        // 使用 Enumerable.Range 生成整数序列
+        return Enumerable.Range(start, count);
+    }
+
+    //  1/5/2
+    //  1~3/7/8
+    //  2~4/3/9
+    //  2~2/3/9
+    //  4~3/3/9
+    public static void StringSlashAndTildeToStorageInfo(
+        string inputText,
+        out List<int> ListInt,
+        out string ErrorText
+    )
+    {
+        //!! 整理判斷是不是正整數
+        //!! 處理重複的
+        //!! 數字存不存在 List<int>
+        ErrorText = "";
+        ListInt = new List<int>();
+        var UserTextDeleteNumberArray = inputText.Split("/", StringSplitOptions.RemoveEmptyEntries);
+        if (UserTextDeleteNumberArray.Count() == 0)
+        {
+            ErrorText = "輸入錯誤";
+        }
+        foreach (var text in UserTextDeleteNumberArray)
+        {
+            if (text.Count() == 3)
+            {
+                var stringArray = text.Split(_tilde, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .ToArray();
+
+                if (
+                    int.TryParse(stringArray[0], out int numberFirst)
+                    && numberFirst > 0
+                    && int.TryParse(stringArray[1], out int numberSecond)
+                    && numberSecond > 0
+                )
+                {
+                    if (numberSecond == numberFirst)
+                    {
+                        ListInt.Add(numberFirst);
+                    }
+                    else
+                    {
+                        ListInt.AddRange(GenerateRange(numberFirst, numberSecond));
+                    }
+                }
+                else
+                {
+                    ErrorText += $"/{stringArray[0]},{stringArray[1]} 此項目輸入錯誤";
+                    return;
+                }
+            }
+            else if (text.Count() == 1)
+            {
+                if (int.TryParse(text, out int number) && number > 0)
+                {
+                    ListInt.Add(number);
+                }
+                else
+                {
+                    ErrorText += $"/{text} 此項目輸入錯誤";
+                    return;
+                }
+            }
+            else
+            {
+                ErrorText += $"/{text} 此項目輸入錯誤";
+                return;
+            }
+        }
+        ListInt = ListInt.Distinct().ToList();
+    }
+
+    public static void StringSlashAndColonToStorageInfo(
         string inputText,
         out StorageInfo returnObject,
         out string ErrorText
