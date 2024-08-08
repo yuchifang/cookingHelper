@@ -15,7 +15,16 @@ public class StorageManagementDatabaseService
         _userListDbContext = UserListDbContext;
     }
 
-    //!! 驗證是否正確
+    //!! 改變命名
+    //!! 看看 哪邊可以用到 Single vs Split
+    //!! 看看 code 哪邊可以使用 明確載入 (精準控制載入關聯資料時機)
+    //!! 看code 有沒有 lazyload 的使用場景, 並確認是否真的有 lazyload 的效果
+
+
+
+    //!! 確認 foreach 有沒有用到 IEnumer
+    //!! IEnumerable And IQueryable
+    //!! EFcore 那些 filter 是 Server Evalution
     // 刪除
     public async Task DeleteStorageInfo(IEnumerable<StoreItem> Queryable)
     {
