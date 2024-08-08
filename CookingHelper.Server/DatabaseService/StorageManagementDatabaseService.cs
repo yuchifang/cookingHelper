@@ -25,37 +25,7 @@ public class StorageManagementDatabaseService
     //!! 確認 foreach 有沒有用到 IEnumer
     //!! IEnumerable And IQueryable
     //!! EFcore 那些 filter 是 Server Evalution
-    // 刪除
-    public async Task DeleteStorageInfo(IEnumerable<StoreItem> Queryable)
-    {
-        var StorageItemIdQueryable = Queryable.Select(item => item.StoreItemId);
 
-        var DeleteStoreItemQueryable = _userListDbContext.StoreItem.Where(item =>
-            StorageItemIdQueryable.Contains(item.StoreItemId)
-        );
-        _userListDbContext.StoreItem.RemoveRange(DeleteStoreItemQueryable);
-        await _userListDbContext.SaveChangesAsync();
-    }
-
-    // 新增空資料至 StoreList
-    public async Task AddEmptyStorageListData(string userId)
-    {
-        try
-        {
-            var UserData = await GetStoreListNoStrackingData(userId);
-            if (UserData == null)
-            {
-                await _userListDbContext.StoreList.AddAsync(new StoreList { UserId = userId, });
-                await _userListDbContext.SaveChangesAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            Console.WriteLine(ex?.InnerException?.Message);
-            throw new Exception(nameof(ex));
-        }
-    }
 
     public async Task<StoreList> GetStoreListNoStrackingData(string userId)
     {
@@ -78,10 +48,59 @@ public class StorageManagementDatabaseService
     {
         try
         {
-            var StoreListData = await _userListDbContext
+            var StoreList = await _userListDbContext
                 .StoreList.Include(s => s.StoreItemList)
                 .FirstOrDefaultAsync(StoreList => StoreList.UserId == userId);
-            return StoreListData!;
+            return StoreList!;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex?.InnerException?.Message);
+            throw new Exception(nameof(ex));
+        }
+    }
+
+    public async Task<IQueryable<StoreItem>> GetSearchedStoreItem(
+        StorageInfo StorageInfo,
+        string userId
+    )
+    {
+        try
+        {
+            var StoreList = await GetStoreListData(userId);
+            if (StoreList != null)
+            {
+                return StoreList
+                    .StoreItemList.Where(item => ClassMatch(item, StorageInfo))
+                    .AsQueryable();
+            }
+            else
+            {
+                return Enumerable.Empty<StoreItem>().AsQueryable();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine("********");
+            Console.WriteLine(ex?.InnerException?.Message);
+            Console.WriteLine("********");
+            throw new Exception(nameof(ex));
+        }
+    }
+
+    // 新增空資料至 StoreList
+    public async Task AddEmptyStoreListData(string userId)
+    {
+        try
+        {
+            var StoreList = await GetStoreListNoStrackingData(userId);
+            if (StoreList == null)
+            {
+                await _userListDbContext.StoreList.AddAsync(new StoreList { UserId = userId, });
+                await _userListDbContext.SaveChangesAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -93,10 +112,10 @@ public class StorageManagementDatabaseService
 
     public async Task AddStoreItemData(string userId, InputStorageInfo InputStorageInfo)
     {
-        var StoreListData = await GetStoreListNoStrackingData(userId);
+        var StoreList = await GetStoreListNoStrackingData(userId);
         try
         {
-            if (StoreListData != null)
+            if (StoreList != null)
             {
                 await _userListDbContext.AddAsync(
                     new StoreItem
@@ -107,7 +126,7 @@ public class StorageManagementDatabaseService
                         Amount = InputStorageInfo.Amount,
                         PurchaseDate = InputStorageInfo.PurchaseDate,
                         ExpiryDate = InputStorageInfo.ExpiryDate,
-                        StoreListId = StoreListData.StoreListId,
+                        StoreListId = StoreList.StoreListId,
                     }
                 );
 
@@ -124,14 +143,14 @@ public class StorageManagementDatabaseService
         }
     }
 
-    public async Task UpdateStorageInfo(StoreItem StoreItem, string userId)
+    public async Task UpdateStoreItem(StoreItem StoreItem, string userId)
     {
         try
         {
-            var StoreListData = await GetStoreListData(userId);
-            if (StoreListData != null)
+            var StoreList = await GetStoreListData(userId);
+            if (StoreList != null)
             {
-                StoreItem? UpdateItem = StoreListData.StoreItemList.FirstOrDefault(item =>
+                StoreItem? UpdateItem = StoreList.StoreItemList.FirstOrDefault(item =>
                     item.StoreItemId == StoreItem.StoreItemId
                 );
                 if (UpdateItem != null)
@@ -162,44 +181,14 @@ public class StorageManagementDatabaseService
         }
     }
 
-    public async Task<IQueryable<StoreItem>> GetSearchedStorageList(
-        StorageInfo UserInputStorageInfo,
-        string userId
-    )
+    public async Task DeleteStoreItem(StoreItem StoreItem, string userId)
     {
         try
         {
-            var StoreListData = await GetStoreListData(userId);
-            if (StoreListData != null)
+            var StoreList = await GetStoreListData(userId);
+            if (StoreList != null)
             {
-                return StoreListData
-                    .StoreItemList.Where(item => ClassMatch(item, UserInputStorageInfo))
-                    .AsQueryable();
-            }
-            else
-            {
-                return Enumerable.Empty<StoreItem>().AsQueryable();
-                ;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            Console.WriteLine("********");
-            Console.WriteLine(ex?.InnerException?.Message);
-            Console.WriteLine("********");
-            throw new Exception(nameof(ex));
-        }
-    }
-
-    public async Task DeleteStorageInfo(StoreItem StoreItem, string userId)
-    {
-        try
-        {
-            var StoreListData = await GetStoreListData(userId);
-            if (StoreListData != null)
-            {
-                StoreItem? RemoveItem = StoreListData.StoreItemList.FirstOrDefault(item =>
+                StoreItem? RemoveItem = StoreList.StoreItemList.FirstOrDefault(item =>
                     item.StoreItemId == StoreItem.StoreItemId
                 );
                 if (RemoveItem != null)
@@ -221,5 +210,16 @@ public class StorageManagementDatabaseService
             Console.WriteLine("********");
             throw new Exception(nameof(ex));
         }
+    }
+
+    public async Task DeleteStoreItemList(IEnumerable<StoreItem> DeleteStoreItem)
+    {
+        var StorageItemIdQueryable = DeleteStoreItem.Select(item => item.StoreItemId);
+
+        var DeleteStoreItemQueryable = _userListDbContext.StoreItem.Where(item =>
+            StorageItemIdQueryable.Contains(item.StoreItemId)
+        );
+        _userListDbContext.StoreItem.RemoveRange(DeleteStoreItemQueryable);
+        await _userListDbContext.SaveChangesAsync();
     }
 }
