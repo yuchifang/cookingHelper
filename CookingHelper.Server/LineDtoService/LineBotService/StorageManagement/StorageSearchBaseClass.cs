@@ -50,7 +50,7 @@ public class StorageSearchBaseClass : UIWithData
         bool hasPrevPage
     )
     {
-        FlexComponent ButtonList = new FlexComponent
+        FlexComponent ButtonGroup = new FlexComponent
         {
             Type = FlexComponentTypeEnum.Box,
             Layout = FlexComponentLayoutTypeEnum.Horizontal,
@@ -104,7 +104,7 @@ public class StorageSearchBaseClass : UIWithData
         };
         if (hasPrevPage)
         {
-            ButtonList.Contents.Add(
+            ButtonGroup.Contents.Add(
                 new FlexComponent
                 {
                     Type = FlexComponentTypeEnum.Button,
@@ -119,7 +119,7 @@ public class StorageSearchBaseClass : UIWithData
         }
         if (hasNextPage)
         {
-            ButtonList.Contents.Add(
+            ButtonGroup.Contents.Add(
                 new FlexComponent
                 {
                     Type = FlexComponentTypeEnum.Button,
@@ -132,9 +132,9 @@ public class StorageSearchBaseClass : UIWithData
                 }
             );
         }
-        if (ButtonList.Contents.Count != 0)
+        if (ButtonGroup.Contents.Count != 0)
         {
-            StorageUITable.Add(ButtonList);
+            StorageUITable.Add(ButtonGroup);
         }
 
         StorageUITable.InsertRange(2, StorageFieldUIList);

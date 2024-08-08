@@ -43,22 +43,28 @@ public class StorageManagementService
     public async Task GetStorage(WebhookEventDto WebHookEventDto)
     {
         var WebHookEventMessage = WebHookEventDto.Message!.Text!;
+        var MethodGroup = StorageSearchBaseClass.Instance;
         if (WebHookEventMessage == "返回")
         {
             _StorageStatic = "display";
         }
         if (_StorageStatic == "delete")
         {
-            if (
-                _memoryCache.TryGetValue(
-                    "StorageSearch",
-                    out IEnumerable<StoreItem> StorageSearchList
-                )
+            if ( //?
+                _memoryCache.TryGetValue("StorageSearched", out IEnumerable<StoreItem> StorageSearched)
             )
             {
-                StringSlashAndTildeToStorageInfo(
+                /*
+                    1/5/2
+                    1~3/7/8
+                    2~4/3/9
+                    2~2/3/9
+                    4~3/3/9
+                    4~10/3/9
+                */
+                StringSlashAndTildeToList(
                     WebHookEventMessage,
-                    out List<int> ListInt,
+                    out List<int> DeleteNumber,
                     out string ErrorText
                 );
                 if (ErrorText != "")
@@ -72,15 +78,11 @@ public class StorageManagementService
                             {
                                 Items = new List<QuickReplyButtonDto>
                                 {
-                                    new QuickReplyButtonDto
-                                    {
-                                        Action = new ActionDto
-                                        {
-                                            Type = ActionTypeEnum.Message,
-                                            Text = "返回",
-                                            Label = "返回",
-                                        }
-                                    }
+                                    MethodGroup.GetQuickReplyButton(
+                                        ActionTypeEnum.Message,
+                                        "返回",
+                                        "返回"
+                                    )
                                 }
                             }
                         }
@@ -92,12 +94,12 @@ public class StorageManagementService
                     };
                     return;
                 }
-                var SelectNumberQueryable = StorageSearchList!
+                var DeleteStoreItem = StorageSearched!
                     .Select((item, index) => new { Item = item, Index = index })
-                    .Where(item => ListInt.Contains(item.Index + 1))
+                    .Where(item => DeleteNumber.Contains(item.Index + 1))
                     .Select(item => item.Item);
-
-                await _storageManagementDatabaseService.DeleteStorageInfo(SelectNumberQueryable);
+                //?
+                await _storageManagementDatabaseService.DeleteStoreItemList(DeleteStoreItem);
                 _StorageStatic = "display";
             }
         }
@@ -123,15 +125,7 @@ public class StorageManagementService
                     {
                         Items = new List<QuickReplyButtonDto>
                         {
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Message,
-                                    Text = "返回",
-                                    Label = "返回",
-                                }
-                            }
+                            MethodGroup.GetQuickReplyButton(ActionTypeEnum.Message, "返回", "返回")
                         }
                     }
                 },
@@ -172,11 +166,9 @@ public class StorageManagementService
                 },
             };
         }
-        else
+        else //? lazyload
         {
-            var MethodGroup = StorageSearchBaseClass.Instance;
-
-            var OrderedStoreItemList = StoreList
+            var OrderedPlaceStoreItem = StoreList
                 .StoreItemList.OrderBy(Item => Item.Place)
                 .AsQueryable();
 
@@ -189,8 +181,8 @@ public class StorageManagementService
                 _PageIndexStatic -= 1;
             }
 
-            var SplitStoreItemList = Paginate(
-                OrderedStoreItemList,
+            var PaginatedStoreItem = Paginate(
+                OrderedPlaceStoreItem,
                 _PageIndexStatic,
                 _PageSizeStatic,
                 out bool hasNextPage,
@@ -201,41 +193,29 @@ public class StorageManagementService
 
             //! 建立假資料
 
-            /*
-                編號 存放位置 物品名稱 ...
-                資料 ...
-                ?編號server 產生
-
-
-                刪除功能 選擇編號 ex: 010/020
-                    取消刪除
-                全部刪除
-
-            */
-
             if (WebHookEventMessage == "依購買日期排序")
             {
-                SplitStoreItemList =
+                PaginatedStoreItem =
                     (IQueryable<StoreItem>)
-                        ((IOrderedEnumerable<StoreItem>)SplitStoreItemList).ThenBy(
+                        ((IOrderedEnumerable<StoreItem>)PaginatedStoreItem).ThenBy(
                             Item => Item.PurchaseDate,
                             new CustomComparer()
                         );
             }
             if (WebHookEventMessage == "依有效日期排序")
             {
-                SplitStoreItemList =
+                PaginatedStoreItem =
                     (IQueryable<StoreItem>)
-                        ((IOrderedEnumerable<StoreItem>)SplitStoreItemList).ThenBy(
+                        ((IOrderedEnumerable<StoreItem>)PaginatedStoreItem).ThenBy(
                             Item => Item.ExpiryDate,
                             new CustomComparer()
                         );
             }
 
-            var StorageFieldUIList = SplitStoreItemList
+            var StorageFieldUIList = PaginatedStoreItem
                 .Select(MethodGroup.GetStorageUIField)
                 .ToList();
-            _memoryCache.Set("StorageSearch", (IEnumerable<StoreItem>)SplitStoreItemList);
+            _memoryCache.Set("StorageSearched", (IEnumerable<StoreItem>)PaginatedStoreItem);
             _ReplyMessageListStatic = new List<object>
             {
                 MethodGroup.GetStorageManagementUIBlock(

@@ -76,7 +76,7 @@ public class LineBotService
                     await _userListDatabaseService.AddEmptyShoppingListText(
                         WebHookEventDto.Source!.UserId!
                     );
-                    await _storageManagementDatabaseService.AddEmptyStorageListData(
+                    await _storageManagementDatabaseService.AddEmptyStoreListData(
                         WebHookEventDto.Source!.UserId!
                     );
                     break;
