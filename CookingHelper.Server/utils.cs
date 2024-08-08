@@ -21,10 +21,9 @@ public class Utils
             end = inputNumberFirst;
             start = inputNumberSecond;
         }
-        // 计算要生成的整数数量
+
         int count = end - start + 1;
 
-        // 使用 Enumerable.Range 生成整数序列
         return Enumerable.Range(start, count);
     }
 
@@ -40,9 +39,6 @@ public class Utils
         out string ErrorText
     )
     {
-        //!! 整理判斷是不是正整數
-        //!! 處理重複的
-        //!! 數字存不存在 List<int>
         ErrorText = "";
         ListInt = new List<int>();
         var UserTextDeleteNumberArray = inputText.Split("/", StringSplitOptions.RemoveEmptyEntries);
@@ -91,7 +87,7 @@ public class Utils
                 return;
             }
         }
-        ListInt = ListInt.Distinct().ToList();
+        ListInt = ListInt.AsQueryable().Distinct().ToList();
     }
 
     public static void StringSlashAndColonToStorageInfo(
