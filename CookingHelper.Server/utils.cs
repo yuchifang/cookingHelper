@@ -7,19 +7,19 @@ public class Utils
     public static readonly char[] _colon = { ':', '：' };
     public static readonly char[] _tilde = { '~' };
 
-    static IEnumerable<int> GenerateRange(int inputNumberFirst, int inputNumberSecond)
+    static IEnumerable<int> GenerateRange(int inputFirst, int inputSecond)
     {
         int start,
             end;
-        if (inputNumberFirst > inputNumberSecond)
+        if (inputFirst > inputSecond)
         {
-            start = inputNumberFirst;
-            end = inputNumberSecond;
+            start = inputFirst;
+            end = inputSecond;
         }
         else
         {
-            end = inputNumberFirst;
-            start = inputNumberSecond;
+            end = inputFirst;
+            start = inputSecond;
         }
 
         int count = end - start + 1;
@@ -27,13 +27,7 @@ public class Utils
         return Enumerable.Range(start, count);
     }
 
-    //  1/5/2
-    //  1~3/7/8
-    //  2~4/3/9
-    //  2~2/3/9
-    //  4~3/3/9
-    //  4~10/3/9
-    public static void StringSlashAndTildeToStorageInfo(
+    public static void StringSlashAndTildeToList(
         string inputText,
         out List<int> ListInt,
         out string ErrorText
@@ -41,24 +35,24 @@ public class Utils
     {
         ErrorText = "";
         ListInt = new List<int>();
-        var UserTextDeleteNumberArray = inputText.Split("/", StringSplitOptions.RemoveEmptyEntries);
-        if (UserTextDeleteNumberArray.Count() == 0)
+        var SplittedBySlash = inputText.Split("/", StringSplitOptions.RemoveEmptyEntries);
+        if (SplittedBySlash.Count() == 0)
         {
             ErrorText = "輸入錯誤";
         }
-        foreach (var text in UserTextDeleteNumberArray)
+        foreach (var text in SplittedBySlash)
         {
             if (text.Count() >= 3)
             {
-                var stringArray = text.Split(_tilde, StringSplitOptions.RemoveEmptyEntries)
+                var SplittedByTilde = text.Split(_tilde, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x.Trim())
                     .ToArray();
 
                 if (
-                    stringArray.Count() == 2
-                    && int.TryParse(stringArray[0], out int numberFirst)
+                    SplittedByTilde.Count() == 2
+                    && int.TryParse(SplittedByTilde[0], out int numberFirst)
                     && numberFirst > 0
-                    && int.TryParse(stringArray[1], out int numberSecond)
+                    && int.TryParse(SplittedByTilde[1], out int numberSecond)
                     && numberSecond > 0
                 )
                 {
@@ -73,7 +67,7 @@ public class Utils
                 }
                 else
                 {
-                    ErrorText += $"/{stringArray[0]} 此項目輸入錯誤";
+                    ErrorText += $"/{SplittedByTilde[0]} 此項目輸入錯誤";
                     return;
                 }
             }
@@ -100,42 +94,42 @@ public class Utils
         // 格式正確則回傳更新的資訊, 格式錯誤 回傳錯誤資訊
         ErrorText = "";
         returnObject = new StorageInfo();
-        var UserTextFieldArray = inputText.Split("/", StringSplitOptions.RemoveEmptyEntries);
-        var TDList = new List<List<string>>();
+        var SplittedBySlash = inputText.Split("/", StringSplitOptions.RemoveEmptyEntries);
+        var CorrectGroup = new List<List<string>>();
 
         try
         {
-            foreach (var item in UserTextFieldArray)
+            foreach (var item in SplittedBySlash)
             {
-                var ValuePairArray = item.Split(_colon, StringSplitOptions.RemoveEmptyEntries)
+                var SplittedByColon = item.Split(_colon, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => x.Trim())
                     .ToArray();
 
-                var ExamineKey = ValuePairArray[0];
+                var ExamineKey = SplittedByColon[0];
 
                 if (ExamineKey == "購買日期" || ExamineKey == "有效日期")
                 {
-                    if (DateOnly.TryParseExact(ValuePairArray[1], "yyyyMMdd", out DateOnly Date))
+                    if (DateOnly.TryParseExact(SplittedByColon[1], "yyyyMMdd", out DateOnly Date))
                     {
-                        TDList.Add(ValuePairArray.ToList());
+                        CorrectGroup.Add(SplittedByColon.ToList());
                     }
                     else
                     {
-                        ErrorText = $"{ValuePairArray[0]}, {ValuePairArray[1]}";
+                        ErrorText = $"{SplittedByColon[0]}, {SplittedByColon[1]}";
                         break;
                     }
                 }
 
                 if (ExamineKey == "物品名稱" || ExamineKey == "儲存位置")
                 {
-                    if (ValuePairArray[1].Trim() == "")
+                    if (SplittedByColon[1].Trim() == "")
                     {
-                        ErrorText = $"{ValuePairArray[0]}, {ValuePairArray[1]}";
+                        ErrorText = $"{SplittedByColon[0]}, {SplittedByColon[1]}";
                         break;
                     }
                     else
                     {
-                        TDList.Add(ValuePairArray.ToList());
+                        CorrectGroup.Add(SplittedByColon.ToList());
                     }
                 }
 
@@ -158,17 +152,17 @@ public class Utils
                         continue;
                     }
 
-                    TDList.Add(ValuePairArray.ToList());
+                    CorrectGroup.Add(SplittedByColon.ToList());
                 }
                 else
                 {
-                    if (ValuePairArray.Length == 2)
+                    if (SplittedByColon.Length == 2)
                     {
-                        ErrorText = $"{ValuePairArray[0]}, {ValuePairArray[1]}";
+                        ErrorText = $"{SplittedByColon[0]}, {SplittedByColon[1]}";
                     }
                     else
                     {
-                        ErrorText = $"{ValuePairArray[0]}";
+                        ErrorText = $"{SplittedByColon[0]}";
                     }
                     break;
                 }
@@ -183,7 +177,7 @@ public class Utils
 
         if (ErrorText == "")
         {
-            foreach (var KeyValueList in TDList)
+            foreach (var KeyValueList in CorrectGroup)
             {
                 switch (KeyValueList[0])
                 {
