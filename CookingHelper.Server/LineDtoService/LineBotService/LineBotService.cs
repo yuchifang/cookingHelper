@@ -9,9 +9,9 @@ namespace CookingHelper.LineDtoService;
 
 public class LineBotService
 {
-    private readonly ShoppingListDatabaseService _userListDatabaseService;
+    private readonly ShoppingListDatabaseService _shoppingListDatabaseService;
 
-    private readonly ShoppingListLogicService _shoppingListLogicService;
+    private readonly ShoppingListService _shoppingListService;
 
     private readonly StorageManagementService _storageManagementService;
 
@@ -37,7 +37,7 @@ public class LineBotService
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration,
         ShoppingListDatabaseService UserListDatabaseService,
-        ShoppingListLogicService ShoppingListLogicService,
+        ShoppingListService ShoppingListLogicService,
         StorageManagementService StorageManagementService,
         StorageManagementDatabaseService StorageManagementDatabaseService,
         StorageManagementPurchaseService StorageManagementPurchaseService,
@@ -47,8 +47,8 @@ public class LineBotService
         _httpClientFactory = httpClientFactory;
         _client = _httpClientFactory.CreateClient();
         _configuration = configuration;
-        _userListDatabaseService = UserListDatabaseService;
-        _shoppingListLogicService = ShoppingListLogicService;
+        _shoppingListDatabaseService = UserListDatabaseService;
+        _shoppingListService = ShoppingListLogicService;
         _storageManagementService = StorageManagementService;
         _storageManagementDatabaseService = StorageManagementDatabaseService;
         _storageManagementPurchaseService = StorageManagementPurchaseService;
@@ -73,10 +73,10 @@ public class LineBotService
                     break;
                 case WebhookEventTypeEnum.Follow:
                     Console.WriteLine($"使用者{WebHookEventDto.Source!.UserId}將我們新增為好友！");
-                    await _userListDatabaseService.AddEmptyShoppingListText(
+                    await _shoppingListDatabaseService.AddEmptyShoppingListText(
                         WebHookEventDto.Source!.UserId!
                     );
-                    await _storageManagementDatabaseService.AddEmptyStoreListData(
+                    await _storageManagementDatabaseService.AddEmptyStoreList(
                         WebHookEventDto.Source!.UserId!
                     );
                     break;
@@ -120,34 +120,32 @@ public class LineBotService
 
     private async Task ReceiveMessageWebhookEvent(WebhookEventDto WebHookEventDto)
     {
-        if (WebHookEventDto.Message.Text == "返回目錄")
+        var WebHookEventMessage = WebHookEventDto.Message!.Text!;
+        if (WebHookEventMessage == "返回目錄")
         {
             _WebhookEventStatusStatic = "";
         }
         if (
-            WebHookEventDto.Message.Text == KeywordGroup.PurchaseList
+            WebHookEventMessage == KeywordGroup.PurchaseList
             || _WebhookEventStatusStatic == KeywordGroup.InputPurchaseList
         )
         {
             _WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
-            await _shoppingListLogicService.Init(WebHookEventDto);
+            await _shoppingListService.Init(WebHookEventDto);
         }
         else if (
             _WebhookEventStatusStatic == "庫存查詢"
-            && WebHookEventDto.Message.Text != KeywordGroup.StorageManagement
+            && WebHookEventMessage != KeywordGroup.StorageManagement
         )
         {
             await _storageManagementSearchService.SearchStorage(WebHookEventDto);
         }
-        else if (
-            WebHookEventDto.Message.Text == "新增物品至庫存"
-            || _WebhookEventStatusStatic == "新增物品至庫存"
-        )
+        else if (WebHookEventMessage == "新增物品至庫存" || _WebhookEventStatusStatic == "新增物品至庫存")
         {
             await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
         }
         else if (
-            WebHookEventDto.Message.Text == KeywordGroup.StorageManagement
+            WebHookEventMessage == KeywordGroup.StorageManagement
             || _WebhookEventStatusStatic == KeywordGroup.StorageManagement
         )
         {
