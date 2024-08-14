@@ -34,7 +34,7 @@ public class StorageManagementSearchService
 
     public async Task SearchStorage(WebhookEventDto WebHookEventDto)
     {
-        IQueryable<StoreItem> SearchResultDataList = Enumerable.Empty<StoreItem>().AsQueryable();
+        IQueryable<StoreItem> SearchResult = Enumerable.Empty<StoreItem>().AsQueryable();
         var MethodGroup = StorageSearchBaseClass.Instance;
         string WebHookEventMessage = WebHookEventDto.Message!.Text!;
 
@@ -58,6 +58,8 @@ public class StorageManagementSearchService
         }
         else if (WebHookEventMessage == "更新")
         {
+            //!! 更新 刪除 新增的 方法
+
             _StorageEditInfoStatic.Status = "search";
             await _storageManagementDatabaseService.UpdateStoreItem(
                 _StorageEditInfoStatic,
@@ -88,6 +90,7 @@ public class StorageManagementSearchService
 
                 return;
             }
+
             // 修改
             if (_StorageEditInfoStatic.Status == "edit")
             {
@@ -96,13 +99,13 @@ public class StorageManagementSearchService
             }
             // 查詢
             _memoryCache.Remove("StorageSearch");
-            IQueryable<StoreItem>? SearchedStoreItemList =
+            IQueryable<StoreItem>? SearchedStoreItem =
                 await _storageManagementDatabaseService.GetSearchedStoreItem(
                     UserTypeStorageInfo,
                     WebHookEventDto.Source.UserId
                 );
 
-            if (SearchedStoreItemList.ToList().Count == 0)
+            if (SearchedStoreItem.ToList().Count == 0)
             {
                 LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
                 {
@@ -113,22 +116,22 @@ public class StorageManagementSearchService
                 return;
             }
 
-            _memoryCache.Set("StorageSearch", SearchedStoreItemList);
-            SearchResultDataList = SearchedStoreItemList;
+            _memoryCache.Set("StorageSearch", SearchedStoreItem);
+            SearchResult = SearchedStoreItem;
         }
 
         // 初始查詢上面code會對 SearchResultDataList 付值, 不是則是從Cache拿值
-        if (SearchResultDataList.Count() == 0)
+        if (SearchResult.Count() == 0)
         {
-            if (_memoryCache.TryGetValue("StorageSearch", out IQueryable<StoreItem> SearchedList))
+            if (_memoryCache.TryGetValue("StorageSearch", out IQueryable<StoreItem> SearchedCache))
             {
-                SearchResultDataList = SearchedList;
+                SearchResult = SearchedCache;
             }
         }
-        if (SearchResultDataList != null && SearchResultDataList.Any())
+        if (SearchResult != null && SearchResult.Any())
         {
             _ReplyMessageListStatic = MethodGroup.GetSearchResultUIBlock(
-                SearchResultDataList,
+                SearchResult,
                 _PageIndexStatic,
                 _PageSizeStatic
             );
