@@ -5,28 +5,29 @@ using static CookingHelper.LineDto.BaseMessageObject;
 
 namespace CookingHelper.LineDtoService;
 
-public class ShoppingListLogicService
+public class ShoppingListService
 {
     private readonly ShoppingListDatabaseService _shoppingListDatabaseService;
 
-    public ShoppingListLogicService(ShoppingListDatabaseService ShoppingListDatabaseService)
+    public ShoppingListService(ShoppingListDatabaseService ShoppingListDatabaseService)
     {
         _shoppingListDatabaseService = ShoppingListDatabaseService;
     }
 
     public async Task Init(WebhookEventDto WebHookEventDto)
     {
+        string WebHookEventMessage = WebHookEventDto.Message!.Text!;
         /*
         依據 _WebhookEventState及 WebHookEventDto.Message!.Text判斷是否
         是直接輸入
         */
         var ReplyMessageList = new List<TextMessageObject>();
+
         // 使用者選擇 PurchaseList 又選 Feedback, MenuList,StorageManagement 情況
-        //? 不確定要不要檔
         if (
-            WebHookEventDto.Message!.Text == KeywordGroup.Feedback
-            || WebHookEventDto.Message!.Text == KeywordGroup.MenuList
-            || WebHookEventDto.Message!.Text == KeywordGroup.StorageManagement
+            WebHookEventMessage == KeywordGroup.Feedback
+            || WebHookEventMessage == KeywordGroup.MenuList
+            || WebHookEventMessage == KeywordGroup.StorageManagement
         )
         {
             ReplyMessageList.Add(new TextMessageObject { Text = "無法記錄此字串, 請重新輸入", });
@@ -40,19 +41,19 @@ public class ShoppingListLogicService
             return;
         }
 
-        var UserData = await _shoppingListDatabaseService.GetUserListData(
+        var UserList = await _shoppingListDatabaseService.GetUserListData(
             WebHookEventDto.Source!.UserId!
         );
 
         if (
             LineBotService._WebhookEventStatusStatic == KeywordGroup.InputPurchaseList
-            && WebHookEventDto.Message!.Text != KeywordGroup.PurchaseList
+            && WebHookEventMessage != KeywordGroup.PurchaseList
         )
         {
             await _shoppingListDatabaseService.UpdateUserShoppingText(
                 null,
-                WebHookEventDto.Message!.Text!,
-                UserData
+                WebHookEventMessage,
+                UserList
             );
 
             ReplyMessageList.Add(
@@ -88,7 +89,7 @@ public class ShoppingListLogicService
             return;
         }
 
-        if (UserData.ShoppingListText == "")
+        if (UserList.ShoppingListText == "")
         {
             ReplyMessageList.Add(new TextMessageObject { Text = "採買清單中沒有物品, 開啟輸入框, 輸入想要紀錄的物品", });
             LineBotService._WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
@@ -100,7 +101,7 @@ public class ShoppingListLogicService
                     new TextMessageObject { Text = "開啟輸入框, 輸入要記錄的物品", },
                     new TextMessageObject
                     {
-                        Text = "採買清單: " + UserData.ShoppingListText!,
+                        Text = "採買清單: " + UserList.ShoppingListText!,
                         QuickReply = new QuickReplyItemDto
                         {
                             Items = new List<QuickReplyButtonDto>
@@ -113,7 +114,7 @@ public class ShoppingListLogicService
                                         Label = "將上次的採買清單帶入輸入框",
                                         Data = "quick reply postback action",
                                         InputOption = PostbackInputOptionEnum.OpenKeyboard,
-                                        FillInText = UserData.ShoppingListText!
+                                        FillInText = UserList.ShoppingListText!
                                     }
                                 },
                             }
