@@ -15,7 +15,9 @@ public class StorageManagementDatabaseService
         _userListDbContext = UserListDbContext;
     }
 
-    //!! 改變命名
+    //!! 改變命名 全部
+
+
     //!! 看看 哪邊可以用到 Single vs Split
     //!! 看看 code 哪邊可以使用 明確載入 (精準控制載入關聯資料時機)
     //!! 看code 有沒有 lazyload 的使用場景, 並確認是否真的有 lazyload 的效果
@@ -91,7 +93,7 @@ public class StorageManagementDatabaseService
     }
 
     // 新增空資料至 StoreList
-    public async Task AddEmptyStoreListData(string userId)
+    public async Task AddEmptyStoreList(string userId)
     {
         try
         {
@@ -212,14 +214,12 @@ public class StorageManagementDatabaseService
         }
     }
 
-    public async Task DeleteStoreItemList(IEnumerable<StoreItem> DeleteStoreItem)
+    public async Task DeleteStoreItemList(IEnumerable<int> DeleteStoreItem)
     {
-        var StorageItemIdQueryable = DeleteStoreItem.Select(item => item.StoreItemId);
-
-        var DeleteStoreItemQueryable = _userListDbContext.StoreItem.Where(item =>
-            StorageItemIdQueryable.Contains(item.StoreItemId)
+        var DBDeleteStoreItem = _userListDbContext.StoreItem.Where(item =>
+            DeleteStoreItem.Contains(item.StoreItemId)
         );
-        _userListDbContext.StoreItem.RemoveRange(DeleteStoreItemQueryable);
+        _userListDbContext.StoreItem.RemoveRange(DBDeleteStoreItem);
         await _userListDbContext.SaveChangesAsync();
     }
 }
