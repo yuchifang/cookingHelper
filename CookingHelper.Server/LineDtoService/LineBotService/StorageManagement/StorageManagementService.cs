@@ -95,10 +95,10 @@ public class StorageManagementService
                     return;
                 }
                 var DeleteStoreItem = StorageSearched!
-                    .Select((item, index) => new { Item = item, Index = index })
+                    .Select((item, index) => new { ItemID = item.StoreItemId, Index = index })
                     .Where(item => DeleteNumber.Contains(item.Index + 1))
-                    .Select(item => item.Item);
-                //?
+                    .Select(item => item.ItemID);
+
                 await _storageManagementDatabaseService.DeleteStoreItemList(DeleteStoreItem);
                 _StorageStatic = "display";
             }
@@ -168,7 +168,7 @@ public class StorageManagementService
         }
         else //? lazyload
         {
-            var OrderedPlaceStoreItem = StoreList
+            var OrderedByPlaceStoreItem = StoreList
                 .StoreItemList.OrderBy(Item => Item.Place)
                 .AsQueryable();
 
@@ -182,7 +182,7 @@ public class StorageManagementService
             }
 
             var PaginatedStoreItem = Paginate(
-                OrderedPlaceStoreItem,
+                OrderedByPlaceStoreItem,
                 _PageIndexStatic,
                 _PageSizeStatic,
                 out bool hasNextPage,
