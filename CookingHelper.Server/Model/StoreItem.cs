@@ -15,5 +15,5 @@ public class StoreItem : StorageInfo
     public int StoreListId { get; set; } = default!;
 
     [JsonIgnore]
-    public virtual StoreList StoreList { get; set; } = default!;
+    public StoreList StoreList { get; set; } = default!;
 }
