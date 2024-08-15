@@ -41,7 +41,7 @@ public class ShoppingListService
             return;
         }
 
-        var UserList = await _shoppingListDatabaseService.GetUserListData(
+        var UserList = await _shoppingListDatabaseService.GetUserList(
             WebHookEventDto.Source!.UserId!
         );
 

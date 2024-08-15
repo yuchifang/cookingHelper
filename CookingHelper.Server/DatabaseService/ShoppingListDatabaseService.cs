@@ -13,14 +13,14 @@ public class ShoppingListDatabaseService
         _userListContext = UserListDbContext;
     }
 
-    public async Task<UserList> GetUserListData(string userId)
+    public async Task<UserList> GetUserList(string userId)
     {
         try
         {
-            var UserListData = await _userListContext
+            var UserList = await _userListContext
                 .UserList.AsNoTracking()
                 .FirstOrDefaultAsync(user => user.UserId == userId);
-            return UserListData!;
+            return UserList!;
         }
         catch (Exception ex)
         {
@@ -33,8 +33,8 @@ public class ShoppingListDatabaseService
     {
         try
         {
-            var UserData = await GetUserListData(userId);
-            if (UserData == null)
+            var UserList = await GetUserList(userId);
+            if (UserList == null)
             {
                 await _userListContext.UserList.AddAsync(
                     new UserList { UserId = userId, ShoppingListText = "" }
@@ -58,7 +58,7 @@ public class ShoppingListDatabaseService
         {
             try
             {
-                var UserData = await GetUserListData(userId!);
+                var UserData = await GetUserList(userId!);
                 if (UserData != null)
                 {
                     UserData.ShoppingListText = UpdateShoppingText;

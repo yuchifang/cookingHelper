@@ -104,7 +104,7 @@ public class StorageManagementService
             }
         }
 
-        var StoreList = await _storageManagementDatabaseService.GetStoreListData(
+        var StoreList = await _storageManagementDatabaseService.GetStoreList(
             WebHookEventDto!.Source!.UserId!
         );
         if (WebHookEventMessage == KeywordGroup.StorageManagement)
@@ -166,7 +166,7 @@ public class StorageManagementService
                 },
             };
         }
-        else //? lazyload
+        else
         {
             var OrderedByPlaceStoreItem = StoreList
                 .StoreItemList.OrderBy(Item => Item.Place)

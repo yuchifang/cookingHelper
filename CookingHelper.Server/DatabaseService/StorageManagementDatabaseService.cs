@@ -18,18 +18,10 @@ public class StorageManagementDatabaseService
     //!! 改變命名 全部
 
 
-    //!! 看看 哪邊可以用到 Single vs Split
-    //!! 看看 code 哪邊可以使用 明確載入 (精準控制載入關聯資料時機)
-    //!! 看code 有沒有 lazyload 的使用場景, 並確認是否真的有 lazyload 的效果
-
-
-
-    //!! 確認 foreach 有沒有用到 IEnumer
-    //!! IEnumerable And IQueryable
     //!! EFcore 那些 filter 是 Server Evalution
 
 
-    public async Task<StoreList> GetStoreListNoStrackingData(string userId)
+    public async Task<StoreList> GetStoreListNoTrackingData(string userId)
     {
         try
         {
@@ -46,7 +38,7 @@ public class StorageManagementDatabaseService
         }
     }
 
-    public async Task<StoreList> GetStoreListData(string userId)
+    public async Task<StoreList> GetStoreList(string userId)
     {
         try
         {
@@ -70,7 +62,7 @@ public class StorageManagementDatabaseService
     {
         try
         {
-            var StoreList = await GetStoreListData(userId);
+            var StoreList = await GetStoreList(userId);
             if (StoreList != null)
             {
                 return StoreList
@@ -97,7 +89,7 @@ public class StorageManagementDatabaseService
     {
         try
         {
-            var StoreList = await GetStoreListNoStrackingData(userId);
+            var StoreList = await GetStoreListNoTrackingData(userId);
             if (StoreList == null)
             {
                 await _userListDbContext.StoreList.AddAsync(new StoreList { UserId = userId, });
@@ -114,7 +106,7 @@ public class StorageManagementDatabaseService
 
     public async Task AddStoreItemData(string userId, InputStorageInfo InputStorageInfo)
     {
-        var StoreList = await GetStoreListNoStrackingData(userId);
+        var StoreList = await GetStoreListNoTrackingData(userId);
         try
         {
             if (StoreList != null)
@@ -149,7 +141,7 @@ public class StorageManagementDatabaseService
     {
         try
         {
-            var StoreList = await GetStoreListData(userId);
+            var StoreList = await GetStoreList(userId);
             if (StoreList != null)
             {
                 StoreItem? UpdateItem = StoreList.StoreItemList.FirstOrDefault(item =>
@@ -187,7 +179,7 @@ public class StorageManagementDatabaseService
     {
         try
         {
-            var StoreList = await GetStoreListData(userId);
+            var StoreList = await GetStoreList(userId);
             if (StoreList != null)
             {
                 StoreItem? RemoveItem = StoreList.StoreItemList.FirstOrDefault(item =>
