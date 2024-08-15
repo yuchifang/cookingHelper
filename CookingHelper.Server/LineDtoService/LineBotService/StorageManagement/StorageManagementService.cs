@@ -97,6 +97,7 @@ public class StorageManagementService
                 var DeleteStoreItem = StorageSearched!
                     .Select((item, index) => new { ItemID = item.StoreItemId, Index = index })
                     .Where(item => DeleteNumber.Contains(item.Index + 1))
+                    .AsEnumerable()
                     .Select(item => item.ItemID);
 
                 await _storageManagementDatabaseService.DeleteStoreItemList(DeleteStoreItem);
