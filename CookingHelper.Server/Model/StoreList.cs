@@ -13,8 +13,8 @@ public class StoreList
 
     [ForeignKey("UserId")]
     public string UserId { get; set; } = default!;
-    public UserList UserList { get; set; } = default!;
+    public virtual UserList UserList { get; set; } = default!;
 
     [JsonIgnore]
-    public ICollection<StoreItem> StoreItemList { get; set; } = new List<StoreItem>();
+    public virtual ICollection<StoreItem> StoreItemList { get; set; } = new List<StoreItem>();
 }

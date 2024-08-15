@@ -21,7 +21,9 @@ namespace CookingHelper.Server
                 var ConnectString = builder.Configuration.GetConnectionString("MySQLConnectString");
                 builder.Services.AddDbContext<UserListDbContext>(Options =>
                 {
-                    Options.UseMySql(ConnectString, ServerVersion.AutoDetect(ConnectString));
+                    Options
+                        .UseLazyLoadingProxies()
+                        .UseMySql(ConnectString, ServerVersion.AutoDetect(ConnectString));
                 });
             }
             builder.Services.AddScoped<LineBotService, LineBotService>();

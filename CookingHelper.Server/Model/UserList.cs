@@ -8,5 +8,5 @@ public class UserList
     public string UserId { get; set; } = default!;
     public string? ShoppingListText { get; set; }
 
-    public StoreList? StoreList { get; set; }
+    public virtual StoreList? StoreList { get; set; }
 }

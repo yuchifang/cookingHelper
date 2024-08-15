@@ -17,9 +17,6 @@ public class StorageManagementDatabaseService
 
     //!! 改變命名 全部
 
-
-    //!! 看看 哪邊可以用到 Single vs Split
-    //!! 看看 code 哪邊可以使用 明確載入 (精準控制載入關聯資料時機)
     //!! 看code 有沒有 lazyload 的使用場景, 並確認是否真的有 lazyload 的效果
 
 
