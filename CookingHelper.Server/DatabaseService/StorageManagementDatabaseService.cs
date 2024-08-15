@@ -15,12 +15,6 @@ public class StorageManagementDatabaseService
         _userListDbContext = UserListDbContext;
     }
 
-    //!! 改變命名 全部
-
-
-    //!! EFcore 那些 filter 是 Server Evalution
-
-
     public async Task<StoreList> GetStoreListNoTrackingData(string userId)
     {
         try
@@ -66,7 +60,8 @@ public class StorageManagementDatabaseService
             if (StoreList != null)
             {
                 return StoreList
-                    .StoreItemList.Where(item => ClassMatch(item, StorageInfo))
+                    .StoreItemList.AsEnumerable()
+                    .Where(item => ClassMatch(item, StorageInfo))
                     .AsQueryable();
             }
             else
@@ -208,9 +203,9 @@ public class StorageManagementDatabaseService
 
     public async Task DeleteStoreItemList(IEnumerable<int> DeleteStoreItem)
     {
-        var DBDeleteStoreItem = _userListDbContext.StoreItem.Where(item =>
-            DeleteStoreItem.Contains(item.StoreItemId)
-        );
+        var DBDeleteStoreItem = _userListDbContext
+            .StoreItem.AsEnumerable()
+            .Where(item => DeleteStoreItem.Contains(item.StoreItemId));
         _userListDbContext.StoreItem.RemoveRange(DBDeleteStoreItem);
         await _userListDbContext.SaveChangesAsync();
     }

@@ -97,7 +97,6 @@ public class StorageManagementService
                 var DeleteStoreItem = StorageSearched!
                     .Select((item, index) => new { ItemID = item.StoreItemId, Index = index })
                     .Where(item => DeleteNumber.Contains(item.Index + 1))
-                    .AsEnumerable()
                     .Select(item => item.ItemID);
 
                 await _storageManagementDatabaseService.DeleteStoreItemList(DeleteStoreItem);
@@ -191,8 +190,6 @@ public class StorageManagementService
             );
 
             LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagement;
-
-            //! 建立假資料
 
             if (WebHookEventMessage == "依購買日期排序")
             {

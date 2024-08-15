@@ -58,8 +58,6 @@ public class StorageManagementSearchService
         }
         else if (WebHookEventMessage == "更新")
         {
-            //!! 更新 刪除 新增的 方法
-
             _StorageEditInfoStatic.Status = "search";
             await _storageManagementDatabaseService.UpdateStoreItem(
                 _StorageEditInfoStatic,
