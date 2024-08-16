@@ -94,12 +94,12 @@ public class StorageManagementService
                     };
                     return;
                 }
-                var DeleteStoreItem = StorageSearched!
+                var DeleteStoreItemID = StorageSearched!
                     .Select((item, index) => new { ItemID = item.StoreItemId, Index = index })
                     .Where(item => DeleteNumber.Contains(item.Index + 1))
                     .Select(item => item.ItemID);
 
-                await _storageManagementDatabaseService.DeleteStoreItemList(DeleteStoreItem);
+                await _storageManagementDatabaseService.DeleteStoreItemList(DeleteStoreItemID);
                 _StorageStatic = "display";
             }
         }
