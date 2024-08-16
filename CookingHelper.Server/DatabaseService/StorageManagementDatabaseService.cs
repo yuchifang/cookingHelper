@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using CookingHelper.Data;
 using CookingHelper.LineDtoService;
 using CookingHelper.Model;
@@ -21,7 +22,7 @@ public class StorageManagementDatabaseService
         {
             var StoreListData = await _userListDbContext
                 .StoreList.AsNoTracking()
-                .FirstOrDefaultAsync(StoreList => StoreList.UserId == userId);
+                .SingleAsync(StoreList => StoreList.UserId == userId);
             return StoreListData!;
         }
         catch (Exception ex)
@@ -32,13 +33,19 @@ public class StorageManagementDatabaseService
         }
     }
 
-    public async Task<StoreList> GetStoreList(string userId)
+    //!! 測試
+    public async Task<StoreListStoreItemList> GetStoreList(string userId)
     {
         try
         {
             var StoreList = await _userListDbContext
-                .StoreList.Include(s => s.StoreItemList)
-                .FirstOrDefaultAsync(StoreList => StoreList.UserId == userId);
+                .StoreList.Select(s => new StoreListStoreItemList
+                {
+                    StoreItemList = s.StoreItemList,
+                    UserId = s.UserId
+                })
+                .SingleAsync(StoreList => StoreList.UserId == userId);
+
             return StoreList!;
         }
         catch (Exception ex)
@@ -139,7 +146,7 @@ public class StorageManagementDatabaseService
             var StoreList = await GetStoreList(userId);
             if (StoreList != null)
             {
-                StoreItem? UpdateItem = StoreList.StoreItemList.FirstOrDefault(item =>
+                StoreItem? UpdateItem = StoreList.StoreItemList.Single(item =>
                     item.StoreItemId == StoreItem.StoreItemId
                 );
                 if (UpdateItem != null)
@@ -177,7 +184,7 @@ public class StorageManagementDatabaseService
             var StoreList = await GetStoreList(userId);
             if (StoreList != null)
             {
-                StoreItem? RemoveItem = StoreList.StoreItemList.FirstOrDefault(item =>
+                StoreItem? RemoveItem = StoreList.StoreItemList.Single(item =>
                     item.StoreItemId == StoreItem.StoreItemId
                 );
                 if (RemoveItem != null)
@@ -201,12 +208,20 @@ public class StorageManagementDatabaseService
         }
     }
 
-    public async Task DeleteStoreItemList(IEnumerable<int> DeleteStoreItem)
+    public async Task DeleteStoreItemList(IEnumerable<int> DeleteStoreItemID)
     {
         var DBDeleteStoreItem = _userListDbContext
             .StoreItem.AsEnumerable()
-            .Where(item => DeleteStoreItem.Contains(item.StoreItemId));
+            .Where(item => DeleteStoreItemID.Contains(item.StoreItemId));
         _userListDbContext.StoreItem.RemoveRange(DBDeleteStoreItem);
         await _userListDbContext.SaveChangesAsync();
+    }
+
+    public class StoreListStoreItemList
+    {
+        public string UserId { get; set; }
+
+        [JsonIgnore]
+        public ICollection<StoreItem> StoreItemList { get; set; }
     }
 }
