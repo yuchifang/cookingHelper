@@ -10,9 +10,11 @@ public class RecipeItem
     [ForeignKey("UserId")]
     public int UserId { get; set; } = default!;
 
-    public string RecipeItemName { get; set; } = default!;
+    public string Name { get; set; } = default!;
 
-    public List<string> RecipeStep { get; set; } = new List<string>();
+    public List<string> Step { get; set; } = new List<string>();
 
-    public byte[] RecipeImageContent { get; set; } = default!;
+    public byte[] ImageContent { get; set; } = default!;
+
+    public string Ingredients { get; set; } = default!;
 }

@@ -11,7 +11,7 @@ public class RecipeListDatabaseService
         _userListDbContext = UserListDbContext;
     }
 
-    public async Task<UserListRecipeList> GetMenuList(string userId)
+    public async Task<UserListRecipeList> GetRecipeList(string userId)
     {
         var UserList = await _userListDbContext
             .UserList.Select(u => new UserListRecipeList
