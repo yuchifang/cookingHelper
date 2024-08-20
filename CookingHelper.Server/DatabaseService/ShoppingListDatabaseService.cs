@@ -6,18 +6,18 @@ namespace CookingHelper.DatabaseService;
 
 public class ShoppingListDatabaseService
 {
-    private readonly UserListDbContext _userListContext;
+    private readonly UserListDbContext _userListDbContext;
 
     public ShoppingListDatabaseService(UserListDbContext UserListDbContext)
     {
-        _userListContext = UserListDbContext;
+        _userListDbContext = UserListDbContext;
     }
 
     public async Task<UserList> GetUserList(string userId)
     {
         try
         {
-            var UserList = await _userListContext
+            var UserList = await _userListDbContext
                 .UserList.AsNoTracking()
                 .SingleAsync(user => user.UserId == userId);
             return UserList!;
@@ -36,10 +36,10 @@ public class ShoppingListDatabaseService
             var UserList = await GetUserList(userId);
             if (UserList == null)
             {
-                await _userListContext.UserList.AddAsync(
+                await _userListDbContext.UserList.AddAsync(
                     new UserList { UserId = userId, ShoppingListText = "" }
                 );
-                await _userListContext.SaveChangesAsync();
+                await _userListDbContext.SaveChangesAsync();
             }
         }
         catch (Exception ex)
@@ -62,8 +62,8 @@ public class ShoppingListDatabaseService
                 if (UserData != null)
                 {
                     UserData.ShoppingListText = UpdateShoppingText;
-                    _userListContext.UserList.Update(UserData);
-                    await _userListContext.SaveChangesAsync();
+                    _userListDbContext.UserList.Update(UserData);
+                    await _userListDbContext.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -76,8 +76,8 @@ public class ShoppingListDatabaseService
             try
             {
                 UserDataInput.ShoppingListText = UpdateShoppingText;
-                _userListContext.UserList.Update(UserDataInput);
-                await _userListContext.SaveChangesAsync();
+                _userListDbContext.UserList.Update(UserDataInput);
+                await _userListDbContext.SaveChangesAsync();
             }
             catch (Exception ex)
             {
