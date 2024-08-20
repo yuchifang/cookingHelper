@@ -22,6 +22,7 @@ public class LineBotService
     private readonly StorageManagementSearchService _storageManagementSearchService;
 
     private readonly RecipeListService _recipeListService;
+    private readonly RecipeListAddition _recipeListAddition;
 
     private readonly HttpClient _client;
     private readonly IHttpClientFactory _httpClientFactory;
@@ -161,6 +162,10 @@ public class LineBotService
         )
         {
             await _recipeListService.GetRecipeList(WebHookEventDto);
+        }
+        else if (WebHookEventMessage == "新增食譜清單")
+        {
+            await _recipeListAddition.InputRecipeList(WebHookEventDto);
         }
         else
         {

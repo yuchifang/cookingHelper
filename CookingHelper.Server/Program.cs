@@ -43,6 +43,7 @@ namespace CookingHelper.Server
             >();
             builder.Services.AddScoped<RecipeListService, RecipeListService>();
             builder.Services.AddScoped<RecipeListDatabaseService, RecipeListDatabaseService>();
+            builder.Services.AddScoped<RecipeListAddition, RecipeListAddition>();
 
             var app = builder.Build();
 
