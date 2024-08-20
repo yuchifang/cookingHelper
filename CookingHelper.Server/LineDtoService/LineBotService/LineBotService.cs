@@ -21,6 +21,8 @@ public class LineBotService
 
     private readonly StorageManagementSearchService _storageManagementSearchService;
 
+    private readonly RecipeListService _recipeListService;
+
     private readonly HttpClient _client;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
@@ -41,7 +43,8 @@ public class LineBotService
         StorageManagementService StorageManagementService,
         StorageManagementDatabaseService StorageManagementDatabaseService,
         StorageManagementPurchaseService StorageManagementPurchaseService,
-        StorageManagementSearchService StorageManagementSearchService
+        StorageManagementSearchService StorageManagementSearchService,
+        RecipeListService RecipeListService
     )
     {
         _httpClientFactory = httpClientFactory;
@@ -53,6 +56,7 @@ public class LineBotService
         _storageManagementDatabaseService = StorageManagementDatabaseService;
         _storageManagementPurchaseService = StorageManagementPurchaseService;
         _storageManagementSearchService = StorageManagementSearchService;
+        _recipeListService = RecipeListService;
     }
 
     public async Task ReceiveWebhook(WebhookRequestBodyDto WebHookRequestBody)
@@ -150,6 +154,13 @@ public class LineBotService
         )
         {
             await _storageManagementService.GetStorage(WebHookEventDto);
+        }
+        else if (
+            WebHookEventMessage == KeywordGroup.RecipeList
+            || _WebhookEventStatusStatic == KeywordGroup.RecipeList
+        )
+        {
+            await _recipeListService.GetRecipeList(WebHookEventDto);
         }
         else
         {

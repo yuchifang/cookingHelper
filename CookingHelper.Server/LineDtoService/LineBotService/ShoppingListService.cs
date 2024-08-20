@@ -23,10 +23,10 @@ public class ShoppingListService
         */
         var ReplyMessageList = new List<TextMessageObject>();
 
-        // 使用者選擇 PurchaseList 又選 Feedback, MenuList,StorageManagement 情況
+        // 使用者選擇 PurchaseList 又選 Feedback, RecipeList,StorageManagement 情況
         if (
             WebHookEventMessage == KeywordGroup.Feedback
-            || WebHookEventMessage == KeywordGroup.MenuList
+            || WebHookEventMessage == KeywordGroup.RecipeList
             || WebHookEventMessage == KeywordGroup.StorageManagement
         )
         {

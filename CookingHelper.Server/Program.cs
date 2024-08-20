@@ -41,6 +41,9 @@ namespace CookingHelper.Server
                 StorageManagementSearchService,
                 StorageManagementSearchService
             >();
+            builder.Services.AddScoped<RecipeListService, RecipeListService>();
+            builder.Services.AddScoped<RecipeListDatabaseService, RecipeListDatabaseService>();
+
             var app = builder.Build();
 
             app.UseDefaultFiles();

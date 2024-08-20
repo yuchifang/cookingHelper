@@ -9,4 +9,6 @@ public class UserList
     public string? ShoppingListText { get; set; }
 
     public StoreList? StoreList { get; set; }
+
+    public ICollection<RecipeItem> RecipeList { get; set; } = new List<RecipeItem>();
 }
