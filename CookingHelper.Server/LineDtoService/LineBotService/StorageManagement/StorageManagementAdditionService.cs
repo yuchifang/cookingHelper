@@ -6,12 +6,12 @@ using static CookingHelper.Utils;
 
 namespace CookingHelper.LineDtoService;
 
-public class StorageManagementPurchaseService
+public class StorageManagementAdditionService
 {
     private readonly StorageManagementService _storageManagementService;
     private readonly StorageManagementDatabaseService _storageManagementDatabaseService;
 
-    public StorageManagementPurchaseService(
+    public StorageManagementAdditionService(
         StorageManagementService StorageManagementService,
         StorageManagementDatabaseService StorageManagementDatabaseService
     )

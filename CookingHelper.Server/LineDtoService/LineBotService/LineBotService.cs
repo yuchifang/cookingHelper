@@ -17,7 +17,7 @@ public class LineBotService
 
     private readonly StorageManagementDatabaseService _storageManagementDatabaseService;
 
-    private readonly StorageManagementPurchaseService _storageManagementPurchaseService;
+    private readonly StorageManagementAdditionService _storageManagementPurchaseService;
 
     private readonly StorageManagementSearchService _storageManagementSearchService;
 
@@ -42,7 +42,7 @@ public class LineBotService
         ShoppingListService ShoppingListLogicService,
         StorageManagementService StorageManagementService,
         StorageManagementDatabaseService StorageManagementDatabaseService,
-        StorageManagementPurchaseService StorageManagementPurchaseService,
+        StorageManagementAdditionService StorageManagementPurchaseService,
         StorageManagementSearchService StorageManagementSearchService,
         RecipeListService RecipeListService
     )

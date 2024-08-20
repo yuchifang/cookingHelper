@@ -30,8 +30,8 @@ namespace CookingHelper.Server
             builder.Services.AddScoped<ShoppingListService, ShoppingListService>();
             builder.Services.AddScoped<StorageManagementService, StorageManagementService>();
             builder.Services.AddScoped<
-                StorageManagementPurchaseService,
-                StorageManagementPurchaseService
+                StorageManagementAdditionService,
+                StorageManagementAdditionService
             >();
             builder.Services.AddScoped<
                 StorageManagementDatabaseService,
