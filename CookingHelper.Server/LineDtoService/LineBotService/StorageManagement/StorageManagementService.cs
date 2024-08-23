@@ -157,7 +157,7 @@ public class StorageManagementService
                                     Type = ActionTypeEnum.Postback,
                                     Label = "新增物品至庫存",
                                     Text = "新增物品至庫存", // 有用
-                                    Data = "新增物品至庫存",
+                                    Data = "新增物品至庫存", // for open keyboard
                                     InputOption = PostbackInputOptionEnum.OpenKeyboard,
                                 }
                             }
