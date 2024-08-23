@@ -22,7 +22,7 @@ public class RecipeListService
         );
         if (UserList.RecipeList.Count() == 0)
         {
-            _ReplyMessageListStatic = new List<TextMessageObject>
+            _ReplyMessageListStatic = new List<object>
             {
                 new TextMessageObject
                 {

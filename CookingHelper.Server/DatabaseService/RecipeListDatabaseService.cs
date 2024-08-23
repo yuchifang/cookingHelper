@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using CookingHelper.Data;
+using CookingHelper.Model;
 using Microsoft.EntityFrameworkCore;
 
 public class RecipeListDatabaseService

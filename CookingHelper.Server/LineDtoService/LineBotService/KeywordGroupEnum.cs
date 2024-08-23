@@ -6,6 +6,7 @@ public struct KeywordGroup
 
     // 食譜清單 //? 可以用 FlexMessage sample 來顯示搜尋結果
     public const string RecipeList = "食譜清單";
+    public const string RecipeListAddition = "新增食譜";
 
     // 意見反饋
     public const string Feedback = "意見反饋";

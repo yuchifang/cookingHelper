@@ -12,6 +12,9 @@ public class WebhookEventDto
     public string? ReplyToken { get; set; } // 回覆此事件所使用的 token
     public MessageEventDto? Message { get; set; } // 收到訊息的事件，可收到 text、sticker、image、file、video、audio、location 訊息
     public Postback? Postback { get; set; }
+
+    public ContentProviderDto? ContentProvider { get; set; }
+    public ImageMessageEventImageSetDto? ImageSet { get; set; }
 }
 
 public class Postback
@@ -70,4 +73,18 @@ public class TextMessageEventMentioneeDto
     public int Index { get; set; }
     public int Length { get; set; }
     public string? UserId { get; set; }
+}
+
+public class ImageMessageEventImageSetDto
+{
+    public string? Id { get; set; }
+    public string? Index { get; set; }
+    public string? Total { get; set; }
+}
+
+public class ContentProviderDto
+{
+    public string Type { get; set; } = default!;
+    public string? OriginalContentUrl { get; set; }
+    public string? PreviewImageUrl { get; set; }
 }
