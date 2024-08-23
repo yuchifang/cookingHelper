@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+namespace CookingHelper.Model;
+
 public class RecipeItem
 {
     [Key]
@@ -8,7 +10,8 @@ public class RecipeItem
     public int RecipeItemId { get; set; } = default!;
 
     [ForeignKey("UserId")]
-    public int UserId { get; set; } = default!;
+    public string UserId { get; set; } = default!;
+    public UserList UserList { get; set; } = default!;
 
     public string Name { get; set; } = default!;
 
