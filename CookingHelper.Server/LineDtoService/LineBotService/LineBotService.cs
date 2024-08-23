@@ -22,8 +22,8 @@ public class LineBotService
     private readonly StorageManagementSearchService _storageManagementSearchService;
 
     private readonly RecipeListService _recipeListService;
-    private readonly RecipeListAddition _recipeListAddition;
 
+    private readonly RecipeListAddition _recipeListAddition;
     private readonly HttpClient _client;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
@@ -45,7 +45,8 @@ public class LineBotService
         StorageManagementDatabaseService StorageManagementDatabaseService,
         StorageManagementAdditionService StorageManagementPurchaseService,
         StorageManagementSearchService StorageManagementSearchService,
-        RecipeListService RecipeListService
+        RecipeListService RecipeListService,
+        RecipeListAddition RecipeListAddition
     )
     {
         _httpClientFactory = httpClientFactory;
@@ -58,6 +59,7 @@ public class LineBotService
         _storageManagementPurchaseService = StorageManagementPurchaseService;
         _storageManagementSearchService = StorageManagementSearchService;
         _recipeListService = RecipeListService;
+        _recipeListAddition = RecipeListAddition;
     }
 
     public async Task ReceiveWebhook(WebhookRequestBodyDto WebHookRequestBody)
@@ -125,58 +127,70 @@ public class LineBotService
 
     private async Task ReceiveMessageWebhookEvent(WebhookEventDto WebHookEventDto)
     {
-        var WebHookEventMessage = WebHookEventDto.Message!.Text!;
-        if (WebHookEventMessage == "返回目錄")
+        var WebhookEventMessageType = WebHookEventDto.Message!.Type;
+        switch (WebhookEventMessageType)
         {
-            _WebhookEventStatusStatic = "";
-        }
-        if (
-            WebHookEventMessage == KeywordGroup.PurchaseList
-            || _WebhookEventStatusStatic == KeywordGroup.InputPurchaseList
-        )
-        {
-            _WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
-            await _shoppingListService.Init(WebHookEventDto);
-        }
-        else if (
-            _WebhookEventStatusStatic == "庫存查詢"
-            && WebHookEventMessage != KeywordGroup.StorageManagement
-        )
-        {
-            await _storageManagementSearchService.SearchStorage(WebHookEventDto);
-        }
-        else if (WebHookEventMessage == "新增物品至庫存" || _WebhookEventStatusStatic == "新增物品至庫存")
-        {
-            await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
-        }
-        else if (
-            WebHookEventMessage == KeywordGroup.StorageManagement
-            || _WebhookEventStatusStatic == KeywordGroup.StorageManagement
-        )
-        {
-            await _storageManagementService.GetStorage(WebHookEventDto);
-        }
-        else if (
-            WebHookEventMessage == KeywordGroup.RecipeList
-            || _WebhookEventStatusStatic == KeywordGroup.RecipeList
-        )
-        {
-            await _recipeListService.GetRecipeList(WebHookEventDto);
-        }
-        else if (WebHookEventMessage == "新增食譜清單")
-        {
-            await _recipeListAddition.InputRecipeList(WebHookEventDto);
-        }
-        else
-        {
-            _ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
-            {
-                ReplyToken = WebHookEventDto.ReplyToken!,
-                Messages = new List<TextMessageObject>
+            case "text":
+                var WebHookEventMessage = WebHookEventDto.Message!.Text!;
+                if (WebHookEventMessage == "返回目錄")
                 {
-                    new TextMessageObject { Text = WebHookEventDto.Message.Text! + " 無效輸入, 請依步驟執行" }
+                    _WebhookEventStatusStatic = "";
                 }
-            };
+                if (
+                    WebHookEventMessage == KeywordGroup.PurchaseList
+                    || _WebhookEventStatusStatic == KeywordGroup.InputPurchaseList
+                )
+                {
+                    _WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
+                    await _shoppingListService.Init(WebHookEventDto);
+                }
+                else if (
+                    _WebhookEventStatusStatic == "庫存查詢"
+                    && WebHookEventMessage != KeywordGroup.StorageManagement
+                )
+                {
+                    await _storageManagementSearchService.SearchStorage(WebHookEventDto);
+                }
+                else if (WebHookEventMessage == "新增物品至庫存" || _WebhookEventStatusStatic == "新增物品至庫存")
+                {
+                    await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
+                }
+                else if (
+                    WebHookEventMessage == KeywordGroup.StorageManagement
+                    || _WebhookEventStatusStatic == KeywordGroup.StorageManagement
+                )
+                {
+                    await _storageManagementService.GetStorage(WebHookEventDto);
+                }
+                else if (WebHookEventMessage == KeywordGroup.RecipeList)
+                {
+                    await _recipeListService.GetRecipeList(WebHookEventDto);
+                }
+                else if (
+                    WebHookEventMessage == KeywordGroup.RecipeListAddition
+                    || _WebhookEventStatusStatic == KeywordGroup.RecipeListAddition
+                )
+                {
+                    await _recipeListAddition.InputRecipeList(WebHookEventDto);
+                }
+                else
+                {
+                    _ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
+                    {
+                        ReplyToken = WebHookEventDto.ReplyToken!,
+                        Messages = new List<TextMessageObject>
+                        {
+                            new TextMessageObject
+                            {
+                                Text = WebHookEventDto.Message.Text! + " 無效輸入, 請依步驟執行"
+                            }
+                        }
+                    };
+                }
+                break;
+            case "image":
+                await _recipeListAddition.ImageContentStatus(WebHookEventDto);
+                break;
         }
         if (_ReplyMessageRequestStatic != null)
         {

@@ -1,6 +1,7 @@
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
 using CookingHelper.LineDtoService;
+using CookingHelper.Model;
 using static CookingHelper.LineDto.BaseMessageObject;
 
 public class RecipeListAddition
@@ -28,15 +29,21 @@ public class RecipeListAddition
         var StatusProcessor = new Dictionary<string, Action>
         {
             { "Init", InitStatus },
-            { "Name", () => NameStatus(WebHookEventMessage) }
+            { "Name", () => NameStatus(WebHookEventMessage!) }
         };
         StatusProcessor[_InputRecipeInfoStatic.Status]();
+
+        LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
+        {
+            ReplyToken = WebHookEventDto.ReplyToken!,
+            Messages = _ReplyMessageListStatic
+        };
     }
 
     public void InitStatus()
     {
         var StorageStatus = InputStorageBaseClass.Instance;
-        LineBotService._WebhookEventStatusStatic = "新增食譜清單";
+        LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeListAddition;
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject { Text = "依食譜名稱,圖片,食材,步驟輸入", },
@@ -61,7 +68,7 @@ public class RecipeListAddition
         _InputRecipeInfoStatic.Status = "Name";
     }
 
-    public async Task NameStatus(string WebHookEventMessage)
+    public void NameStatus(string WebHookEventMessage)
     {
         var StorageStatus = InputStorageBaseClass.Instance;
         _InputRecipeInfoStatic.Name = WebHookEventMessage;
@@ -70,10 +77,15 @@ public class RecipeListAddition
     }
 
     //! 建立 Image webhook
+
+    //! update Database
     //! 使用下面的
     //! 限制大小長寬寬度??
     //! 轉 byte[] 存 _InputRecipeInfoStatic
-    public async Task ImageContentStatus() { }
+    public async Task ImageContentStatus(WebhookEventDto WebHookEventDto)
+    {
+        Console.WriteLine(WebHookEventDto);
+    }
 }
 
 public class InputRecipeInfo : RecipeItem

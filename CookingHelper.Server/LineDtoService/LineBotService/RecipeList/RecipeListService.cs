@@ -38,7 +38,7 @@ public class RecipeListService
                                     Type = ActionTypeEnum.Postback,
                                     Label = "新增食譜",
                                     Text = "新增食譜",
-                                    Data = "新增食譜",
+                                    Data = "quick reply postback action",
                                     InputOption = PostbackInputOptionEnum.OpenKeyboard,
                                 }
                             }
