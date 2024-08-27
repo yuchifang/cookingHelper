@@ -69,10 +69,7 @@ public class LineBotService
             switch (WebHookEventDto.Type)
             {
                 case WebhookEventTypeEnum.Message:
-                    if (WebHookEventDto.Message.Type == MessageTypeEnum.Text)
-                    {
-                        await ReceiveMessageWebhookEvent(WebHookEventDto);
-                    }
+                    await ReceiveMessageWebhookEvent(WebHookEventDto);
                     break;
                 case WebhookEventTypeEnum.Postback:
                     await ReceivePostbackWebhookEvent(WebHookEventDto);
@@ -128,6 +125,7 @@ public class LineBotService
     private async Task ReceiveMessageWebhookEvent(WebhookEventDto WebHookEventDto)
     {
         var WebhookEventMessageType = WebHookEventDto.Message!.Type;
+
         switch (WebhookEventMessageType)
         {
             case "text":
@@ -189,7 +187,7 @@ public class LineBotService
                 }
                 break;
             case "image":
-                await _recipeListAddition.ImageContentStatus(WebHookEventDto);
+                await _recipeListAddition.ImageContentStatusImageEvent(WebHookEventDto);
                 break;
         }
         if (_ReplyMessageRequestStatic != null)
