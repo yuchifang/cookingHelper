@@ -357,7 +357,7 @@ public class StorageManagementSearchService
         if (UserTypeStorageInfo.ExpiryDate != null)
             _StorageEditInfoStatic.ExpiryDate = UserTypeStorageInfo.ExpiryDate;
 
-        _ReplyMessageListStatic = MethodGroup.GetAdditionConfirmHint(
+        _ReplyMessageListStatic = MethodGroup.GetStorageAdditionConfirmHint(
             _StorageEditInfoStatic,
             new FlexComponent
             {
