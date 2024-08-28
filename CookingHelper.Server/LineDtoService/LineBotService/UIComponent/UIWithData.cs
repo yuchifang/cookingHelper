@@ -6,7 +6,7 @@ namespace CookingHelper.LineDtoService;
 
 public class UIWithData : MessageUI
 {
-    private FlexComponent DefaultFlexComponentButtonGroup = new FlexComponent
+    public FlexComponent DefaultFlexComponentButtonGroup = new FlexComponent
     {
         Type = FlexComponentTypeEnum.Box,
         Layout = FlexComponentLayoutTypeEnum.Vertical,
@@ -46,7 +46,7 @@ public class UIWithData : MessageUI
         }
     };
 
-    public List<object> GetAdditionConfirmHint(
+    public List<object> GetStorageAdditionConfirmHint(
         StorageInfo InputStorageInfoStatic,
         FlexComponent? InputFlexComponentButtonGroup
     )
