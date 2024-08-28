@@ -5,7 +5,7 @@ using static CookingHelper.Utils;
 
 namespace CookingHelper.LineDtoService;
 
-class InputStorageBaseClass : UIWithData
+class StorageAdditionBaseClass : UIWithData
 {
-    public static InputStorageBaseClass Instance = new InputStorageBaseClass();
+    public static StorageAdditionBaseClass Instance = new StorageAdditionBaseClass();
 }
