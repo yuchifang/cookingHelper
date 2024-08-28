@@ -38,19 +38,40 @@ public class RecipeListAddition
         {
             _InputRecipeInfoStatic = new InputRecipeInfo();
         }
-
-        if (WebHookEventMessage == "取消新增")
+        else if (WebHookEventMessage == "取消新增")
         {
             _InputRecipeInfoStatic = new InputRecipeInfo();
+            LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeList;
             await _recipeListService.GetRecipeList(WebHookEventDto);
             return;
         }
+        else if (WebHookEventMessage == "略過")
+        {
+            WebHookEventMessage = null;
+        }
+        else if (WebHookEventMessage == "重新填寫步驟")
+        {
+            _InputRecipeInfoStatic.Step = new List<string>();
+        }
+        else if (WebHookEventMessage == "填寫完成")
+        {
+            LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
+            {
+                ReplyToken = WebHookEventDto.ReplyToken!,
+                Messages = RecipeListAdditionBaseClass.Instance.GetRecipeAdditionConfirmHint(
+                    _InputRecipeInfoStatic
+                )
+            };
+            return;
+        }
+
         var StatusProcessor = new Dictionary<string, Action>
         {
             { "Init", InitStatus },
             { "Name", () => NameStatus(WebHookEventMessage!) },
-            { "ImageContent", InputImageError },
-            { "Ingredients", () => IngredientsStatus(WebHookEventMessage!) }
+            { "ImageContent", () => InputImageExceptionHandle(WebHookEventMessage!) },
+            { "Ingredients", () => IngredientsStatus(WebHookEventMessage!) },
+            { "Step", () => StepStatus(WebHookEventMessage!) }
         };
         StatusProcessor[_InputRecipeInfoStatic.Status]();
 
@@ -63,7 +84,7 @@ public class RecipeListAddition
 
     public void InitStatus()
     {
-        var StorageStatus = InputStorageBaseClass.Instance;
+        var StorageStatus = RecipeListAdditionBaseClass.Instance;
         LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeListAddition;
         _ReplyMessageListStatic = new List<object>(
             [
@@ -91,7 +112,7 @@ public class RecipeListAddition
 
     public void NameStatus(string WebHookEventMessage)
     {
-        var StorageStatus = InputStorageBaseClass.Instance;
+        var StorageStatus = RecipeListAdditionBaseClass.Instance;
         _InputRecipeInfoStatic.Name = WebHookEventMessage;
         _ReplyMessageListStatic = new List<object>(
             [
@@ -116,7 +137,6 @@ public class RecipeListAddition
         _InputRecipeInfoStatic.Status = "ImageContent";
     }
 
-    //! update Database
     public async Task ImageContentStatusImageEvent(WebhookEventDto WebHookEventDto)
     {
         var messageId = WebHookEventDto.Message!.Id;
@@ -132,8 +152,10 @@ public class RecipeListAddition
 
         var response = await _client.SendAsync(request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
+        Console.WriteLine(response.Content);
+        var data = response.Content;
         var image = await response.Content.ReadAsByteArrayAsync();
-        var StorageStatus = InputStorageBaseClass.Instance;
+        var StorageStatus = RecipeListAdditionBaseClass.Instance;
         if (image.Length > 4 * 1024 * 1024)
         {
             _ReplyMessageListStatic = new List<object>(
@@ -193,41 +215,72 @@ public class RecipeListAddition
         };
     }
 
-    public void InputImageError()
+    public void InputImageExceptionHandle(string WebHookEventMessage)
     {
-        var StorageStatus = InputStorageBaseClass.Instance;
-        _ReplyMessageListStatic = new List<object>(
-            [
-                new TextMessageObject { Text = "輸入錯誤" },
-                new TextMessageObject
-                {
-                    Text = "請輸入食譜圖片: (限制4MB)",
-                    QuickReply = new QuickReplyItemDto
+        var StorageStatus = RecipeListAdditionBaseClass.Instance;
+        if (WebHookEventMessage == null)
+        {
+            _InputRecipeInfoStatic.ImageContent = null;
+            _ReplyMessageListStatic = new List<object>(
+                [
+                    new TextMessageObject
                     {
-                        Items = new List<QuickReplyButtonDto>
+                        Text = "請輸入食材:",
+                        QuickReply = new QuickReplyItemDto
                         {
-                            StorageStatus.GetQuickReplyButton(
-                                ActionTypeEnum.Message,
-                                "取消新增",
-                                "取消新增"
-                            ),
-                            StorageStatus.GetQuickReplyButton(ActionTypeEnum.Message, "略過", "略過")
+                            Items = new List<QuickReplyButtonDto>
+                            {
+                                StorageStatus.GetQuickReplyButton(
+                                    ActionTypeEnum.Message,
+                                    "取消新增",
+                                    "取消新增"
+                                ),
+                            }
                         }
                     }
-                }
-            ]
-        );
+                ]
+            );
+            _InputRecipeInfoStatic.Status = "Ingredients";
+        }
+        else
+        {
+            _ReplyMessageListStatic = new List<object>(
+                [
+                    new TextMessageObject { Text = "輸入錯誤" },
+                    new TextMessageObject
+                    {
+                        Text = "請輸入食譜圖片: (限制4MB)",
+                        QuickReply = new QuickReplyItemDto
+                        {
+                            Items = new List<QuickReplyButtonDto>
+                            {
+                                StorageStatus.GetQuickReplyButton(
+                                    ActionTypeEnum.Message,
+                                    "取消新增",
+                                    "取消新增"
+                                ),
+                                StorageStatus.GetQuickReplyButton(
+                                    ActionTypeEnum.Message,
+                                    "略過",
+                                    "略過"
+                                )
+                            }
+                        }
+                    }
+                ]
+            );
+        }
     }
 
     public void IngredientsStatus(string WebHookEventMessage)
     {
-        var StorageStatus = InputStorageBaseClass.Instance;
+        var StorageStatus = RecipeListAdditionBaseClass.Instance;
         _InputRecipeInfoStatic.Ingredients = WebHookEventMessage;
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject
                 {
-                    Text = "請輸入步驟",
+                    Text = "請輸入步驟 限制20個",
                     QuickReply = new QuickReplyItemDto
                     {
                         Items = new List<QuickReplyButtonDto>
@@ -243,6 +296,66 @@ public class RecipeListAddition
             ]
         );
         _InputRecipeInfoStatic.Status = "Step";
+    }
+
+    public void StepStatus(string WebHookEventMessage)
+    {
+        var StorageStatus = RecipeListAdditionBaseClass.Instance;
+        if (_InputRecipeInfoStatic.Step.Count == 20)
+        {
+            _ReplyMessageListStatic = new List<object>(
+                [
+                    new TextMessageObject
+                    {
+                        Text = "已達到步驟次數上限",
+                        QuickReply = new QuickReplyItemDto
+                        {
+                            Items = new List<QuickReplyButtonDto>
+                            {
+                                StorageStatus.GetQuickReplyButton(
+                                    ActionTypeEnum.Message,
+                                    "填寫完成",
+                                    "填寫完成"
+                                ),
+                                StorageStatus.GetQuickReplyButton(
+                                    ActionTypeEnum.Message,
+                                    "重新填寫步驟",
+                                    "重新填寫步驟"
+                                ),
+                            }
+                        }
+                    }
+                ]
+            );
+        }
+        else
+        {
+            _InputRecipeInfoStatic.Step.Add(WebHookEventMessage);
+            _ReplyMessageListStatic = new List<object>(
+                [
+                    new TextMessageObject
+                    {
+                        Text = "請輸入步驟",
+                        QuickReply = new QuickReplyItemDto
+                        {
+                            Items = new List<QuickReplyButtonDto>
+                            {
+                                StorageStatus.GetQuickReplyButton(
+                                    ActionTypeEnum.Message,
+                                    "取消新增",
+                                    "取消新增"
+                                ),
+                                StorageStatus.GetQuickReplyButton(
+                                    ActionTypeEnum.Message,
+                                    "填寫完成",
+                                    "填寫完成"
+                                )
+                            }
+                        }
+                    }
+                ]
+            );
+        }
     }
 }
 
