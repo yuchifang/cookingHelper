@@ -16,6 +16,13 @@ public struct KeywordGroup
     public const string StorageManagement = "庫存管理";
 }
 
+public struct RecipeKeywordGroup
+{
+    public const string Name = "食譜名稱";
+    public const string Ingredients = "食材";
+    public const string Step = "步驟";
+}
+
 public struct StorageManagementKeywordGroup
 {
     public const string Place = "儲存位置";
