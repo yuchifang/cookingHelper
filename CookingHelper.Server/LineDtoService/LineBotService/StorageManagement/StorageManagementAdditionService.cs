@@ -29,34 +29,32 @@ public class StorageManagementAdditionService
         string? WebHookEventMessage = WebHookEventDto.Message!.Text;
 
         if (WebHookEventMessage == "新增物品至庫存")
+        {
             _InputStorageInfoStatic.Status = "init";
-
-        if (WebHookEventMessage == "取消新增")
+        }
+        else if (WebHookEventMessage == "取消新增")
         {
             _InputStorageInfoStatic = new InputStorageInfo();
             await _storageManagementService.GetStorage(WebHookEventDto);
             return;
         }
-
-        if (WebHookEventMessage == "略過")
+        else if (WebHookEventMessage == "略過")
         {
             WebHookEventMessage = null;
         }
-
-        if (WebHookEventMessage == "填寫完成")
+        else if (WebHookEventMessage == "填寫完成")
         {
             LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
             {
                 ReplyToken = WebHookEventDto.ReplyToken!,
-                Messages = InputStorageBaseClass.Instance.GetAdditionConfirmHint(
+                Messages = StorageAdditionBaseClass.Instance.GetStorageAdditionConfirmHint(
                     _InputStorageInfoStatic,
                     null
                 )
             };
             return;
         }
-
-        if (WebHookEventMessage == "新增")
+        else if (WebHookEventMessage == "新增")
         {
             await _storageManagementDatabaseService.AddStoreItemData(
                 WebHookEventDto.Source!.UserId!,
@@ -134,7 +132,7 @@ public class StorageManagementAdditionService
 
     public void InitStatus()
     {
-        var StorageStatus = InputStorageBaseClass.Instance;
+        var StorageStatus = StorageAdditionBaseClass.Instance;
         LineBotService._WebhookEventStatusStatic = "新增物品至庫存";
         _ReplyMessageListStatic = new List<object>(
             [
@@ -162,7 +160,7 @@ public class StorageManagementAdditionService
 
     public void PlaceStatus(string WebHookEventMessage)
     {
-        var StorageStatus = InputStorageBaseClass.Instance;
+        var StorageStatus = StorageAdditionBaseClass.Instance;
         _InputStorageInfoStatic.Place = WebHookEventMessage;
         _ReplyMessageListStatic = new List<object>(
             [
@@ -189,7 +187,7 @@ public class StorageManagementAdditionService
 
     public void NameStatus(string WebHookEventMessage)
     {
-        var StorageStatus = InputStorageBaseClass.Instance;
+        var StorageStatus = StorageAdditionBaseClass.Instance;
         _InputStorageInfoStatic.Name = WebHookEventMessage;
         _ReplyMessageListStatic = StorageStatus.GetRegularReply("請輸入數量:");
         _InputStorageInfoStatic.Status = "amount";
@@ -197,7 +195,7 @@ public class StorageManagementAdditionService
 
     public void AmountStatus(string WebHookEventMessage)
     {
-        var StorageStatus = InputStorageBaseClass.Instance;
+        var StorageStatus = StorageAdditionBaseClass.Instance;
         _InputStorageInfoStatic.Amount = WebHookEventMessage;
         _ReplyMessageListStatic = StorageStatus.GetRegularReply("請輸入詳細位置:");
         _InputStorageInfoStatic.Status = "location";
@@ -205,7 +203,7 @@ public class StorageManagementAdditionService
 
     public void LocationStatus(string WebHookEventMessage)
     {
-        var StorageStatus = InputStorageBaseClass.Instance;
+        var StorageStatus = StorageAdditionBaseClass.Instance;
         _InputStorageInfoStatic.Location = WebHookEventMessage;
         _ReplyMessageListStatic = StorageStatus.GetRegularReply("請輸入購買日期(格式: YYYYMMDD):");
         _InputStorageInfoStatic.Status = "purchaseDate";
@@ -213,7 +211,7 @@ public class StorageManagementAdditionService
 
     public void PurchaseDateStatus(string WebHookEventMessage)
     {
-        var StorageStatus = InputStorageBaseClass.Instance;
+        var StorageStatus = StorageAdditionBaseClass.Instance;
         var dateString = WebHookEventMessage;
 
         _ReplyMessageListStatic = StorageStatus.GetRegularReply("請輸入有效日期(格式: YYYYMMDD):");
@@ -238,12 +236,12 @@ public class StorageManagementAdditionService
 
     public void ExpiryDateStatus(string WebHookEventMessage)
     {
-        var StorageStatus = InputStorageBaseClass.Instance;
+        var StorageStatus = StorageAdditionBaseClass.Instance;
         var dateString = WebHookEventMessage;
         if (dateString == null)
         {
             _InputStorageInfoStatic.ExpiryDate = null;
-            _ReplyMessageListStatic = StorageStatus.GetAdditionConfirmHint(
+            _ReplyMessageListStatic = StorageStatus.GetStorageAdditionConfirmHint(
                 _InputStorageInfoStatic,
                 null
             );
@@ -251,7 +249,7 @@ public class StorageManagementAdditionService
         else if (DateOnly.TryParseExact(dateString, "yyyyMMdd", out DateOnly ExpiryDate))
         {
             _InputStorageInfoStatic.ExpiryDate = ExpiryDate;
-            _ReplyMessageListStatic = StorageStatus.GetAdditionConfirmHint(
+            _ReplyMessageListStatic = StorageStatus.GetStorageAdditionConfirmHint(
                 _InputStorageInfoStatic,
                 null
             );
@@ -266,7 +264,7 @@ public class StorageManagementAdditionService
 
     public void EditStatus(string WebHookEventMessage)
     {
-        var MethodGroup = InputStorageBaseClass.Instance;
+        var MethodGroup = StorageAdditionBaseClass.Instance;
         StringSlashAndColonToStorageInfo(
             WebHookEventMessage!,
             out StorageInfo StorageInfoData,
@@ -274,7 +272,7 @@ public class StorageManagementAdditionService
         );
         if (ErrorText != "")
         {
-            _ReplyMessageListStatic = MethodGroup.GetAdditionConfirmHint(
+            _ReplyMessageListStatic = MethodGroup.GetStorageAdditionConfirmHint(
                 _InputStorageInfoStatic,
                 null
             );
@@ -297,7 +295,7 @@ public class StorageManagementAdditionService
                 _InputStorageInfoStatic.PurchaseDate = StorageInfoData.PurchaseDate;
             if (StorageInfoData.ExpiryDate != null)
                 _InputStorageInfoStatic.ExpiryDate = StorageInfoData.ExpiryDate;
-            _ReplyMessageListStatic = MethodGroup.GetAdditionConfirmHint(
+            _ReplyMessageListStatic = MethodGroup.GetStorageAdditionConfirmHint(
                 _InputStorageInfoStatic,
                 null
             );
