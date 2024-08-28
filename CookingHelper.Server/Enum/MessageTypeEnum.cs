@@ -27,6 +27,8 @@ public struct FlexComponentTypeEnum
 
     public const string Separator = "separator";
     public const string Button = "button";
+
+    public const string Image = "image";
 }
 
 public struct FlexComponentLayoutTypeEnum
