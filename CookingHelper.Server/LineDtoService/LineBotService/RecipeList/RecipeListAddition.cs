@@ -139,12 +139,9 @@ public class RecipeListAddition
     }
 
     /*
-        ?? 圖片名稱 由UUID 產生 ok
-        ?? PNG ok
-        ?? 圖片處存 在特定的資料夾 ok
-        ?? GET ok
         ! 看code 整理 code
         ! DELETE
+        ?? IEnumerableExtensions 怎麼加入custom method
     */
     public async Task ImageContentStatusImageEvent(WebhookEventDto WebHookEventDto)
     {
