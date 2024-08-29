@@ -1,3 +1,5 @@
+using System.Drawing;
+using System.Drawing.Imaging;
 using CookingHelper.LineDtoService;
 
 namespace CookingHelper;
@@ -6,6 +8,17 @@ public class Utils
 {
     public static readonly char[] _colon = { ':', '：' };
     public static readonly char[] _tilde = { '~' };
+
+    public static void ConvertBytesToPng(byte[] imageBytes, string outputPath)
+    {
+        using (MemoryStream ms = new MemoryStream(imageBytes))
+        {
+            using (Image image = Image.FromStream(ms))
+            {
+                image.Save(outputPath, ImageFormat.Png);
+            }
+        }
+    }
 
     static IEnumerable<int> GenerateRange(int inputFirst, int inputSecond)
     {
