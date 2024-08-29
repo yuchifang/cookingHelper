@@ -12,6 +12,7 @@ class RecipeListAdditionBaseClass : UIWithData
     //! 圖片要怎麼處理?? 圖片 byte 轉 url
     //! 靜態圖片??
     //! 寫修改 新增
+    //! 填寫完成字太小??
 
     public List<object> GetRecipeAdditionConfirmHint(InputRecipeInfo InputRecipeInfo)
     {
@@ -46,14 +47,15 @@ class RecipeListAdditionBaseClass : UIWithData
             }
         };
 
-        if (InputRecipeInfo.ImageContent != null)
+        if (InputRecipeInfo.ImagePath != null)
         {
             ((FlexMessageObject<FlexBubbleContainer>)RecipeAdditionConfirmUIBlock[0])
                 .Contents
                 .Hero = new FlexComponent
             {
                 Type = FlexComponentTypeEnum.Image,
-                Url = "https://developers-resource.landpress.line.me/fx/img/01_1_cafe.png",
+                Url =
+                    $"https://a4a9-2001-b011-7002-bfc9-ed8b-e067-d6b2-c270.ngrok-free.app/api/File/{InputRecipeInfo.ImagePath}",
                 Size = "full",
                 AspectMode = "cover",
                 AspectRatio = "20:13"
