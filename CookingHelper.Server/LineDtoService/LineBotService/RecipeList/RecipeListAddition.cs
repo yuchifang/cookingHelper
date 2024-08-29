@@ -4,6 +4,7 @@ using CookingHelper.LineDto;
 using CookingHelper.LineDtoService;
 using CookingHelper.Model;
 using static CookingHelper.LineDto.BaseMessageObject;
+using static CookingHelper.Utils;
 
 public class RecipeListAddition
 {
@@ -137,6 +138,14 @@ public class RecipeListAddition
         _InputRecipeInfoStatic.Status = "ImageContent";
     }
 
+    /*
+        ?? 圖片名稱 由UUID 產生 ok
+        ?? PNG ok
+        ?? 圖片處存 在特定的資料夾 ok
+        ?? GET ok
+        ! 看code 整理 code
+        ! DELETE
+    */
     public async Task ImageContentStatusImageEvent(WebhookEventDto WebHookEventDto)
     {
         var messageId = WebHookEventDto.Message!.Id;
@@ -152,11 +161,10 @@ public class RecipeListAddition
 
         var response = await _client.SendAsync(request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        Console.WriteLine(response.Content);
-        var data = response.Content;
-        var image = await response.Content.ReadAsByteArrayAsync();
+
+        var imageBytes = await response.Content.ReadAsByteArrayAsync();
         var StorageStatus = RecipeListAdditionBaseClass.Instance;
-        if (image.Length > 4 * 1024 * 1024)
+        if (imageBytes.Length > 4 * 1024 * 1024)
         {
             _ReplyMessageListStatic = new List<object>(
                 [
@@ -186,7 +194,11 @@ public class RecipeListAddition
         }
         else
         {
-            _InputRecipeInfoStatic.ImageContent = image;
+            var imageFileName = Guid.NewGuid();
+            var imagePath = $"UploadFile/RecipeImage/{imageFileName}.png";
+            ConvertBytesToPng(imageBytes, imagePath);
+
+            _InputRecipeInfoStatic.ImagePath = imagePath;
             _ReplyMessageListStatic = new List<object>(
                 [
                     new TextMessageObject
@@ -220,7 +232,7 @@ public class RecipeListAddition
         var StorageStatus = RecipeListAdditionBaseClass.Instance;
         if (WebHookEventMessage == null)
         {
-            _InputRecipeInfoStatic.ImageContent = null;
+            _InputRecipeInfoStatic.ImagePath = null;
             _ReplyMessageListStatic = new List<object>(
                 [
                     new TextMessageObject
