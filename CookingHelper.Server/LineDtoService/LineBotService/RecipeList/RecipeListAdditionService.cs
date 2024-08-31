@@ -6,7 +6,7 @@ using CookingHelper.Model;
 using static CookingHelper.LineDto.BaseMessageObject;
 using static CookingHelper.Utils;
 
-public class RecipeListAddition
+public class RecipeListAdditionService
 {
     private static dynamic _ReplyMessageListStatic = new List<object>();
     public static InputRecipeInfo _InputRecipeInfoStatic = new InputRecipeInfo();
@@ -19,7 +19,7 @@ public class RecipeListAddition
 
     private readonly string getContentUri = "https://api-data.line.me/v2/bot/message/{0}/content";
 
-    public RecipeListAddition(
+    public RecipeListAdditionService(
         RecipeListService RecipeListService,
         IHttpClientFactory httpClientFactory,
         IConfiguration configuration
@@ -31,7 +31,6 @@ public class RecipeListAddition
         _recipeListService = RecipeListService;
     }
 
-    //! InputStorageBaseClass 名稱要改一下
     public async Task InputRecipeList(WebhookEventDto WebHookEventDto)
     {
         string? WebHookEventMessage = WebHookEventDto.Message!.Text;
@@ -41,7 +40,16 @@ public class RecipeListAddition
         }
         else if (WebHookEventMessage == "取消新增")
         {
+            if (_InputRecipeInfoStatic.ImagePath != null)
+            {
+                string filePath = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    _InputRecipeInfoStatic.ImagePath
+                );
+                File.Delete(filePath);
+            }
             _InputRecipeInfoStatic = new InputRecipeInfo();
+
             LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeList;
             await _recipeListService.GetRecipeList(WebHookEventDto);
             return;
@@ -63,6 +71,20 @@ public class RecipeListAddition
                     _InputRecipeInfoStatic
                 )
             };
+            return;
+        }
+        else if (WebHookEventMessage == "新增")
+        {
+            //! 測試
+            //! 修改
+            //! 新增
+            _InputRecipeInfoStatic = new InputRecipeInfo();
+
+            await _recipeListService.GetRecipeList(WebHookEventDto);
+            RecipeListService._ReplyMessageListStatic.Insert(
+                0,
+                new TextMessageObject { Text = "新增完成" }
+            );
             return;
         }
 
@@ -138,11 +160,6 @@ public class RecipeListAddition
         _InputRecipeInfoStatic.Status = "ImageContent";
     }
 
-    /*
-        ! 看code 整理 code
-        ! DELETE
-        ?? IEnumerableExtensions 怎麼加入custom method
-    */
     public async Task ImageContentStatusImageEvent(WebhookEventDto WebHookEventDto)
     {
         var messageId = WebHookEventDto.Message!.Id;
@@ -156,7 +173,7 @@ public class RecipeListAddition
             _configuration["LineBot:ChannelAccessToken"]
         );
 
-        var response = await _client.SendAsync(request).ConfigureAwait(false);
+        var response = await _client.SendAsync(request);
         response.EnsureSuccessStatusCode();
 
         var imageBytes = await response.Content.ReadAsByteArrayAsync();
