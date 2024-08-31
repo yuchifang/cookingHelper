@@ -47,7 +47,13 @@ public class RecipeListService
                 }
             };
         }
-        else { }
+        else
+        {
+            _ReplyMessageListStatic = new List<object>
+            {
+                new TextMessageObject { Text = "清單中有食譜", }
+            };
+        }
 
         LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
         {
