@@ -23,7 +23,7 @@ public class LineBotService
 
     private readonly RecipeListService _recipeListService;
 
-    private readonly RecipeListAddition _recipeListAddition;
+    private readonly RecipeListAdditionService _recipeListAdditionService;
     private readonly HttpClient _client;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
@@ -46,7 +46,7 @@ public class LineBotService
         StorageManagementAdditionService StorageManagementPurchaseService,
         StorageManagementSearchService StorageManagementSearchService,
         RecipeListService RecipeListService,
-        RecipeListAddition RecipeListAddition
+        RecipeListAdditionService RecipeListAdditionService
     )
     {
         _httpClientFactory = httpClientFactory;
@@ -59,7 +59,7 @@ public class LineBotService
         _storageManagementPurchaseService = StorageManagementPurchaseService;
         _storageManagementSearchService = StorageManagementSearchService;
         _recipeListService = RecipeListService;
-        _recipeListAddition = RecipeListAddition;
+        _recipeListAdditionService = RecipeListAdditionService;
     }
 
     public async Task ReceiveWebhook(WebhookRequestBodyDto WebHookRequestBody)
@@ -130,6 +130,22 @@ public class LineBotService
         {
             case "text":
                 var WebHookEventMessage = WebHookEventDto.Message!.Text!;
+                if (
+                    WebHookEventMessage == KeywordGroup.PurchaseList
+                    || WebHookEventMessage == KeywordGroup.RecipeList
+                    || WebHookEventMessage == KeywordGroup.StorageManagement
+                )
+                {
+                    if (RecipeListAdditionService._InputRecipeInfoStatic.ImagePath != null)
+                    {
+                        string filePath = Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            RecipeListAdditionService._InputRecipeInfoStatic.ImagePath
+                        );
+                        File.Delete(filePath);
+                    }
+                }
+
                 if (WebHookEventMessage == "返回目錄")
                 {
                     _WebhookEventStatusStatic = "";
@@ -169,7 +185,7 @@ public class LineBotService
                     || _WebhookEventStatusStatic == KeywordGroup.RecipeListAddition
                 )
                 {
-                    await _recipeListAddition.InputRecipeList(WebHookEventDto);
+                    await _recipeListAdditionService.InputRecipeList(WebHookEventDto);
                 }
                 else
                 {
@@ -187,7 +203,7 @@ public class LineBotService
                 }
                 break;
             case "image":
-                await _recipeListAddition.ImageContentStatusImageEvent(WebHookEventDto);
+                await _recipeListAdditionService.ImageContentStatusImageEvent(WebHookEventDto);
                 break;
         }
         if (_ReplyMessageRequestStatic != null)
