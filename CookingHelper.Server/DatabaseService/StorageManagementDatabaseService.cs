@@ -33,7 +33,6 @@ public class StorageManagementDatabaseService
         }
     }
 
-    //!! 測試
     public async Task<StoreListStoreItemList> GetStoreList(string userId)
     {
         try
