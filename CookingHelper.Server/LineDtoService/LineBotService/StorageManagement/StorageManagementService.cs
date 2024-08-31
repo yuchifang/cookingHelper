@@ -50,8 +50,11 @@ public class StorageManagementService
         }
         if (_StorageStatic == "delete")
         {
-            if ( //?
-                _memoryCache.TryGetValue("StorageSearched", out IEnumerable<StoreItem> StorageSearched)
+            if (
+                _memoryCache.TryGetValue(
+                    "StorageSearched",
+                    out IEnumerable<StoreItem> StorageSearched
+                )
             )
             {
                 /*
@@ -111,8 +114,7 @@ public class StorageManagementService
         {
             _PageIndexStatic = 1;
         }
-
-        if (WebHookEventMessage == "刪除")
+        else if (WebHookEventMessage == "刪除")
         {
             _ReplyMessageListStatic = new List<object>
             {

@@ -8,12 +8,6 @@ class RecipeListAdditionBaseClass : UIWithData
 {
     public static RecipeListAdditionBaseClass Instance = new RecipeListAdditionBaseClass();
 
-    //! 建立 Ui給 填寫完成用
-    //! 圖片要怎麼處理?? 圖片 byte 轉 url
-    //! 靜態圖片??
-    //! 寫修改 新增
-    //! 填寫完成字太小??
-
     public List<object> GetRecipeAdditionConfirmHint(InputRecipeInfo InputRecipeInfo)
     {
         var RecipeTable = new List<FlexComponent>
@@ -91,7 +85,7 @@ class RecipeListAdditionBaseClass : UIWithData
                     {
                         Type = FlexComponentTypeEnum.Text,
                         Text = RecipeKeywordGroup.Name,
-                        Size = "xs",
+                        Size = "md",
                     },
                     new FlexComponent
                     {

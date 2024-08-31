@@ -152,7 +152,7 @@ public class UIWithData : MessageUI
                     {
                         Type = FlexComponentTypeEnum.Text,
                         Text = StorageManagementKeywordGroup.Place,
-                        Size = "xs",
+                        Size = "md",
                     },
                     new FlexComponent
                     {

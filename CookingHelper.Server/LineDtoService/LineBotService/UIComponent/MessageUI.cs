@@ -83,14 +83,14 @@ public class MessageUI
                     {
                         Type = FlexComponentTypeEnum.Text,
                         Text = keyString,
-                        Size = "sm",
+                        Size = "md",
                         Color = "#555555",
                     },
                     new FlexComponent
                     {
                         Type = FlexComponentTypeEnum.Text,
                         Text = valueString,
-                        Size = "sm",
+                        Size = "md",
                         Color = "#111111",
                         Align = "end"
                     },
