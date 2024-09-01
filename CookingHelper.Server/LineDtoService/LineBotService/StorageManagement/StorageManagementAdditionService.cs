@@ -91,7 +91,7 @@ public class StorageManagementAdditionService
         };
     }
 
-    public async Task EditAddedResultConfirmPostBack(WebhookEventDto WebHookEventDto)
+    public async Task EditAddedStorageHintPostBack(WebhookEventDto WebHookEventDto)
     {
         _ReplyMessageListStatic = new List<object>(
             [
