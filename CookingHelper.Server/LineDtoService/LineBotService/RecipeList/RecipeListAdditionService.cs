@@ -13,6 +13,8 @@ public class RecipeListAdditionService
 
     private readonly RecipeListService _recipeListService;
 
+    private readonly RecipeListDatabaseService _recipeListDatabaseService;
+
     private readonly HttpClient _client;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
@@ -22,13 +24,15 @@ public class RecipeListAdditionService
     public RecipeListAdditionService(
         RecipeListService RecipeListService,
         IHttpClientFactory httpClientFactory,
-        IConfiguration configuration
+        IConfiguration configuration,
+        RecipeListDatabaseService RecipeListDatabaseService
     )
     {
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
         _client = _httpClientFactory.CreateClient();
         _recipeListService = RecipeListService;
+        _recipeListDatabaseService = RecipeListDatabaseService;
     }
 
     public async Task InputRecipeList(WebhookEventDto WebHookEventDto)
@@ -75,9 +79,10 @@ public class RecipeListAdditionService
         }
         else if (WebHookEventMessage == "新增")
         {
-            //! 測試
-            //! 修改
-            //! 新增
+            await _recipeListDatabaseService.AddRecipe(
+                _InputRecipeInfoStatic,
+                WebHookEventDto.Source!.UserId!
+            );
             _InputRecipeInfoStatic = new InputRecipeInfo();
 
             await _recipeListService.GetRecipeList(WebHookEventDto);
@@ -94,7 +99,7 @@ public class RecipeListAdditionService
             { "Name", () => NameStatus(WebHookEventMessage!) },
             { "ImageContent", () => InputImageExceptionHandle(WebHookEventMessage!) },
             { "Ingredients", () => IngredientsStatus(WebHookEventMessage!) },
-            { "Step", () => StepStatus(WebHookEventMessage!) }
+            { "Step", () => StepStatus(WebHookEventMessage!) },
         };
         StatusProcessor[_InputRecipeInfoStatic.Status]();
 
@@ -107,7 +112,7 @@ public class RecipeListAdditionService
 
     public void InitStatus()
     {
-        var StorageStatus = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
         LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeListAddition;
         _ReplyMessageListStatic = new List<object>(
             [
@@ -120,7 +125,7 @@ public class RecipeListAdditionService
                     {
                         Items = new List<QuickReplyButtonDto>
                         {
-                            StorageStatus.GetQuickReplyButton(
+                            RecipeMethodGroup.GetQuickReplyButton(
                                 ActionTypeEnum.Message,
                                 "取消新增",
                                 "取消新增"
@@ -135,7 +140,7 @@ public class RecipeListAdditionService
 
     public void NameStatus(string WebHookEventMessage)
     {
-        var StorageStatus = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
         _InputRecipeInfoStatic.Name = WebHookEventMessage;
         _ReplyMessageListStatic = new List<object>(
             [
@@ -146,12 +151,16 @@ public class RecipeListAdditionService
                     {
                         Items = new List<QuickReplyButtonDto>
                         {
-                            StorageStatus.GetQuickReplyButton(
+                            RecipeMethodGroup.GetQuickReplyButton(
                                 ActionTypeEnum.Message,
                                 "取消新增",
                                 "取消新增"
                             ),
-                            StorageStatus.GetQuickReplyButton(ActionTypeEnum.Message, "略過", "略過")
+                            RecipeMethodGroup.GetQuickReplyButton(
+                                ActionTypeEnum.Message,
+                                "略過",
+                                "略過"
+                            )
                         }
                     }
                 }
@@ -177,7 +186,7 @@ public class RecipeListAdditionService
         response.EnsureSuccessStatusCode();
 
         var imageBytes = await response.Content.ReadAsByteArrayAsync();
-        var StorageStatus = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
         if (imageBytes.Length > 4 * 1024 * 1024)
         {
             _ReplyMessageListStatic = new List<object>(
@@ -190,12 +199,12 @@ public class RecipeListAdditionService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                StorageStatus.GetQuickReplyButton(
+                                RecipeMethodGroup.GetQuickReplyButton(
                                     ActionTypeEnum.Message,
                                     "取消新增",
                                     "取消新增"
                                 ),
-                                StorageStatus.GetQuickReplyButton(
+                                RecipeMethodGroup.GetQuickReplyButton(
                                     ActionTypeEnum.Message,
                                     "略過",
                                     "略過"
@@ -222,7 +231,7 @@ public class RecipeListAdditionService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                StorageStatus.GetQuickReplyButton(
+                                RecipeMethodGroup.GetQuickReplyButton(
                                     ActionTypeEnum.Message,
                                     "取消新增",
                                     "取消新增"
@@ -243,9 +252,10 @@ public class RecipeListAdditionService
 
     public void InputImageExceptionHandle(string WebHookEventMessage)
     {
-        var StorageStatus = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
         if (WebHookEventMessage == null)
         {
+            // 選擇略過的情況
             _InputRecipeInfoStatic.ImagePath = null;
             _ReplyMessageListStatic = new List<object>(
                 [
@@ -256,7 +266,7 @@ public class RecipeListAdditionService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                StorageStatus.GetQuickReplyButton(
+                                RecipeMethodGroup.GetQuickReplyButton(
                                     ActionTypeEnum.Message,
                                     "取消新增",
                                     "取消新增"
@@ -280,12 +290,12 @@ public class RecipeListAdditionService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                StorageStatus.GetQuickReplyButton(
+                                RecipeMethodGroup.GetQuickReplyButton(
                                     ActionTypeEnum.Message,
                                     "取消新增",
                                     "取消新增"
                                 ),
-                                StorageStatus.GetQuickReplyButton(
+                                RecipeMethodGroup.GetQuickReplyButton(
                                     ActionTypeEnum.Message,
                                     "略過",
                                     "略過"
@@ -300,7 +310,7 @@ public class RecipeListAdditionService
 
     public void IngredientsStatus(string WebHookEventMessage)
     {
-        var StorageStatus = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
         _InputRecipeInfoStatic.Ingredients = WebHookEventMessage;
         _ReplyMessageListStatic = new List<object>(
             [
@@ -311,7 +321,7 @@ public class RecipeListAdditionService
                     {
                         Items = new List<QuickReplyButtonDto>
                         {
-                            StorageStatus.GetQuickReplyButton(
+                            RecipeMethodGroup.GetQuickReplyButton(
                                 ActionTypeEnum.Message,
                                 "取消新增",
                                 "取消新增"
@@ -326,7 +336,7 @@ public class RecipeListAdditionService
 
     public void StepStatus(string WebHookEventMessage)
     {
-        var StorageStatus = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
         if (_InputRecipeInfoStatic.Step.Count == 20)
         {
             _ReplyMessageListStatic = new List<object>(
@@ -338,12 +348,12 @@ public class RecipeListAdditionService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                StorageStatus.GetQuickReplyButton(
+                                RecipeMethodGroup.GetQuickReplyButton(
                                     ActionTypeEnum.Message,
                                     "填寫完成",
                                     "填寫完成"
                                 ),
-                                StorageStatus.GetQuickReplyButton(
+                                RecipeMethodGroup.GetQuickReplyButton(
                                     ActionTypeEnum.Message,
                                     "重新填寫步驟",
                                     "重新填寫步驟"
@@ -366,12 +376,12 @@ public class RecipeListAdditionService
                         {
                             Items = new List<QuickReplyButtonDto>
                             {
-                                StorageStatus.GetQuickReplyButton(
+                                RecipeMethodGroup.GetQuickReplyButton(
                                     ActionTypeEnum.Message,
                                     "取消新增",
                                     "取消新增"
                                 ),
-                                StorageStatus.GetQuickReplyButton(
+                                RecipeMethodGroup.GetQuickReplyButton(
                                     ActionTypeEnum.Message,
                                     "填寫完成",
                                     "填寫完成"
@@ -399,6 +409,7 @@ public class InputRecipeInfo : RecipeItem
                 && value != "ImageContent"
                 && value != "Step"
                 && value != "Ingredients"
+                && value != "Edit"
             )
             {
                 throw new ArgumentException("Value Error");

@@ -24,6 +24,31 @@ public class RecipeListDatabaseService
         return UserList;
     }
 
+    public async Task AddRecipe(RecipeItem RecipeItem, string userId)
+    {
+        try
+        {
+            await _userListDbContext.RecipeItem.AddAsync(
+                new RecipeItem
+                {
+                    UserId = userId,
+                    Name = RecipeItem.Name,
+                    Step = RecipeItem.Step,
+                    ImagePath = RecipeItem.ImagePath,
+                    Ingredients = RecipeItem.Ingredients
+                }
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine("********");
+            Console.WriteLine(ex?.InnerException?.Message);
+            Console.WriteLine("********");
+            throw new Exception(nameof(ex));
+        }
+    }
+
     public class UserListRecipeList
     {
         public string UserId { get; set; } = default!;

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
+using static CookingHelper.LineDto.BaseMessageObject;
 
 namespace CookingHelper.LineDtoService;
 
@@ -8,12 +9,41 @@ class RecipeListAdditionBaseClass : UIWithData
 {
     public static RecipeListAdditionBaseClass Instance = new RecipeListAdditionBaseClass();
 
+    public FlexComponent FlexComponentButtonGroup = new FlexComponent
+    {
+        Type = FlexComponentTypeEnum.Box,
+        Layout = FlexComponentLayoutTypeEnum.Vertical,
+        Contents = new List<FlexComponent>
+        {
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Button,
+                Action = new ActionDto
+                {
+                    Type = ActionTypeEnum.Message,
+                    Label = "新增",
+                    Text = "新增"
+                }
+            },
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Button,
+                Action = new ActionDto
+                {
+                    Type = ActionTypeEnum.Message,
+                    Label = "取消新增",
+                    Text = "取消新增",
+                }
+            }
+        }
+    };
+
     public List<object> GetRecipeAdditionConfirmHint(InputRecipeInfo InputRecipeInfo)
     {
         var RecipeTable = new List<FlexComponent>
         {
             new FlexComponent { Type = FlexComponentTypeEnum.Separator, Margin = "xxl" },
-            DefaultFlexComponentButtonGroup
+            FlexComponentButtonGroup
         };
         var RecipeInfoTable = GetRecipeInfoTable(InputRecipeInfo);
         RecipeTable.InsertRange(0, RecipeInfoTable);
