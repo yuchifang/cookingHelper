@@ -92,7 +92,7 @@ public class LineBotService
     {
         if (_WebhookEventStatusStatic == "新增物品至庫存" && WebHookEventDto.Postback.Data == "修改")
         {
-            await _storageManagementPurchaseService.EditAddedResultConfirmPostBack(WebHookEventDto);
+            await _storageManagementPurchaseService.EditAddedStorageHintPostBack(WebHookEventDto);
         }
         else if (WebHookEventDto.Postback.Data == "庫存查詢")
         {
