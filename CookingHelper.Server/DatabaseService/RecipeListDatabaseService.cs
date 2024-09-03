@@ -38,6 +38,7 @@ public class RecipeListDatabaseService
                     Ingredients = RecipeItem.Ingredients
                 }
             );
+            await _userListDbContext.SaveChangesAsync();
         }
         catch (Exception ex)
         {
