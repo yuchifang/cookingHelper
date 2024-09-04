@@ -17,10 +17,9 @@ public class ShoppingListService
     public async Task Init(WebhookEventDto WebHookEventDto)
     {
         string WebHookEventMessage = WebHookEventDto.Message!.Text!;
-        /*
-        依據 _WebhookEventState及 WebHookEventDto.Message!.Text判斷是否
-        是直接輸入
-        */
+
+        //  依據 _WebhookEventState及 WebHookEventDto.Message!.Text判斷是否是直接輸入
+
         var ReplyMessageList = new List<TextMessageObject>();
 
         // 使用者選擇 PurchaseList 又選 Feedback, RecipeList,StorageManagement 情況
