@@ -1,13 +1,36 @@
-using System.Collections.Generic;
+using System.Text.Json;
 using CookingHelper.Enum;
 using CookingHelper.LineDto;
-using static CookingHelper.LineDto.BaseMessageObject;
+using CookingHelper.Model;
 
 namespace CookingHelper.LineDtoService;
 
 class RecipeListAdditionBaseClass : UIWithData
 {
     public static RecipeListAdditionBaseClass Instance = new RecipeListAdditionBaseClass();
+
+    public FlexComponent DeleteButtonGroup(RecipeItem RecipeItem)
+    {
+        return new FlexComponent
+        {
+            Type = FlexComponentTypeEnum.Box,
+            Layout = FlexComponentLayoutTypeEnum.Vertical,
+            Contents = new List<FlexComponent>
+            {
+                new FlexComponent
+                {
+                    Type = FlexComponentTypeEnum.Button,
+                    Action = new ActionDto
+                    {
+                        Type = ActionTypeEnum.Postback,
+                        Label = "刪除",
+                        Text = "刪除",
+                        Data = "d" + JsonSerializer.Serialize(RecipeItem),
+                    }
+                },
+            }
+        };
+    }
 
     public FlexComponent FlexComponentButtonGroup = new FlexComponent
     {
@@ -38,66 +61,89 @@ class RecipeListAdditionBaseClass : UIWithData
         }
     };
 
-    public List<object> GetRecipeAdditionConfirmHint(InputRecipeInfo InputRecipeInfo)
+    public FlexBubbleContainer GetFlexBubbleContainer(
+        RecipeItem RecipeItem,
+        FlexComponent? InputFlexComponentButtonGroup
+    )
     {
+        if (InputFlexComponentButtonGroup == null)
+        {
+            InputFlexComponentButtonGroup = FlexComponentButtonGroup;
+        }
+
         var RecipeTable = new List<FlexComponent>
         {
             new FlexComponent { Type = FlexComponentTypeEnum.Separator, Margin = "xxl" },
-            FlexComponentButtonGroup
+            InputFlexComponentButtonGroup
         };
-        var RecipeInfoTable = GetRecipeInfoTable(InputRecipeInfo);
+        var RecipeInfoTable = GetRecipeInfoTable(RecipeItem);
         RecipeTable.InsertRange(0, RecipeInfoTable);
 
-        var RecipeAdditionConfirmUIBlock = new List<object>
+        var FlexBubbleContainer = new FlexBubbleContainer
         {
-            new FlexMessageObject<FlexBubbleContainer>
+            Type = FlexContainerTypeEnum.Bubble,
+            Styles = new FlexBubbleContainerStyle
             {
-                AltText = "食譜新增結果",
-                Contents = new FlexBubbleContainer
-                {
-                    Type = FlexContainerTypeEnum.Bubble,
-                    Styles = new FlexBubbleContainerStyle
-                    {
-                        Footer = new FlexBlockStyle { Separator = false }
-                    },
-                    Body = new FlexComponent
-                    {
-                        Type = FlexComponentTypeEnum.Box,
-                        Layout = FlexComponentLayoutTypeEnum.Vertical,
+                Footer = new FlexBlockStyle { Separator = false }
+            },
+            Body = new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Box,
+                Layout = FlexComponentLayoutTypeEnum.Vertical,
 
-                        Contents = RecipeTable
-                    }
-                }
+                Contents = RecipeTable
             }
         };
-
-        if (InputRecipeInfo.ImagePath != null)
+        if (RecipeItem.ImagePath != null)
         {
-            ((FlexMessageObject<FlexBubbleContainer>)RecipeAdditionConfirmUIBlock[0])
-                .Contents
-                .Hero = new FlexComponent
+            FlexBubbleContainer.Hero = new FlexComponent
             {
                 Type = FlexComponentTypeEnum.Image,
                 Url =
-                    $"https://a4a9-2001-b011-7002-bfc9-ed8b-e067-d6b2-c270.ngrok-free.app/api/File/{InputRecipeInfo.ImagePath}",
+                    $"https://fb74-2001-b011-7002-bf81-7135-b319-4641-d633.ngrok-free.app/api/File/{RecipeItem.ImagePath}",
                 Size = "full",
                 AspectMode = "cover",
                 AspectRatio = "20:13"
             };
         }
+        else
+        {
+            FlexBubbleContainer.Hero = new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Image,
+                Url =
+                    $"https://fb74-2001-b011-7002-bf81-7135-b319-4641-d633.ngrok-free.app/api/File/UploadFile/RecipeImage/CookingHelperLineLogo.png",
+                Size = "full",
+                AspectMode = "cover",
+                AspectRatio = "20:13"
+            };
+        }
+        return FlexBubbleContainer;
+    }
+
+    public List<object> GetRecipeAdditionConfirmHint(InputRecipeInfo InputRecipeInfo)
+    {
+        var RecipeAdditionConfirmUIBlock = new List<object>
+        {
+            new FlexMessageObject<FlexBubbleContainer>
+            {
+                AltText = "食譜新增結果",
+                Contents = GetFlexBubbleContainer(InputRecipeInfo, null)
+            }
+        };
 
         return RecipeAdditionConfirmUIBlock;
     }
 
-    public List<FlexComponent> GetRecipeInfoTable(InputRecipeInfo InputRecipeInfo)
+    public List<FlexComponent> GetRecipeInfoTable(RecipeItem RecipeItem)
     {
         var IngredientsField = FieldFlexComponent(
             RecipeKeywordGroup.Ingredients,
-            InputRecipeInfo.Ingredients
+            RecipeItem.Ingredients
         );
 
         List<FlexComponent> FieldTable = new List<FlexComponent> { IngredientsField! };
-        foreach (var (step, index) in InputRecipeInfo.Step.WithIndex())
+        foreach (var (step, index) in RecipeItem.Step.WithIndex())
         {
             var StepField = FieldFlexComponent(RecipeKeywordGroup.Step + $"{index + 1}", step);
             FieldTable.Add(StepField!);
@@ -120,7 +166,7 @@ class RecipeListAdditionBaseClass : UIWithData
                     new FlexComponent
                     {
                         Type = FlexComponentTypeEnum.Text,
-                        Text = InputRecipeInfo.Name,
+                        Text = RecipeItem.Name,
                         Size = "xl",
                         Align = "end"
                     }
