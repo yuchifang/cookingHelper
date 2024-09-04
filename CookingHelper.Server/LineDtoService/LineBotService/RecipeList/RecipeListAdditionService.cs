@@ -84,7 +84,7 @@ public class RecipeListAdditionService
                 WebHookEventDto.Source!.UserId!
             );
             _InputRecipeInfoStatic = new InputRecipeInfo();
-
+            LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeList;
             await _recipeListService.GetRecipeList(WebHookEventDto);
             RecipeListService._ReplyMessageListStatic.Insert(
                 0,
@@ -257,6 +257,7 @@ public class RecipeListAdditionService
         {
             // 選擇略過的情況
             _InputRecipeInfoStatic.ImagePath = null;
+
             _ReplyMessageListStatic = new List<object>(
                 [
                     new TextMessageObject
