@@ -22,8 +22,9 @@ public class LineBotService
     private readonly StorageManagementSearchService _storageManagementSearchService;
 
     private readonly RecipeListService _recipeListService;
-
     private readonly RecipeListAdditionService _recipeListAdditionService;
+    private readonly RecipeListSearchService _recipeListSearchService;
+
     private readonly HttpClient _client;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
@@ -46,7 +47,8 @@ public class LineBotService
         StorageManagementAdditionService StorageManagementPurchaseService,
         StorageManagementSearchService StorageManagementSearchService,
         RecipeListService RecipeListService,
-        RecipeListAdditionService RecipeListAdditionService
+        RecipeListAdditionService RecipeListAdditionService,
+        RecipeListSearchService RecipeListSearchService
     )
     {
         _httpClientFactory = httpClientFactory;
@@ -60,6 +62,7 @@ public class LineBotService
         _storageManagementSearchService = StorageManagementSearchService;
         _recipeListService = RecipeListService;
         _recipeListAdditionService = RecipeListAdditionService;
+        _recipeListSearchService = RecipeListSearchService;
     }
 
     public async Task ReceiveWebhook(WebhookRequestBodyDto WebHookRequestBody)
@@ -90,7 +93,7 @@ public class LineBotService
 
     private async Task ReceivePostbackWebhookEvent(WebhookEventDto WebHookEventDto)
     {
-        if (_WebhookEventStatusStatic == "新增物品至庫存" && WebHookEventDto.Postback.Data == "修改")
+        if (_WebhookEventStatusStatic == "新增物品至庫存" && WebHookEventDto.Postback!.Data == "修改")
         {
             await _storageManagementPurchaseService.EditAddedStorageHintPostBack(WebHookEventDto);
         }
@@ -113,6 +116,13 @@ public class LineBotService
             else if (WebHookEventDto.Postback.Data[0..1] == "e")
             {
                 await _storageManagementSearchService.EditStorageInfoPostBack(WebHookEventDto);
+            }
+        }
+        else if (_WebhookEventStatusStatic == KeywordGroup.RecipeList)
+        {
+            if (WebHookEventDto.Postback.Data[0..1] == "d")
+            {
+                await _recipeListService.DeleteRecipePostBack(WebHookEventDto);
             }
         }
 
@@ -159,6 +169,13 @@ public class LineBotService
                     await _shoppingListService.Init(WebHookEventDto);
                 }
                 else if (
+                    WebHookEventMessage == KeywordGroup.RecipeListSearch
+                    || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
+                )
+                {
+                    await _recipeListSearchService.GetSearchHint(WebHookEventDto);
+                }
+                else if (
                     _WebhookEventStatusStatic == "庫存查詢"
                     && WebHookEventMessage != KeywordGroup.StorageManagement
                 )
@@ -176,16 +193,19 @@ public class LineBotService
                 {
                     await _storageManagementService.GetStorage(WebHookEventDto);
                 }
-                else if (WebHookEventMessage == KeywordGroup.RecipeList)
-                {
-                    await _recipeListService.GetRecipeList(WebHookEventDto);
-                }
                 else if (
                     WebHookEventMessage == KeywordGroup.RecipeListAddition
                     || _WebhookEventStatusStatic == KeywordGroup.RecipeListAddition
                 )
                 {
                     await _recipeListAdditionService.InputRecipeList(WebHookEventDto);
+                }
+                else if (
+                    WebHookEventMessage == KeywordGroup.RecipeList
+                    || _WebhookEventStatusStatic == KeywordGroup.RecipeList
+                )
+                {
+                    await _recipeListService.GetRecipeList(WebHookEventDto);
                 }
                 else
                 {
