@@ -17,7 +17,7 @@ public class RecipeItem
 
     public List<string> Step { get; set; } = new List<string>();
 
-    public string ImagePath { get; set; } = default!;
+    public string? ImagePath { get; set; }
 
     public string Ingredients { get; set; } = default!;
 }
