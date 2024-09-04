@@ -50,6 +50,37 @@ public class RecipeListDatabaseService
         }
     }
 
+    public async Task DeleteRecipeItem(RecipeItem RecipeItem, string userId)
+    {
+        try
+        {
+            var UserList = await GetRecipeList(userId);
+            if (UserList != null)
+            {
+                RecipeItem? RemoveItem = UserList.RecipeList.Single(item =>
+                    item.RecipeItemId == RecipeItem.RecipeItemId
+                );
+                if (RemoveItem != null)
+                {
+                    _userListDbContext.RecipeItem.Remove(RemoveItem);
+                    await _userListDbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception("Error");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine("********");
+            Console.WriteLine(ex?.InnerException?.Message);
+            Console.WriteLine("********");
+            throw new Exception(nameof(ex));
+        }
+    }
+
     public class UserListRecipeList
     {
         public string UserId { get; set; } = default!;
