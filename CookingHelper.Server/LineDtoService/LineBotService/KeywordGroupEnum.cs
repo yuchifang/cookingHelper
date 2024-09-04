@@ -8,6 +8,8 @@ public struct KeywordGroup
     public const string RecipeList = "食譜清單";
     public const string RecipeListAddition = "新增食譜";
 
+    public const string RecipeListSearch = "食譜查詢";
+
     // 意見反饋
     public const string Feedback = "意見反饋";
     public const string InputFeedback = "輸入意見反饋";
