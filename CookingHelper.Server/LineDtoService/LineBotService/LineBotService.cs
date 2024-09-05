@@ -173,7 +173,7 @@ public class LineBotService
                     || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
                 )
                 {
-                    await _recipeListSearchService.GetSearchHint(WebHookEventDto);
+                    await _recipeListSearchService.SearchRecipe(WebHookEventDto);
                 }
                 else if (
                     _WebhookEventStatusStatic == "庫存查詢"

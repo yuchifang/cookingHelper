@@ -92,7 +92,7 @@ public class RecipeListService
             {
                 new FlexMessageObject<FlexCarouselContainer>
                 {
-                    AltText = "庫存搜尋結果",
+                    AltText = "食譜",
                     Contents = new FlexCarouselContainer
                     {
                         Type = FlexContainerTypeEnum.Carousel,
