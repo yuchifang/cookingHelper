@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using CookingHelper.LineDtoService;
+using CookingHelper.Model;
 
 namespace CookingHelper;
 
@@ -8,6 +9,7 @@ public class Utils
 {
     public static readonly char[] _colon = { ':', '：' };
     public static readonly char[] _tilde = { '~' };
+    public static readonly char[] _comma = { ',', '，' };
 
     public static void ConvertBytesToPng(byte[] imageBytes, string outputPath)
     {
@@ -219,6 +221,49 @@ public class Utils
         }
     }
 
+    public static void StringSlashAndColonToRecipeInfo(
+        string inputText,
+        out RecipeInfo returnObject,
+        out string ErrorText
+    )
+    {
+        ErrorText = "";
+        returnObject = new RecipeInfo();
+        var SplittedBySlash = inputText.Split("/", StringSplitOptions.RemoveEmptyEntries);
+        try
+        {
+            foreach (var item in SplittedBySlash)
+            {
+                var SplittedByColon = item.Split(_colon, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .ToArray();
+                var ExamineKey = SplittedByColon[0];
+                if (ExamineKey == "食譜名稱")
+                {
+                    returnObject.Name = SplittedByColon[1];
+                }
+                else if (ExamineKey == "食材")
+                {
+                    returnObject.Ingredients = SplittedByColon[1]
+                        .Split(_comma, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .ToList();
+                }
+                else
+                {
+                    ErrorText = $"{SplittedByColon[0]}";
+                    break;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.StackTrace);
+            return;
+        }
+    }
+
     public static bool ClassMatch<Class>(Class item, Class target)
     {
         foreach (var prop in typeof(Class).GetProperties())
@@ -296,5 +341,11 @@ public class Utils
                 return 0;
             }
         }
+    }
+
+    public class RecipeInfo
+    {
+        public string? Name { get; set; } = default!;
+        public List<string>? Ingredients { get; set; } = default!;
     }
 }
