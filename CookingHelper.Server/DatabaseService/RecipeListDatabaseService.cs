@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using CookingHelper.Data;
 using CookingHelper.Model;
 using Microsoft.EntityFrameworkCore;
+using static CookingHelper.Utils;
 
 public class RecipeListDatabaseService
 {
@@ -79,6 +80,32 @@ public class RecipeListDatabaseService
             Console.WriteLine("********");
             throw new Exception(nameof(ex));
         }
+    }
+
+    public async Task<IEnumerable<RecipeItem>> GetSearchedRecipeItem(RecipeInfo RecipeInfo)
+    {
+        IEnumerable<RecipeItem> RecipeItem = Enumerable.Empty<RecipeItem>();
+        if (RecipeInfo.Ingredients != null && RecipeInfo.Name != null)
+        {
+            RecipeItem = _userListDbContext
+                .RecipeItem.Where(item => item.Name.IndexOf(RecipeInfo.Name) != -1)
+                .Where(RecipeItem =>
+                    RecipeInfo.Ingredients.All(item => RecipeItem.Ingredients.Contains(item))
+                );
+        }
+        else if (RecipeInfo.Name != null)
+        {
+            RecipeItem = _userListDbContext.RecipeItem.Where(item =>
+                item.Name.IndexOf(RecipeInfo.Name) != -1
+            );
+        }
+        else if (RecipeInfo.Ingredients != null)
+        {
+            RecipeItem = _userListDbContext.RecipeItem.Where(RecipeItem =>
+                RecipeInfo.Ingredients.All(item => RecipeItem.Ingredients.Contains(item))
+            );
+        }
+        return RecipeItem;
     }
 
     public class UserListRecipeList
