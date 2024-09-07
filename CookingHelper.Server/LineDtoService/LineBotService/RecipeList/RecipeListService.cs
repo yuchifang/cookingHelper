@@ -23,9 +23,11 @@ public class RecipeListService
     {
         var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
         var WebHookEventMessage = WebHookEventDto.Message!.Text!;
+
         var UserList = await _recipeListDatabaseService.GetRecipeList(
             WebHookEventDto.Source!.UserId!
         );
+        LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeList;
         if (UserList.RecipeList.Count() == 0)
         {
             _ReplyMessageListStatic = new List<object>
@@ -158,12 +160,6 @@ public class RecipeListService
                 );
             }
 
-            /*
-                ! 顯示的 button 還要改
-                圖片 cache 處理
-                ! 查詢 刪除
-                
-            */
             _ReplyMessageListStatic = RecipeListUI;
         }
 
@@ -176,6 +172,7 @@ public class RecipeListService
 
     public async Task DeleteRecipePostBack(WebhookEventDto WebHookEventDto)
     {
+        LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeList;
         var userId = WebHookEventDto.Source!.UserId!;
         var RecipeItem = JsonSerializer.Deserialize<RecipeItem>(
             WebHookEventDto.Postback!.Data![1..]
@@ -183,7 +180,7 @@ public class RecipeListService
         if (RecipeItem != null)
         {
             await _recipeListDatabaseService.DeleteRecipeItem(RecipeItem, userId);
+            await GetRecipeList(WebHookEventDto);
         }
-        await GetRecipeList(WebHookEventDto);
     }
 }
