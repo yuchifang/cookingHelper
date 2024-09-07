@@ -89,6 +89,7 @@ public class RecipeListDatabaseService
         {
             RecipeItem = _userListDbContext
                 .RecipeItem.Where(item => item.Name.IndexOf(RecipeInfo.Name) != -1)
+                .AsEnumerable()
                 .Where(RecipeItem =>
                     RecipeInfo.Ingredients.All(item => RecipeItem.Ingredients.Contains(item))
                 );
@@ -101,9 +102,11 @@ public class RecipeListDatabaseService
         }
         else if (RecipeInfo.Ingredients != null)
         {
-            RecipeItem = _userListDbContext.RecipeItem.Where(RecipeItem =>
-                RecipeInfo.Ingredients.All(item => RecipeItem.Ingredients.Contains(item))
-            );
+            RecipeItem = _userListDbContext
+                .RecipeItem.AsEnumerable()
+                .Where(RecipeItem =>
+                    RecipeInfo.Ingredients.All(item => RecipeItem.Ingredients.Contains(item))
+                );
         }
         return RecipeItem;
     }
