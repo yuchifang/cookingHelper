@@ -118,7 +118,10 @@ public class LineBotService
                 await _storageManagementSearchService.EditStorageInfoPostBack(WebHookEventDto);
             }
         }
-        else if (_WebhookEventStatusStatic == KeywordGroup.RecipeList)
+        else if (
+            _WebhookEventStatusStatic == KeywordGroup.RecipeList
+            || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
+        )
         {
             if (WebHookEventDto.Postback.Data[0..1] == "d")
             {
