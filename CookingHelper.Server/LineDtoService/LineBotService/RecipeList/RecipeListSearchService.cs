@@ -40,10 +40,12 @@ public class RecipeListSearchService
             _ReplyMessageListStatic = new List<object>
             {
                 new TextMessageObject { Text = "依格式輸入查詢資訊" },
+                new TextMessageObject { Text = "若要尋找食譜名稱裡面有番茄的食譜, 請輸入食譜名稱:番茄" },
+                new TextMessageObject { Text = "若要尋找食材裡面有蛋的食譜, 請輸入食材:蛋" },
+                new TextMessageObject { Text = "要填入多筆資訊, 請用/號隔開, 如食譜名稱:蘋果/食材:蛋" },
                 new TextMessageObject
                 {
-                    Text =
-                        "若要尋找食譜名稱裡面有番茄的食譜, 請輸入食譜名稱:番茄 \n若要尋找食材裡面有蛋的食譜, 請輸入食材:蛋 \n 要填入多筆資訊, 請用/號隔開, 如食譜名稱:蘋果/食材:蛋 \n 若要尋找多種食材, 請輸入食材:蛋,牛奶 \n 只能依據食材,食譜名稱搜尋",
+                    Text = "若要尋找多種食材, 請輸入食材:蛋,牛奶. 只能依據食材,食譜名稱搜尋",
                     QuickReply = new QuickReplyItemDto
                     {
                         Items = new List<QuickReplyButtonDto>
@@ -97,9 +99,38 @@ public class RecipeListSearchService
                 return;
             }
 
-            var RecipeItem = (
-                await _recipeListDatabaseService.GetSearchedRecipeItem(RecipeInfo)
-            ).AsQueryable();
+            var RecipeItem = await _recipeListDatabaseService.GetSearchedRecipeItem(RecipeInfo);
+            if (RecipeItem.Any() == false)
+            {
+                _ReplyMessageListStatic = new List<object>
+                {
+                    new TextMessageObject
+                    {
+                        Text = "找不到食譜, 請重新輸入",
+                        QuickReply = new QuickReplyItemDto
+                        {
+                            Items = new List<QuickReplyButtonDto>
+                            {
+                                new QuickReplyButtonDto
+                                {
+                                    Action = new ActionDto
+                                    {
+                                        Type = ActionTypeEnum.Message,
+                                        Label = "取消查詢",
+                                        Text = "取消查詢",
+                                    }
+                                },
+                            }
+                        }
+                    }
+                };
+                LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
+                {
+                    ReplyToken = WebHookEventDto.ReplyToken!,
+                    Messages = _ReplyMessageListStatic
+                };
+                return;
+            }
 
             if (WebHookEventMessage == "下一頁")
             {
@@ -110,7 +141,7 @@ public class RecipeListSearchService
                 _PageIndexStatic -= 1;
             }
             var PaginatedRecipeItem = Paginate(
-                RecipeItem,
+                RecipeItem.AsQueryable(),
                 _PageIndexStatic,
                 _PageSizeStatic,
                 out bool hasNextPage,
@@ -186,15 +217,8 @@ public class RecipeListSearchService
                     RecipeMethodGroup.GetQuickReplyButton(ActionTypeEnum.Message, "上一頁", "上一頁")
                 );
             }
-            /*
-              加入上一頁
-              刪除 完返回
-              返回 quick
-            */
+            _ReplyMessageListStatic = RecipeListUI;
         }
-        /*
-            可以依據 石材, 食譜名稱去查詢
-        */
 
         LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
         {
