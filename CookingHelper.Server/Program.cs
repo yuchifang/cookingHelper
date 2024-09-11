@@ -10,6 +10,8 @@ namespace CookingHelper.Server
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Logging.ClearProviders().AddConsole();
             builder.Services.AddMemoryCache();
             builder.Services.AddHttpClient();
             builder.Services.AddControllers();
