@@ -7,10 +7,15 @@ using static CookingHelper.Utils;
 public class RecipeListDatabaseService
 {
     private readonly UserListDbContext _userListDbContext;
+    private readonly IConfiguration _configuration;
 
-    public RecipeListDatabaseService(UserListDbContext UserListDbContext)
+    public RecipeListDatabaseService(
+        UserListDbContext UserListDbContext,
+        IConfiguration configuration
+    )
     {
         _userListDbContext = UserListDbContext;
+        _configuration = configuration;
     }
 
     public async Task<UserListRecipeList> GetRecipeList(string userId)
@@ -63,6 +68,15 @@ public class RecipeListDatabaseService
                 );
                 if (RemoveItem != null)
                 {
+                    if (RemoveItem.ImagePath != null)
+                    {
+                        var filePath =
+                            $"{_configuration.GetValue<string>(WebHostDefaults.ContentRootKey)}/{RecipeItem.ImagePath}";
+                        if (File.Exists(filePath))
+                        {
+                            File.Delete(filePath);
+                        }
+                    }
                     _userListDbContext.RecipeItem.Remove(RemoveItem);
                     await _userListDbContext.SaveChangesAsync();
                 }
