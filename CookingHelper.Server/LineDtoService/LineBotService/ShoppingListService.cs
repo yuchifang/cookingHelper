@@ -16,38 +16,30 @@ public class ShoppingListService
 
     public async Task Init(WebhookEventDto WebHookEventDto)
     {
-        string WebHookEventMessage = WebHookEventDto.Message!.Text!;
+        string WebHookEventMessage = "";
 
-        //  依據 _WebhookEventState及 WebHookEventDto.Message!.Text判斷是否是直接輸入
-
-        var ReplyMessageList = new List<TextMessageObject>();
-
-        // 使用者選擇 PurchaseList 又選 Feedback, RecipeList,StorageManagement 情況
         if (
-            WebHookEventMessage == KeywordGroup.Feedback
-            || WebHookEventMessage == KeywordGroup.RecipeList
-            || WebHookEventMessage == KeywordGroup.StorageManagement
+            WebHookEventDto.GetType().GetProperty("Postback") != null
+            && WebHookEventDto.Postback != null
         )
         {
-            ReplyMessageList.Add(new TextMessageObject { Text = "無法記錄此字串, 請重新輸入", });
-
-            LineBotService._ReplyMessageRequestStatic =
-                new ReplyMessageRequestDto<TextMessageObject>
-                {
-                    ReplyToken = WebHookEventDto.ReplyToken!,
-                    Messages = ReplyMessageList
-                };
-            return;
+            WebHookEventMessage = WebHookEventDto.Postback!.Data!;
         }
+        else if (
+            WebHookEventDto.GetType().GetProperty("Message") != null
+            && WebHookEventDto.Message != null
+        )
+        {
+            WebHookEventMessage = WebHookEventDto.Message!.Text!;
+        }
+
+        var ReplyMessageList = new List<TextMessageObject>();
 
         var UserList = await _shoppingListDatabaseService.GetUserList(
             WebHookEventDto.Source!.UserId!
         );
 
-        if (
-            LineBotService._WebhookEventStatusStatic == KeywordGroup.InputPurchaseList
-            && WebHookEventMessage != KeywordGroup.PurchaseList
-        )
+        if (LineBotService._WebhookEventStatusStatic == KeywordGroup.InputPurchaseList)
         {
             await _shoppingListDatabaseService.UpdateUserShoppingText(
                 null,
@@ -55,37 +47,8 @@ public class ShoppingListService
                 UserList
             );
 
-            ReplyMessageList.Add(
-                new TextMessageObject
-                {
-                    Text = "更新完成",
-                    QuickReply = new QuickReplyItemDto
-                    {
-                        Items = new List<QuickReplyButtonDto>
-                        {
-                            new QuickReplyButtonDto
-                            {
-                                Action = new ActionDto
-                                {
-                                    Type = ActionTypeEnum.Postback,
-                                    Label = "返回主目錄",
-                                    Text = "返回主目錄",
-                                    Data = "quick reply postback action",
-                                    InputOption = PostbackInputOptionEnum.OpenRichMenu,
-                                }
-                            },
-                        }
-                    }
-                }
-            );
             LineBotService._WebhookEventStatusStatic = "";
-            LineBotService._ReplyMessageRequestStatic =
-                new ReplyMessageRequestDto<TextMessageObject>
-                {
-                    ReplyToken = WebHookEventDto.ReplyToken!,
-                    Messages = ReplyMessageList
-                };
-            return;
+            await Init(WebHookEventDto);
         }
 
         if (UserList.ShoppingListText == "")
