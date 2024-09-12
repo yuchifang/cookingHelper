@@ -128,6 +128,10 @@ public class LineBotService
                 await _recipeListService.DeleteRecipePostBack(WebHookEventDto);
             }
         }
+        else if (WebHookEventDto.Postback.Data == KeywordGroup.PurchaseList)
+        {
+            await _shoppingListService.Init(WebHookEventDto);
+        }
 
         if (_ReplyMessageRequestStatic != null)
         {
@@ -138,17 +142,18 @@ public class LineBotService
     private async Task ReceiveMessageWebhookEvent(WebhookEventDto WebHookEventDto)
     {
         var WebhookEventMessageType = WebHookEventDto.Message!.Type;
-
         switch (WebhookEventMessageType)
         {
             case "text":
                 var WebHookEventMessage = WebHookEventDto.Message!.Text!;
+
                 if (
-                    WebHookEventMessage == KeywordGroup.PurchaseList
-                    || WebHookEventMessage == KeywordGroup.RecipeList
+                    WebHookEventMessage == KeywordGroup.RecipeList
                     || WebHookEventMessage == KeywordGroup.StorageManagement
+                    || WebHookEventMessage == KeywordGroup.PurchaseList
                 )
                 {
+                    //? RecipeList 使用者要再改
                     if (RecipeListAdditionService._InputRecipeInfoStatic.ImagePath != null)
                     {
                         string filePath = Path.Combine(
@@ -157,13 +162,23 @@ public class LineBotService
                         );
                         File.Delete(filePath);
                     }
+                    else
+                    {
+                        _ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
+                        {
+                            ReplyToken = WebHookEventDto.ReplyToken!,
+                            Messages = new List<TextMessageObject>
+                            {
+                                new TextMessageObject { Text = "無法記錄此字串, 請重新輸入", }
+                            }
+                        };
+                    }
                 }
-
-                if (WebHookEventMessage == "返回目錄")
+                else if (WebHookEventMessage == "返回目錄")
                 {
                     _WebhookEventStatusStatic = "";
                 }
-                if (
+                else if (
                     WebHookEventMessage == KeywordGroup.PurchaseList
                     || _WebhookEventStatusStatic == KeywordGroup.InputPurchaseList
                 )
