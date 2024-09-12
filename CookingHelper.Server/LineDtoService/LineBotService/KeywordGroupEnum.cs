@@ -4,7 +4,7 @@ public struct KeywordGroup
     public const string InputPurchaseList = "輸入採買清單";
     public const string PurchaseList = "採買清單";
 
-    // 食譜清單 //? 可以用 FlexMessage sample 來顯示搜尋結果
+    // 食譜清單
     public const string RecipeList = "食譜清單";
     public const string RecipeListAddition = "新增食譜";
 
