@@ -23,7 +23,10 @@ public class RecipeListService
     {
         var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
         string WebHookEventMessage = "";
-        if (WebHookEventDto.GetType().GetProperty("Message") != null)
+        if (
+            WebHookEventDto.GetType().GetProperty("Message") != null
+            && WebHookEventDto.Message != null
+        )
         {
             WebHookEventMessage = WebHookEventDto.Message!.Text!;
         }
