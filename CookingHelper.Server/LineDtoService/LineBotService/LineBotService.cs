@@ -178,10 +178,7 @@ public class LineBotService
                 {
                     _WebhookEventStatusStatic = "";
                 }
-                else if (
-                    WebHookEventMessage == KeywordGroup.PurchaseList
-                    || _WebhookEventStatusStatic == KeywordGroup.InputPurchaseList
-                )
+                else if (_WebhookEventStatusStatic == KeywordGroup.InputPurchaseList)
                 {
                     _WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
                     await _shoppingListService.Init(WebHookEventDto);
