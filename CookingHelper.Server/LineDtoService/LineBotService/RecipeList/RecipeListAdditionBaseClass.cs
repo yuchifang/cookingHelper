@@ -100,7 +100,7 @@ class RecipeListAdditionBaseClass : UIWithData
             {
                 Type = FlexComponentTypeEnum.Image,
                 Url =
-                    $"https://fb74-2001-b011-7002-bf81-7135-b319-4641-d633.ngrok-free.app/api/File/{RecipeItem.ImagePath}",
+                    $"https://fb74-2001-b011-7002-bf81-7135-b319-4641-d633.ngrok-free.app/{RecipeItem.ImagePath}",
                 Size = "full",
                 AspectMode = "cover",
                 AspectRatio = "20:13"
@@ -112,7 +112,7 @@ class RecipeListAdditionBaseClass : UIWithData
             {
                 Type = FlexComponentTypeEnum.Image,
                 Url =
-                    $"https://fb74-2001-b011-7002-bf81-7135-b319-4641-d633.ngrok-free.app/api/File/UploadFile/RecipeImage/CookingHelperLineLogo.png",
+                    $"https://fb74-2001-b011-7002-bf81-7135-b319-4641-d633.ngrok-free.app/UploadFile/RecipeImage/CookingHelperLineLogo.png",
                 Size = "full",
                 AspectMode = "cover",
                 AspectRatio = "20:13"

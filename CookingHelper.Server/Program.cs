@@ -2,6 +2,7 @@ using CookingHelper.Data;
 using CookingHelper.DatabaseService;
 using CookingHelper.LineDtoService;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 namespace CookingHelper.Server
 {
@@ -51,7 +52,19 @@ namespace CookingHelper.Server
             var app = builder.Build();
 
             app.UseDefaultFiles();
-            app.UseStaticFiles();
+            app.UseStaticFiles(
+                new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(
+                        Path.Combine(
+                            builder.Environment.ContentRootPath,
+                            "UploadFile",
+                            "RecipeImage"
+                        )
+                    ),
+                    RequestPath = "/UploadFile/RecipeImage"
+                }
+            );
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
