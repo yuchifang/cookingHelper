@@ -30,6 +30,10 @@ public class RecipeListService
         {
             WebHookEventMessage = WebHookEventDto.Message!.Text!;
         }
+        else
+        {
+            WebHookEventMessage = WebHookEventDto.Postback!.Data!;
+        }
 
         var UserList = await _recipeListDatabaseService.GetRecipeList(
             WebHookEventDto.Source!.UserId!
