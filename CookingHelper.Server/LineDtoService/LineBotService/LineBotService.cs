@@ -93,7 +93,45 @@ public class LineBotService
 
     private async Task ReceivePostbackWebhookEvent(WebhookEventDto WebHookEventDto)
     {
+        await HandleStorageManagement(WebHookEventDto);
+        await HandleRecipeList(WebHookEventDto);
+
+        if (WebHookEventDto.Postback!.Data == KeywordGroup.PurchaseList)
+        {
+            await _shoppingListService.Init(WebHookEventDto);
+        }
+
+        if (_ReplyMessageRequestStatic != null)
+        {
+            await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
+        }
+    }
+
+    private async Task HandleRecipeList(WebhookEventDto WebHookEventDto)
+    {
         if (
+            _WebhookEventStatusStatic == KeywordGroup.RecipeList
+            || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
+        )
+        {
+            if (WebHookEventDto.Postback!.Data![0..1] == "d")
+            {
+                await _recipeListService.DeleteRecipePostBack(WebHookEventDto);
+            }
+        }
+        else if (WebHookEventDto.Postback.Data == KeywordGroup.RecipeList)
+        {
+            await _recipeListService.GetRecipeList(WebHookEventDto);
+        }
+    }
+
+    private async Task HandleStorageManagement(WebhookEventDto WebHookEventDto)
+    {
+        if (WebHookEventDto.Postback.Data == KeywordGroup.StorageManagement)
+        {
+            await _storageManagementService.GetStorage(WebHookEventDto);
+        }
+        else if (
             _WebhookEventStatusStatic == KeywordGroup.StorageManagementAdded
             && WebHookEventDto.Postback!.Data == "修改"
         )
@@ -121,33 +159,6 @@ public class LineBotService
                 await _storageManagementSearchService.EditStorageInfoPostBack(WebHookEventDto);
             }
         }
-        else if (
-            _WebhookEventStatusStatic == KeywordGroup.RecipeList
-            || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
-        )
-        {
-            if (WebHookEventDto.Postback!.Data![0..1] == "d")
-            {
-                await _recipeListService.DeleteRecipePostBack(WebHookEventDto);
-            }
-        }
-        else if (WebHookEventDto.Postback.Data == KeywordGroup.PurchaseList)
-        {
-            await _shoppingListService.Init(WebHookEventDto);
-        }
-        else if (WebHookEventDto.Postback.Data == KeywordGroup.StorageManagement)
-        {
-            await _storageManagementService.GetStorage(WebHookEventDto);
-        }
-        else if (WebHookEventDto.Postback.Data == KeywordGroup.RecipeList)
-        {
-            await _recipeListService.GetRecipeList(WebHookEventDto);
-        }
-
-        if (_ReplyMessageRequestStatic != null)
-        {
-            await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
-        }
     }
 
     private async Task ReceiveMessageWebhookEvent(WebhookEventDto WebHookEventDto)
@@ -164,7 +175,6 @@ public class LineBotService
                     || WebHookEventMessage == KeywordGroup.PurchaseList
                 )
                 {
-                    //? RecipeList 使用者要再改
                     if (RecipeListAdditionService._InputRecipeInfoStatic.ImagePath != null)
                     {
                         string filePath = Path.Combine(
@@ -189,14 +199,7 @@ public class LineBotService
                 {
                     _WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
                     await _shoppingListService.Init(WebHookEventDto);
-                }
-                else if (
-                    WebHookEventMessage == KeywordGroup.RecipeListSearch
-                    || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
-                )
-                {
-                    await _recipeListSearchService.SearchRecipe(WebHookEventDto);
-                }
+                } //? Storage
                 else if (
                     _WebhookEventStatusStatic == KeywordGroup.StorageManagementSearch
                     && WebHookEventMessage != KeywordGroup.StorageManagement
@@ -204,16 +207,24 @@ public class LineBotService
                 {
                     await _storageManagementSearchService.SearchStorage(WebHookEventDto);
                 }
+                else if (_WebhookEventStatusStatic == KeywordGroup.StorageManagement)
+                {
+                    await _storageManagementService.GetStorage(WebHookEventDto);
+                }
                 else if (
                     WebHookEventMessage == KeywordGroup.StorageManagementAdded
                     || _WebhookEventStatusStatic == KeywordGroup.StorageManagementAdded
                 )
                 {
                     await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
-                }
-                else if (_WebhookEventStatusStatic == KeywordGroup.StorageManagement)
+                } //? Storage
+                //? RecipeList
+                else if (
+                    WebHookEventMessage == KeywordGroup.RecipeListSearch
+                    || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
+                )
                 {
-                    await _storageManagementService.GetStorage(WebHookEventDto);
+                    await _recipeListSearchService.SearchRecipe(WebHookEventDto);
                 }
                 else if (
                     WebHookEventMessage == KeywordGroup.RecipeListAddition
@@ -225,7 +236,7 @@ public class LineBotService
                 else if (_WebhookEventStatusStatic == KeywordGroup.RecipeList)
                 {
                     await _recipeListService.GetRecipeList(WebHookEventDto);
-                }
+                } //? RecipeList
                 else
                 {
                     _ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
