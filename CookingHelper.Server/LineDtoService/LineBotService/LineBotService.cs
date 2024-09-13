@@ -97,13 +97,13 @@ public class LineBotService
         {
             await _storageManagementPurchaseService.EditAddedStorageHintPostBack(WebHookEventDto);
         }
-        else if (WebHookEventDto.Postback.Data == "庫存查詢")
+        else if (WebHookEventDto.Postback!.Data == "庫存查詢")
         {
             await _storageManagementSearchService.InitSearchStorageHintPostBack(WebHookEventDto);
         }
         else if (_WebhookEventStatusStatic == "庫存查詢")
         {
-            if (WebHookEventDto.Postback.Data[0..1] == "c")
+            if (WebHookEventDto.Postback.Data![0..1] == "c")
             {
                 await _storageManagementSearchService.DeleteStorageInfoConfirmPostBack(
                     WebHookEventDto
@@ -216,10 +216,7 @@ public class LineBotService
                 {
                     await _recipeListAdditionService.InputRecipeList(WebHookEventDto);
                 }
-                else if (
-                    WebHookEventMessage == KeywordGroup.RecipeList
-                    || _WebhookEventStatusStatic == KeywordGroup.RecipeList
-                )
+                else if (_WebhookEventStatusStatic == KeywordGroup.RecipeList)
                 {
                     await _recipeListService.GetRecipeList(WebHookEventDto);
                 }
