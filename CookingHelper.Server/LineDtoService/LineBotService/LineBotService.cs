@@ -123,7 +123,7 @@ public class LineBotService
             || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
         )
         {
-            if (WebHookEventDto.Postback.Data[0..1] == "d")
+            if (WebHookEventDto.Postback!.Data![0..1] == "d")
             {
                 await _recipeListService.DeleteRecipePostBack(WebHookEventDto);
             }
@@ -131,6 +131,10 @@ public class LineBotService
         else if (WebHookEventDto.Postback.Data == KeywordGroup.PurchaseList)
         {
             await _shoppingListService.Init(WebHookEventDto);
+        }
+        else if (WebHookEventDto.Postback.Data == KeywordGroup.StorageManagement)
+        {
+            await _storageManagementService.GetStorage(WebHookEventDto);
         }
 
         if (_ReplyMessageRequestStatic != null)
@@ -201,10 +205,7 @@ public class LineBotService
                 {
                     await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
                 }
-                else if (
-                    WebHookEventMessage == KeywordGroup.StorageManagement
-                    || _WebhookEventStatusStatic == KeywordGroup.StorageManagement
-                )
+                else if (_WebhookEventStatusStatic == KeywordGroup.StorageManagement)
                 {
                     await _storageManagementService.GetStorage(WebHookEventDto);
                 }
