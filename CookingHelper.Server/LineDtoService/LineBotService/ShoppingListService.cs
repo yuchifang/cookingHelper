@@ -16,8 +16,7 @@ public class ShoppingListService
 
     public async Task Init(WebhookEventDto WebHookEventDto)
     {
-        string WebHookEventMessage = "";
-
+        string WebHookEventMessage;
         if (
             WebHookEventDto.GetType().GetProperty("Postback") != null
             && WebHookEventDto.Postback != null
@@ -25,10 +24,7 @@ public class ShoppingListService
         {
             WebHookEventMessage = WebHookEventDto.Postback!.Data!;
         }
-        else if (
-            WebHookEventDto.GetType().GetProperty("Message") != null
-            && WebHookEventDto.Message != null
-        )
+        else
         {
             WebHookEventMessage = WebHookEventDto.Message!.Text!;
         }
