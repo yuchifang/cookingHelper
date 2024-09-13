@@ -42,7 +42,19 @@ public class StorageManagementService
 
     public async Task GetStorage(WebhookEventDto WebHookEventDto)
     {
-        var WebHookEventMessage = WebHookEventDto.Message!.Text!;
+        string WebHookEventMessage = "";
+        if (
+            WebHookEventDto.GetType().GetProperty("Message") != null
+            && WebHookEventDto.Message != null
+        )
+        {
+            WebHookEventMessage = WebHookEventDto.Message!.Text!;
+        }
+        else
+        {
+            WebHookEventMessage = WebHookEventDto.Postback!.Data!;
+        }
+
         var MethodGroup = StorageSearchBaseClass.Instance;
         if (WebHookEventMessage == "返回")
         {
