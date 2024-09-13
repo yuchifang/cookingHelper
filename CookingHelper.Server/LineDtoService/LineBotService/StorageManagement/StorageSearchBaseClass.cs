@@ -151,9 +151,9 @@ public class StorageSearchBaseClass : UIWithData
                         Action = new ActionDto
                         {
                             Type = ActionTypeEnum.Postback,
-                            Label = "新增物品至庫存",
-                            Text = "新增物品至庫存", // 有用
-                            Data = "新增物品至庫存", // for open keyboard
+                            Label = KeywordGroup.StorageManagementAdded,
+                            Text = KeywordGroup.StorageManagementAdded, // 有用
+                            Data = KeywordGroup.StorageManagementAdded, // for open keyboard
                             InputOption = PostbackInputOptionEnum.OpenKeyboard,
                         }
                     },
@@ -162,8 +162,8 @@ public class StorageSearchBaseClass : UIWithData
                         Action = new ActionDto
                         {
                             Type = ActionTypeEnum.Postback,
-                            Label = "庫存查詢",
-                            Data = "庫存查詢",
+                            Label = KeywordGroup.StorageManagementSearch,
+                            Data = KeywordGroup.StorageManagementSearch,
                             InputOption = PostbackInputOptionEnum.OpenKeyboard,
                         }
                     },

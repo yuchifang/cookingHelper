@@ -16,6 +16,10 @@ public struct KeywordGroup
 
     // 庫存管理
     public const string StorageManagement = "庫存管理";
+
+    public const string StorageManagementAdded = "新增物品至庫存";
+
+    public const string StorageManagementSearch = "庫存查詢";
 }
 
 public struct RecipeKeywordGroup

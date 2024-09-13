@@ -144,7 +144,7 @@ public class StorageManagementSearchService
 
     public async Task InitSearchStorageHintPostBack(WebhookEventDto WebHookEventDto)
     {
-        LineBotService._WebhookEventStatusStatic = "庫存查詢";
+        LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagementSearch;
 
         LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
         {

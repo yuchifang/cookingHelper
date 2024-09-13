@@ -28,7 +28,7 @@ public class StorageManagementAdditionService
     {
         string? WebHookEventMessage = WebHookEventDto.Message!.Text;
 
-        if (WebHookEventMessage == "新增物品至庫存")
+        if (WebHookEventMessage == KeywordGroup.StorageManagementAdded)
         {
             _InputStorageInfoStatic.Status = "init";
         }
@@ -133,7 +133,7 @@ public class StorageManagementAdditionService
     public void InitStatus()
     {
         var StorageStatus = StorageAdditionBaseClass.Instance;
-        LineBotService._WebhookEventStatusStatic = "新增物品至庫存";
+        LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagementAdded;
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject { Text = "依儲存位置,物品名稱,詳細位置,購買日期,有效日期輸入", },

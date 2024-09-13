@@ -93,15 +93,18 @@ public class LineBotService
 
     private async Task ReceivePostbackWebhookEvent(WebhookEventDto WebHookEventDto)
     {
-        if (_WebhookEventStatusStatic == "新增物品至庫存" && WebHookEventDto.Postback!.Data == "修改")
+        if (
+            _WebhookEventStatusStatic == KeywordGroup.StorageManagementAdded
+            && WebHookEventDto.Postback!.Data == "修改"
+        )
         {
             await _storageManagementPurchaseService.EditAddedStorageHintPostBack(WebHookEventDto);
         }
-        else if (WebHookEventDto.Postback!.Data == "庫存查詢")
+        else if (WebHookEventDto.Postback!.Data == KeywordGroup.StorageManagementSearch)
         {
             await _storageManagementSearchService.InitSearchStorageHintPostBack(WebHookEventDto);
         }
-        else if (_WebhookEventStatusStatic == "庫存查詢")
+        else if (_WebhookEventStatusStatic == KeywordGroup.StorageManagementSearch)
         {
             if (WebHookEventDto.Postback.Data![0..1] == "c")
             {
@@ -135,6 +138,10 @@ public class LineBotService
         else if (WebHookEventDto.Postback.Data == KeywordGroup.StorageManagement)
         {
             await _storageManagementService.GetStorage(WebHookEventDto);
+        }
+        else if (WebHookEventDto.Postback.Data == KeywordGroup.RecipeList)
+        {
+            await _recipeListService.GetRecipeList(WebHookEventDto);
         }
 
         if (_ReplyMessageRequestStatic != null)
@@ -178,10 +185,6 @@ public class LineBotService
                         };
                     }
                 }
-                else if (WebHookEventMessage == "返回目錄")
-                {
-                    _WebhookEventStatusStatic = "";
-                }
                 else if (_WebhookEventStatusStatic == KeywordGroup.InputPurchaseList)
                 {
                     _WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
@@ -195,13 +198,16 @@ public class LineBotService
                     await _recipeListSearchService.SearchRecipe(WebHookEventDto);
                 }
                 else if (
-                    _WebhookEventStatusStatic == "庫存查詢"
+                    _WebhookEventStatusStatic == KeywordGroup.StorageManagementSearch
                     && WebHookEventMessage != KeywordGroup.StorageManagement
                 )
                 {
                     await _storageManagementSearchService.SearchStorage(WebHookEventDto);
                 }
-                else if (WebHookEventMessage == "新增物品至庫存" || _WebhookEventStatusStatic == "新增物品至庫存")
+                else if (
+                    WebHookEventMessage == KeywordGroup.StorageManagementAdded
+                    || _WebhookEventStatusStatic == KeywordGroup.StorageManagementAdded
+                )
                 {
                     await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
                 }
