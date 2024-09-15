@@ -26,6 +26,29 @@ namespace CookingHelper.Server
                 {
                     Options.UseMySql(ConnectString, ServerVersion.AutoDetect(ConnectString));
                 });
+                // builder
+                //     .Configuration.AddEnvironmentVariables()
+                //     .AddJsonFile("appsettings.Production.json");
+                // var ConnectString = builder.Configuration.GetConnectionString(
+                //     "AZURE_SQL_CONNECTIONSTRING"
+                // );
+                // builder.Services.AddDbContext<UserListDbContext>(Options =>
+                // {
+                //     Options.UseSqlServer(ConnectString);
+                // });
+            }
+            else
+            {
+                var ConnectString = builder.Configuration.GetConnectionString(
+                    "AZURE_SQL_CONNECTIONSTRING"
+                );
+                builder.Services.AddDbContext<UserListDbContext>(Options =>
+                {
+                    Options.UseSqlServer(
+                        ConnectString,
+                        providerOptions => providerOptions.EnableRetryOnFailure()
+                    );
+                });
             }
             builder.Services.AddScoped<LineBotService, LineBotService>();
             builder.Services.AddScoped<RichMenuService, RichMenuService>();
