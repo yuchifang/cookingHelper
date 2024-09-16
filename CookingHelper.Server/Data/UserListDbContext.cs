@@ -11,7 +11,6 @@ public class UserListDbContext : DbContext
     public DbSet<UserList> UserList { get; set; }
 
     public DbSet<StoreItem> StoreItem { get; set; }
-    public DbSet<StoreList> StoreList { get; set; }
     public DbSet<RecipeItem> RecipeItem { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -24,21 +23,9 @@ public class UserListDbContext : DbContext
 
         modelBuilder
             .Entity<UserList>()
-            .HasOne(UserList => UserList.StoreList)
-            .WithOne(StoreList => StoreList.UserList)
-            .HasForeignKey<StoreList>(StoreList => StoreList.UserId);
-
-        modelBuilder.Entity<StoreList>().HasKey(StoreList => StoreList.StoreListId);
-        modelBuilder
-            .Entity<StoreList>()
-            .Property(StoreList => StoreList.StoreListId)
-            .ValueGeneratedOnAdd();
-
-        modelBuilder
-            .Entity<StoreList>()
-            .HasMany(StoreList => StoreList.StoreItemList)
-            .WithOne(StoreItem => StoreItem.StoreList)
-            .HasForeignKey(StoreItem => StoreItem.StoreListId);
+            .HasMany(UserList => UserList.StoreList)
+            .WithOne(StoreItem => StoreItem.UserList)
+            .HasForeignKey(StoreItem => StoreItem.UserId);
 
         modelBuilder.Entity<StoreItem>().HasKey(StoreItem => StoreItem.StoreItemId);
 
@@ -61,8 +48,6 @@ public class UserListDbContext : DbContext
             .ValueGeneratedOnAdd();
 
         modelBuilder.Entity<UserList>().ToTable("UserList");
-
-        modelBuilder.Entity<StoreList>().ToTable("StoreList");
 
         modelBuilder.Entity<StoreItem>().ToTable("StoreItem");
 
