@@ -19,7 +19,7 @@ public class ShoppingListDatabaseService
         {
             var UserList = await _userListDbContext
                 .UserList.AsNoTracking()
-                .SingleAsync(user => user.UserId == userId);
+                .FirstOrDefaultAsync(user => user.UserId == userId);
             return UserList!;
         }
         catch (Exception ex)
