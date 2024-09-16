@@ -84,34 +84,15 @@ namespace CookingHelper.Server.Migrations
                     b.Property<DateOnly?>("PurchaseDate")
                         .HasColumnType("date");
 
-                    b.Property<int>("StoreListId")
-                        .HasColumnType("int");
-
-                    b.HasKey("StoreItemId");
-
-                    b.HasIndex("StoreListId");
-
-                    b.ToTable("StoreItem", (string)null);
-                });
-
-            modelBuilder.Entity("CookingHelper.Model.StoreList", b =>
-                {
-                    b.Property<int>("StoreListId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("StoreListId"));
-
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.HasKey("StoreListId");
+                    b.HasKey("StoreItemId");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
-                    b.ToTable("StoreList", (string)null);
+                    b.ToTable("StoreItem", (string)null);
                 });
 
             modelBuilder.Entity("CookingHelper.Model.UserList", b =>
@@ -141,29 +122,13 @@ namespace CookingHelper.Server.Migrations
 
             modelBuilder.Entity("CookingHelper.Model.StoreItem", b =>
                 {
-                    b.HasOne("CookingHelper.Model.StoreList", "StoreList")
-                        .WithMany("StoreItemList")
-                        .HasForeignKey("StoreListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("StoreList");
-                });
-
-            modelBuilder.Entity("CookingHelper.Model.StoreList", b =>
-                {
                     b.HasOne("CookingHelper.Model.UserList", "UserList")
-                        .WithOne("StoreList")
-                        .HasForeignKey("CookingHelper.Model.StoreList", "UserId")
+                        .WithMany("StoreList")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("UserList");
-                });
-
-            modelBuilder.Entity("CookingHelper.Model.StoreList", b =>
-                {
-                    b.Navigation("StoreItemList");
                 });
 
             modelBuilder.Entity("CookingHelper.Model.UserList", b =>
