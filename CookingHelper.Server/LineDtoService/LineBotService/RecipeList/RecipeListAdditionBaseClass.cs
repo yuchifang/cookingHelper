@@ -24,7 +24,7 @@ class RecipeListAdditionBaseClass : UIWithData
                     {
                         Type = ActionTypeEnum.Postback,
                         Label = "刪除",
-                        Text = "刪除",
+                        DisplayText = "刪除",
                         Data = "d" + JsonSerializer.Serialize(RecipeItem),
                     }
                 },
