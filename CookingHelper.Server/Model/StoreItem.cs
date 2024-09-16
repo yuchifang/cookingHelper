@@ -11,9 +11,7 @@ public class StoreItem : StorageInfo
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int StoreItemId { get; set; } = default!;
 
-    [ForeignKey("StoreListId")]
-    public int StoreListId { get; set; } = default!;
-
-    [JsonIgnore]
-    public StoreList StoreList { get; set; } = default!;
+    [ForeignKey("UserId")]
+    public string UserId { get; set; } = default!;
+    public UserList UserList { get; set; } = default!;
 }
