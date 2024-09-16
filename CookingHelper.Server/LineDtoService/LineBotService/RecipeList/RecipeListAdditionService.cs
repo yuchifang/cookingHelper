@@ -44,6 +44,7 @@ public class RecipeListAdditionService
         }
         else if (WebHookEventMessage == "取消新增")
         {
+            LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeList;
             if (_InputRecipeInfoStatic.ImagePath != null)
             {
                 string filePath = Path.Combine(
@@ -54,7 +55,6 @@ public class RecipeListAdditionService
             }
             _InputRecipeInfoStatic = new InputRecipeInfo();
 
-            LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeList;
             await _recipeListService.GetRecipeList(WebHookEventDto);
             return;
         }
@@ -79,12 +79,12 @@ public class RecipeListAdditionService
         }
         else if (WebHookEventMessage == "新增")
         {
+            LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeList;
             await _recipeListDatabaseService.AddRecipe(
                 _InputRecipeInfoStatic,
                 WebHookEventDto.Source!.UserId!
             );
             _InputRecipeInfoStatic = new InputRecipeInfo();
-            LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeList;
             await _recipeListService.GetRecipeList(WebHookEventDto);
             RecipeListService._ReplyMessageListStatic.Insert(
                 0,
@@ -112,8 +112,8 @@ public class RecipeListAdditionService
 
     public void InitStatus()
     {
-        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
         LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeListAddition;
+        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject { Text = "依食譜名稱,圖片,食材,步驟輸入", },

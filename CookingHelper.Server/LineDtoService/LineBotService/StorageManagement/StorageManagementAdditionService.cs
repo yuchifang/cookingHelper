@@ -93,6 +93,7 @@ public class StorageManagementAdditionService
 
     public async Task EditAddedStorageHintPostBack(WebhookEventDto WebHookEventDto)
     {
+        LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagementAdded;
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject { Text = "若要修改欄位, 例如修改物品名稱, 請輸入: 物品名稱:XXX並送出. XXX為要修改的資料", },
@@ -132,8 +133,8 @@ public class StorageManagementAdditionService
 
     public void InitStatus()
     {
-        var StorageStatus = StorageAdditionBaseClass.Instance;
         LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagementAdded;
+        var StorageStatus = StorageAdditionBaseClass.Instance;
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject { Text = "依儲存位置,物品名稱,詳細位置,購買日期,有效日期輸入", },
