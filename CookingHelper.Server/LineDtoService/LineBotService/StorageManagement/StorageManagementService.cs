@@ -119,9 +119,10 @@ public class StorageManagementService
             }
         }
 
-        var StoreList = await _storageManagementDatabaseService.GetStoreList(
-            WebHookEventDto!.Source!.UserId!
-        );
+        var UserListStoreList =
+            await _storageManagementDatabaseService.GetUserListWithStoreListNoTracking(
+                WebHookEventDto!.Source!.UserId!
+            );
         if (WebHookEventMessage == KeywordGroup.StorageManagement)
         {
             _PageIndexStatic = 1;
@@ -153,7 +154,7 @@ public class StorageManagementService
             return;
         }
 
-        if (StoreList.StoreItemList.Count == 0)
+        if (UserListStoreList.StoreList.Count == 0)
         {
             _ReplyMessageListStatic = new List<object>
             {
@@ -182,8 +183,10 @@ public class StorageManagementService
         }
         else
         {
-            var OrderedByPlaceStoreItem = StoreList
-                .StoreItemList.OrderBy(Item => Item.Place)
+            LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagement;
+
+            var OrderedByPlaceStoreItem = UserListStoreList
+                .StoreList.OrderBy(Item => Item.Place)
                 .AsQueryable();
 
             if (WebHookEventMessage == "下一頁")
@@ -202,8 +205,6 @@ public class StorageManagementService
                 out bool hasNextPage,
                 out bool hasPrevPage
             );
-
-            LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagement;
 
             if (WebHookEventMessage == "依購買日期排序")
             {
