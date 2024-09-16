@@ -221,7 +221,13 @@ public class StorageManagementSearchService
 
         var StorageTable = new List<FlexComponent>
         {
-            new FlexComponent { Type = FlexComponentTypeEnum.Text, Text = "確認刪除" },
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Text,
+                Size = "xl",
+                Text = "確認刪除"
+            },
+            new FlexComponent { Type = FlexComponentTypeEnum.Separator, Margin = "xl" },
             new FlexComponent { Type = FlexComponentTypeEnum.Separator, Margin = "xxl" },
             new FlexComponent
             {
@@ -253,7 +259,7 @@ public class StorageManagementSearchService
                 }
             }
         };
-        StorageTable.InsertRange(1, StorageInfoTable);
+        StorageTable.InsertRange(2, StorageInfoTable);
 
         LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
         {
