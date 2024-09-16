@@ -83,9 +83,7 @@ public class LineBotService
                     await _shoppingListDatabaseService.AddEmptyShoppingListText(
                         WebHookEventDto.Source!.UserId!
                     );
-                    await _storageManagementDatabaseService.AddEmptyStoreList(
-                        WebHookEventDto.Source!.UserId!
-                    );
+
                     break;
             }
         }
@@ -168,7 +166,6 @@ public class LineBotService
         {
             case "text":
                 var WebHookEventMessage = WebHookEventDto.Message!.Text!;
-
                 if (
                     WebHookEventMessage == KeywordGroup.RecipeList
                     || WebHookEventMessage == KeywordGroup.StorageManagement
@@ -207,16 +204,16 @@ public class LineBotService
                 {
                     await _storageManagementSearchService.SearchStorage(WebHookEventDto);
                 }
-                else if (_WebhookEventStatusStatic == KeywordGroup.StorageManagement)
-                {
-                    await _storageManagementService.GetStorage(WebHookEventDto);
-                }
                 else if (
                     WebHookEventMessage == KeywordGroup.StorageManagementAdded
                     || _WebhookEventStatusStatic == KeywordGroup.StorageManagementAdded
                 )
                 {
                     await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
+                }
+                else if (_WebhookEventStatusStatic == KeywordGroup.StorageManagement)
+                {
+                    await _storageManagementService.GetStorage(WebHookEventDto);
                 } //? Storage
                 //? RecipeList
                 else if (
