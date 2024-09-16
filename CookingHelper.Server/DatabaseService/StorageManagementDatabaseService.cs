@@ -16,36 +16,18 @@ public class StorageManagementDatabaseService
         _userListDbContext = UserListDbContext;
     }
 
-    public async Task<StoreList> GetStoreListNoTrackingData(string userId)
+    public async Task<UserListStoreList> GetUserListWithStoreListNoTracking(string userId)
     {
         try
         {
-            var StoreListData = await _userListDbContext
-                .StoreList.AsNoTracking()
-                .SingleAsync(StoreList => StoreList.UserId == userId);
-            return StoreListData!;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            Console.WriteLine(ex?.InnerException?.Message);
-            throw new Exception(nameof(ex));
-        }
-    }
-
-    public async Task<StoreListStoreItemList> GetStoreList(string userId)
-    {
-        try
-        {
-            var StoreList = await _userListDbContext
-                .StoreList.Select(s => new StoreListStoreItemList
+            var UserListStoreList = await _userListDbContext
+                .UserList.Select(u => new UserListStoreList
                 {
-                    StoreItemList = s.StoreItemList,
-                    UserId = s.UserId
+                    UserId = u.UserId,
+                    StoreList = u.StoreList
                 })
-                .SingleAsync(StoreList => StoreList.UserId == userId);
-
-            return StoreList!;
+                .SingleAsync(UserListStoreList => UserListStoreList.UserId == userId);
+            return UserListStoreList!;
         }
         catch (Exception ex)
         {
@@ -62,11 +44,11 @@ public class StorageManagementDatabaseService
     {
         try
         {
-            var StoreList = await GetStoreList(userId);
-            if (StoreList != null)
+            var UserListStoreList = await GetUserListWithStoreListNoTracking(userId);
+            if (UserListStoreList != null)
             {
-                return StoreList
-                    .StoreItemList.AsEnumerable()
+                return UserListStoreList
+                    .StoreList.AsEnumerable()
                     .Where(item => ClassMatch(item, StorageInfo))
                     .AsQueryable();
             }
@@ -85,48 +67,24 @@ public class StorageManagementDatabaseService
         }
     }
 
-    // 新增空資料至 StoreList
-    public async Task AddEmptyStoreList(string userId)
-    {
-        try
-        {
-            var StoreList = await GetStoreListNoTrackingData(userId);
-            if (StoreList == null)
-            {
-                await _userListDbContext.StoreList.AddAsync(new StoreList { UserId = userId, });
-                await _userListDbContext.SaveChangesAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            Console.WriteLine(ex?.InnerException?.Message);
-            throw new Exception(nameof(ex));
-        }
-    }
-
     public async Task AddStoreItemData(string userId, InputStorageInfo InputStorageInfo)
     {
-        var StoreList = await GetStoreListNoTrackingData(userId);
         try
         {
-            if (StoreList != null)
-            {
-                await _userListDbContext.AddAsync(
-                    new StoreItem
-                    {
-                        Name = InputStorageInfo.Name,
-                        Place = InputStorageInfo.Place,
-                        Location = InputStorageInfo.Location,
-                        Amount = InputStorageInfo.Amount,
-                        PurchaseDate = InputStorageInfo.PurchaseDate,
-                        ExpiryDate = InputStorageInfo.ExpiryDate,
-                        StoreListId = StoreList.StoreListId,
-                    }
-                );
+            await _userListDbContext.StoreItem.AddAsync(
+                new StoreItem
+                {
+                    Name = InputStorageInfo.Name,
+                    Place = InputStorageInfo.Place,
+                    Location = InputStorageInfo.Location,
+                    Amount = InputStorageInfo.Amount,
+                    PurchaseDate = InputStorageInfo.PurchaseDate,
+                    ExpiryDate = InputStorageInfo.ExpiryDate,
+                    UserId = userId
+                }
+            );
 
-                await _userListDbContext.SaveChangesAsync();
-            }
+            await _userListDbContext.SaveChangesAsync();
         }
         catch (Exception ex)
         {
@@ -142,10 +100,10 @@ public class StorageManagementDatabaseService
     {
         try
         {
-            var StoreList = await GetStoreList(userId);
-            if (StoreList != null)
+            var UserListStoreList = await GetUserListWithStoreListNoTracking(userId);
+            if (UserListStoreList != null)
             {
-                StoreItem? UpdateItem = StoreList.StoreItemList.Single(item =>
+                StoreItem? UpdateItem = UserListStoreList.StoreList.Single(item =>
                     item.StoreItemId == StoreItem.StoreItemId
                 );
                 if (UpdateItem != null)
@@ -180,10 +138,10 @@ public class StorageManagementDatabaseService
     {
         try
         {
-            var StoreList = await GetStoreList(userId);
-            if (StoreList != null)
+            var UserListStoreList = await GetUserListWithStoreListNoTracking(userId);
+            if (UserListStoreList != null)
             {
-                StoreItem? RemoveItem = StoreList.StoreItemList.Single(item =>
+                StoreItem? RemoveItem = UserListStoreList.StoreList.Single(item =>
                     item.StoreItemId == StoreItem.StoreItemId
                 );
                 if (RemoveItem != null)
@@ -216,11 +174,11 @@ public class StorageManagementDatabaseService
         await _userListDbContext.SaveChangesAsync();
     }
 
-    public class StoreListStoreItemList
+    public class UserListStoreList
     {
-        public string UserId { get; set; }
+        public string UserId { get; set; } = default!;
 
         [JsonIgnore]
-        public ICollection<StoreItem> StoreItemList { get; set; }
+        public ICollection<StoreItem> StoreList { get; set; } = new List<StoreItem>();
     }
 }
