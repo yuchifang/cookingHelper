@@ -21,6 +21,8 @@ public class UserListDbContext : DbContext
             entityBuilder.Property(e => e.ShoppingListText).HasMaxLength(50);
         });
 
+        modelBuilder.Entity<UserList>().HasKey(u => u.UserId);
+
         modelBuilder
             .Entity<UserList>()
             .HasMany(UserList => UserList.StoreList)
