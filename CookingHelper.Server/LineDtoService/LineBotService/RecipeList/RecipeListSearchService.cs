@@ -99,7 +99,7 @@ public class RecipeListSearchService
                 return;
             }
 
-            var RecipeItem = await _recipeListDatabaseService.GetSearchedRecipeItem(RecipeInfo);
+            var RecipeItem = _recipeListDatabaseService.GetSearchedRecipeItem(RecipeInfo);
             if (RecipeItem.Any() == false)
             {
                 _ReplyMessageListStatic = new List<object>

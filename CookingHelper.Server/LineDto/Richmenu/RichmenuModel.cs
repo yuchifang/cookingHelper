@@ -5,11 +5,11 @@ namespace CookingHelper.LineDto;
 public class RichMenuModel
 {
     public string? RichMenuId { get; set; }
-    public Size Size { get; set; }
-    public bool Selected { get; set; }
-    public string Name { get; set; }
-    public string ChatBarText { get; set; }
-    public Area[] Areas { get; set; }
+    public Size Size { get; set; } = default!;
+    public bool Selected { get; set; } = default!;
+    public string Name { get; set; } = default!;
+    public string ChatBarText { get; set; } = default!;
+    public Area[] Areas { get; set; } = default!;
 }
 
 public class Size
@@ -20,8 +20,8 @@ public class Size
 
 public class Area
 {
-    public Bounds Bounds { get; set; }
-    public ActionDto Action { get; set; }
+    public Bounds Bounds { get; set; } = default!;
+    public ActionDto Action { get; set; } = default!;
 }
 
 public class Bounds
