@@ -96,7 +96,7 @@ public class RecipeListDatabaseService
         }
     }
 
-    public async Task<IEnumerable<RecipeItem>> GetSearchedRecipeItem(RecipeInfo RecipeInfo)
+    public IEnumerable<RecipeItem> GetSearchedRecipeItem(RecipeInfo RecipeInfo)
     {
         IEnumerable<RecipeItem> RecipeItem = Enumerable.Empty<RecipeItem>();
         if (RecipeInfo.Ingredients != null && RecipeInfo.Name != null)
