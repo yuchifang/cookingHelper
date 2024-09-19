@@ -91,7 +91,7 @@ public class StorageManagementAdditionService
         };
     }
 
-    public async Task EditAddedStorageHintPostBack(WebhookEventDto WebHookEventDto)
+    public void EditAddedStorageHintPostBack(WebhookEventDto WebHookEventDto)
     {
         LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagementAdded;
         _ReplyMessageListStatic = new List<object>(

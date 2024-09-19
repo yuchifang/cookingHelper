@@ -92,7 +92,7 @@ public class StorageManagementSearchService
             // 修改
             if (_StorageEditInfoStatic.Status == "edit")
             {
-                await GetSearchStorageConfirmHint(WebHookEventDto, UserTypeStorageInfo);
+                GetSearchStorageConfirmHint(WebHookEventDto, UserTypeStorageInfo);
                 return;
             }
             // 查詢
@@ -100,7 +100,7 @@ public class StorageManagementSearchService
             IQueryable<StoreItem>? SearchedStoreItem =
                 await _storageManagementDatabaseService.GetSearchedStoreItem(
                     UserTypeStorageInfo,
-                    WebHookEventDto.Source.UserId
+                    WebHookEventDto.Source!.UserId!
                 );
 
             if (SearchedStoreItem.ToList().Count == 0)
@@ -121,9 +121,9 @@ public class StorageManagementSearchService
         // 初始查詢上面code會對 SearchResultDataList 付值, 不是則是從Cache拿值
         if (SearchResult.Count() == 0)
         {
-            if (_memoryCache.TryGetValue("StorageSearch", out IQueryable<StoreItem> SearchedCache))
+            if (_memoryCache.TryGetValue("StorageSearch", out IQueryable<StoreItem>? SearchedCache))
             {
-                SearchResult = SearchedCache;
+                SearchResult = SearchedCache!;
             }
         }
         if (SearchResult != null && SearchResult.Any())
@@ -142,7 +142,7 @@ public class StorageManagementSearchService
         };
     }
 
-    public async Task InitSearchStorageHintPostBack(WebhookEventDto WebHookEventDto)
+    public void InitSearchStorageHintPostBack(WebhookEventDto WebHookEventDto)
     {
         LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagementSearch;
 
@@ -213,7 +213,7 @@ public class StorageManagementSearchService
         };
     }
 
-    public async Task DeleteStorageInfoConfirmPostBack(WebhookEventDto WebHookEventDto)
+    public void DeleteStorageInfoConfirmPostBack(WebhookEventDto WebHookEventDto)
     {
         var MethodGroup = StorageSearchBaseClass.Instance;
         var StoreItem = JsonSerializer.Deserialize<StoreItem>(WebHookEventDto.Postback!.Data![1..]);
@@ -289,9 +289,11 @@ public class StorageManagementSearchService
         };
     }
 
-    public async Task EditStorageInfoPostBack(WebhookEventDto WebHookEventDto)
+    public void EditStorageInfoPostBack(WebhookEventDto WebHookEventDto)
     {
-        var StoreItem = JsonSerializer.Deserialize<StoreItem>(WebHookEventDto.Postback!.Data![1..]);
+        StoreItem StoreItem = JsonSerializer.Deserialize<StoreItem>(
+            WebHookEventDto.Postback!.Data![1..]
+        )!;
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject { Text = "若要修改欄位, 例如修改物品名稱, 請輸入: 物品名稱:XXX並送出. XXX為要修改的資料", },
@@ -344,7 +346,7 @@ public class StorageManagementSearchService
         };
     }
 
-    public async Task GetSearchStorageConfirmHint(
+    public void GetSearchStorageConfirmHint(
         WebhookEventDto WebHookEventDto,
         StorageInfo UserTypeStorageInfo
     )
