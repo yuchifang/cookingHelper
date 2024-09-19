@@ -91,40 +91,6 @@ public class LineBotService
 
     private async Task ReceivePostbackWebhookEvent(WebhookEventDto WebHookEventDto)
     {
-        await HandleStorageManagement(WebHookEventDto);
-        await HandleRecipeList(WebHookEventDto);
-
-        if (WebHookEventDto.Postback!.Data == KeywordGroup.PurchaseList)
-        {
-            await _shoppingListService.Init(WebHookEventDto);
-        }
-
-        if (_ReplyMessageRequestStatic != null)
-        {
-            await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
-        }
-    }
-
-    private async Task HandleRecipeList(WebhookEventDto WebHookEventDto)
-    {
-        if (
-            _WebhookEventStatusStatic == KeywordGroup.RecipeList
-            || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
-        )
-        {
-            if (WebHookEventDto.Postback!.Data![0..1] == "d")
-            {
-                await _recipeListService.DeleteRecipePostBack(WebHookEventDto);
-            }
-        }
-        else if (WebHookEventDto.Postback!.Data == KeywordGroup.RecipeList)
-        {
-            await _recipeListService.GetRecipeList(WebHookEventDto);
-        }
-    }
-
-    private async Task HandleStorageManagement(WebhookEventDto WebHookEventDto)
-    {
         if (WebHookEventDto.Postback!.Data == KeywordGroup.StorageManagement)
         {
             await _storageManagementService.GetStorage(WebHookEventDto);
@@ -154,6 +120,30 @@ public class LineBotService
             {
                 _storageManagementSearchService.EditStorageInfoPostBack(WebHookEventDto);
             }
+        }
+        else if (
+            WebHookEventDto.Postback!.Data == KeywordGroup.RecipeList
+            || _WebhookEventStatusStatic == KeywordGroup.RecipeList
+            || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
+        )
+        {
+            if (WebHookEventDto.Postback!.Data![0..1] == "d")
+            {
+                await _recipeListService.DeleteRecipePostBack(WebHookEventDto);
+            }
+            else
+            {
+                await _recipeListService.GetRecipeList(WebHookEventDto);
+            }
+        }
+        else if (WebHookEventDto.Postback!.Data == KeywordGroup.PurchaseList)
+        {
+            await _shoppingListService.Init(WebHookEventDto);
+        }
+
+        if (_ReplyMessageRequestStatic != null)
+        {
+            await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
         }
     }
 
