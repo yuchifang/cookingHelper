@@ -65,7 +65,7 @@ public class StorageManagementService
             if (
                 _memoryCache.TryGetValue(
                     "StorageSearched",
-                    out IEnumerable<StoreItem> StorageSearched
+                    out IEnumerable<StoreItem>? StorageSearched
                 )
             )
             {

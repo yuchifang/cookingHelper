@@ -148,7 +148,7 @@ public class RecipeListService
             {
                 (
                     (FlexMessageObject<FlexCarouselContainer>)RecipeListUI[0]
-                ).QuickReply.Items.InsertRange(
+                ).QuickReply!.Items.InsertRange(
                     0,
                     [
                         RecipeMethodGroup.GetQuickReplyButton(ActionTypeEnum.Message, "下一頁", "下一頁"),
@@ -158,14 +158,18 @@ public class RecipeListService
             }
             else if (hasNextPage)
             {
-                ((FlexMessageObject<FlexCarouselContainer>)RecipeListUI[0]).QuickReply.Items.Insert(
+                (
+                    (FlexMessageObject<FlexCarouselContainer>)RecipeListUI[0]
+                ).QuickReply!.Items.Insert(
                     0,
                     RecipeMethodGroup.GetQuickReplyButton(ActionTypeEnum.Message, "下一頁", "下一頁")
                 );
             }
             else if (hasPrevPage)
             {
-                ((FlexMessageObject<FlexCarouselContainer>)RecipeListUI[0]).QuickReply.Items.Insert(
+                (
+                    (FlexMessageObject<FlexCarouselContainer>)RecipeListUI[0]
+                ).QuickReply!.Items.Insert(
                     0,
                     RecipeMethodGroup.GetQuickReplyButton(ActionTypeEnum.Message, "上一頁", "上一頁")
                 );
