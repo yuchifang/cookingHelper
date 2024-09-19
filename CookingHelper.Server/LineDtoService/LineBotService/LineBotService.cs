@@ -117,7 +117,7 @@ public class LineBotService
                 await _recipeListService.DeleteRecipePostBack(WebHookEventDto);
             }
         }
-        else if (WebHookEventDto.Postback.Data == KeywordGroup.RecipeList)
+        else if (WebHookEventDto.Postback!.Data == KeywordGroup.RecipeList)
         {
             await _recipeListService.GetRecipeList(WebHookEventDto);
         }
@@ -125,7 +125,7 @@ public class LineBotService
 
     private async Task HandleStorageManagement(WebhookEventDto WebHookEventDto)
     {
-        if (WebHookEventDto.Postback.Data == KeywordGroup.StorageManagement)
+        if (WebHookEventDto.Postback!.Data == KeywordGroup.StorageManagement)
         {
             await _storageManagementService.GetStorage(WebHookEventDto);
         }
@@ -134,19 +134,17 @@ public class LineBotService
             && WebHookEventDto.Postback!.Data == "修改"
         )
         {
-            await _storageManagementPurchaseService.EditAddedStorageHintPostBack(WebHookEventDto);
+            _storageManagementPurchaseService.EditAddedStorageHintPostBack(WebHookEventDto);
         }
         else if (WebHookEventDto.Postback!.Data == KeywordGroup.StorageManagementSearch)
         {
-            await _storageManagementSearchService.InitSearchStorageHintPostBack(WebHookEventDto);
+            _storageManagementSearchService.InitSearchStorageHintPostBack(WebHookEventDto);
         }
         else if (_WebhookEventStatusStatic == KeywordGroup.StorageManagementSearch)
         {
             if (WebHookEventDto.Postback.Data![0..1] == "c")
             {
-                await _storageManagementSearchService.DeleteStorageInfoConfirmPostBack(
-                    WebHookEventDto
-                );
+                _storageManagementSearchService.DeleteStorageInfoConfirmPostBack(WebHookEventDto);
             }
             else if (WebHookEventDto.Postback.Data[0..1] == "d")
             {
@@ -154,7 +152,7 @@ public class LineBotService
             }
             else if (WebHookEventDto.Postback.Data[0..1] == "e")
             {
-                await _storageManagementSearchService.EditStorageInfoPostBack(WebHookEventDto);
+                _storageManagementSearchService.EditStorageInfoPostBack(WebHookEventDto);
             }
         }
     }
