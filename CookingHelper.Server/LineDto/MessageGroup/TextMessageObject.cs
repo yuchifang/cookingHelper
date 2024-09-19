@@ -10,7 +10,7 @@ public class TextMessageObject : BaseMessageObject
         Type = MessageTypeEnum.Text;
     }
 
-    public string Text { get; set; }
+    public string Text { get; set; } = default!;
 
     public List<TextMessageEmojiDto>? Emojis { get; set; }
 }

@@ -31,12 +31,12 @@ public class FlexBubbleContainer
 public class FlexCarouselContainer
 {
     public string Type { get; set; } = FlexContainerTypeEnum.Carousel;
-    public List<FlexBubbleContainer> Contents { get; set; }
+    public List<FlexBubbleContainer> Contents { get; set; } = default!;
 }
 
 public class FlexComponent
 {
-    public string Type { get; set; }
+    public string Type { get; set; } = default!;
 
     public string? Layout { get; set; }
     public List<FlexComponent>? Contents { get; set; }
