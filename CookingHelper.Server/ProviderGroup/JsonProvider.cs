@@ -27,7 +27,7 @@ namespace CookingHelper.ProviderGroup
 
         public T Deserialize<T>(string str)
         {
-            return JsonSerializer.Deserialize<T>(str, deserializeOptions);
+            return JsonSerializer.Deserialize<T>(str, deserializeOptions)!;
         }
     }
 }
