@@ -11,7 +11,7 @@ namespace CookingHelper.Server
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddApplicationInsightsTelemetry();
+            // builder.Services.AddApplicationInsightsTelemetry();
             builder.Logging.ClearProviders().AddConsole();
             builder.Services.AddMemoryCache();
             builder.Services.AddHttpClient();
