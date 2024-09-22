@@ -13,24 +13,16 @@ public class LineBotController : ControllerBase
     private readonly RichMenuService _richMenuService;
     private readonly JsonProvider _jsonProvider;
 
-    private readonly ILogger _logger;
-
-    public LineBotController(
-        LineBotService LineBotService,
-        RichMenuService RichMenuService,
-        ILogger<LineBotController> logger
-    )
+    public LineBotController(LineBotService LineBotService, RichMenuService RichMenuService)
     {
         _lineBotService = LineBotService;
         _richMenuService = RichMenuService;
         _jsonProvider = new JsonProvider();
-        _logger = logger;
     }
 
     [HttpPost("Webhook")]
     public async Task<IActionResult> Webhook(WebhookRequestBodyDto body)
     {
-        _logger.LogInformation("asdas");
         await _lineBotService.ReceiveWebhook(body);
         return Ok();
     }
