@@ -86,42 +86,63 @@ public class LineBotService
 
                     break;
             }
+            if (_ReplyMessageRequestStatic != null)
+            {
+                await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
+            }
         }
     }
 
     private async Task ReceivePostbackWebhookEvent(WebhookEventDto WebHookEventDto)
     {
+        if (WebHookEventDto.Postback!.Data == KeywordGroup.PurchaseList)
+        {
+            await _shoppingListService.Init(WebHookEventDto);
+            return;
+        }
+
         if (WebHookEventDto.Postback!.Data == KeywordGroup.StorageManagement)
         {
             await _storageManagementService.GetStorage(WebHookEventDto);
+            return;
         }
-        else if (
+
+        if (
             _WebhookEventStatusStatic == KeywordGroup.StorageManagementAdded
             && WebHookEventDto.Postback!.Data == "修改"
         )
         {
             _storageManagementPurchaseService.EditAddedStorageHintPostBack(WebHookEventDto);
+            return;
         }
-        else if (WebHookEventDto.Postback!.Data == KeywordGroup.StorageManagementSearch)
+
+        if (WebHookEventDto.Postback!.Data == KeywordGroup.StorageManagementSearch)
         {
             _storageManagementSearchService.InitSearchStorageHintPostBack(WebHookEventDto);
+            return;
         }
-        else if (_WebhookEventStatusStatic == KeywordGroup.StorageManagementSearch)
+
+        if (_WebhookEventStatusStatic == KeywordGroup.StorageManagementSearch)
         {
             if (WebHookEventDto.Postback.Data![0..1] == "c")
             {
                 _storageManagementSearchService.DeleteStorageInfoConfirmPostBack(WebHookEventDto);
+                return;
             }
-            else if (WebHookEventDto.Postback.Data[0..1] == "d")
+
+            if (WebHookEventDto.Postback.Data[0..1] == "d")
             {
                 await _storageManagementSearchService.DeleteStoragePostBack(WebHookEventDto);
+                return;
             }
-            else if (WebHookEventDto.Postback.Data[0..1] == "e")
+
+            if (WebHookEventDto.Postback.Data[0..1] == "e")
             {
                 _storageManagementSearchService.EditStorageInfoPostBack(WebHookEventDto);
+                return;
             }
         }
-        else if (
+        if (
             WebHookEventDto.Postback!.Data == KeywordGroup.RecipeList
             || _WebhookEventStatusStatic == KeywordGroup.RecipeList
             || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
@@ -130,20 +151,10 @@ public class LineBotService
             if (WebHookEventDto.Postback!.Data![0..1] == "d")
             {
                 await _recipeListService.DeleteRecipePostBack(WebHookEventDto);
+                return;
             }
-            else
-            {
-                await _recipeListService.GetRecipeList(WebHookEventDto);
-            }
-        }
-        else if (WebHookEventDto.Postback!.Data == KeywordGroup.PurchaseList)
-        {
-            await _shoppingListService.Init(WebHookEventDto);
-        }
 
-        if (_ReplyMessageRequestStatic != null)
-        {
-            await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
+            await _recipeListService.GetRecipeList(WebHookEventDto);
         }
     }
 
@@ -167,83 +178,87 @@ public class LineBotService
                             RecipeListAdditionService._InputRecipeInfoStatic.ImagePath
                         );
                         File.Delete(filePath);
+                        return;
                     }
-                    else
-                    {
-                        _ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
-                        {
-                            ReplyToken = WebHookEventDto.ReplyToken!,
-                            Messages = new List<TextMessageObject>
-                            {
-                                new TextMessageObject { Text = "無法記錄此字串, 請重新輸入", }
-                            }
-                        };
-                    }
-                }
-                else if (_WebhookEventStatusStatic == KeywordGroup.InputPurchaseList)
-                {
-                    _WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
-                    await _shoppingListService.Init(WebHookEventDto);
-                } //? Storage
-                else if (
-                    _WebhookEventStatusStatic == KeywordGroup.StorageManagementSearch
-                    && WebHookEventMessage != KeywordGroup.StorageManagement
-                )
-                {
-                    await _storageManagementSearchService.SearchStorage(WebHookEventDto);
-                }
-                else if (
-                    WebHookEventMessage == KeywordGroup.StorageManagementAdded
-                    || _WebhookEventStatusStatic == KeywordGroup.StorageManagementAdded
-                )
-                {
-                    await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
-                }
-                else if (_WebhookEventStatusStatic == KeywordGroup.StorageManagement)
-                {
-                    await _storageManagementService.GetStorage(WebHookEventDto);
-                } //? Storage
-                //? RecipeList
-                else if (
-                    WebHookEventMessage == KeywordGroup.RecipeListSearch
-                    || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
-                )
-                {
-                    await _recipeListSearchService.SearchRecipe(WebHookEventDto);
-                }
-                else if (
-                    WebHookEventMessage == KeywordGroup.RecipeListAddition
-                    || _WebhookEventStatusStatic == KeywordGroup.RecipeListAddition
-                )
-                {
-                    await _recipeListAdditionService.InputRecipeList(WebHookEventDto);
-                }
-                else if (_WebhookEventStatusStatic == KeywordGroup.RecipeList)
-                {
-                    await _recipeListService.GetRecipeList(WebHookEventDto);
-                } //? RecipeList
-                else
-                {
+
                     _ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
                     {
                         ReplyToken = WebHookEventDto.ReplyToken!,
                         Messages = new List<TextMessageObject>
                         {
-                            new TextMessageObject
-                            {
-                                Text = WebHookEventDto.Message.Text! + " 無效輸入, 請依步驟執行"
-                            }
+                            new TextMessageObject { Text = "無法記錄此字串, 請重新輸入", }
                         }
                     };
+
+                    return;
                 }
+
+                if (_WebhookEventStatusStatic == KeywordGroup.InputPurchaseList)
+                {
+                    _WebhookEventStatusStatic = KeywordGroup.InputPurchaseList;
+                    await _shoppingListService.Init(WebHookEventDto);
+                    return;
+                } //? Storage
+                if (
+                    _WebhookEventStatusStatic == KeywordGroup.StorageManagementSearch
+                    && WebHookEventMessage != KeywordGroup.StorageManagement
+                )
+                {
+                    await _storageManagementSearchService.SearchStorage(WebHookEventDto);
+                    return;
+                }
+                if (
+                    WebHookEventMessage == KeywordGroup.StorageManagementAdded
+                    || _WebhookEventStatusStatic == KeywordGroup.StorageManagementAdded
+                )
+                {
+                    await _storageManagementPurchaseService.InputStorage(WebHookEventDto);
+                    return;
+                }
+                if (_WebhookEventStatusStatic == KeywordGroup.StorageManagement)
+                {
+                    await _storageManagementService.GetStorage(WebHookEventDto);
+                    return;
+                } //? Storage
+                //? RecipeList
+                if (
+                    WebHookEventMessage == KeywordGroup.RecipeListSearch
+                    || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
+                )
+                {
+                    await _recipeListSearchService.SearchRecipe(WebHookEventDto);
+                    return;
+                }
+                if (
+                    WebHookEventMessage == KeywordGroup.RecipeListAddition
+                    || _WebhookEventStatusStatic == KeywordGroup.RecipeListAddition
+                )
+                {
+                    await _recipeListAdditionService.InputRecipeList(WebHookEventDto);
+                    return;
+                }
+                if (_WebhookEventStatusStatic == KeywordGroup.RecipeList)
+                {
+                    await _recipeListService.GetRecipeList(WebHookEventDto);
+                    return;
+                } //? RecipeList
+
+                _ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
+                {
+                    ReplyToken = WebHookEventDto.ReplyToken!,
+                    Messages = new List<TextMessageObject>
+                    {
+                        new TextMessageObject
+                        {
+                            Text = WebHookEventDto.Message.Text! + " 無效輸入, 請依步驟執行"
+                        }
+                    }
+                };
+
                 break;
             case "image":
                 await _recipeListAdditionService.ImageContentStatusImageEvent(WebHookEventDto);
                 break;
-        }
-        if (_ReplyMessageRequestStatic != null)
-        {
-            await ReplyMessageHandler("text", _ReplyMessageRequestStatic);
         }
     }
 
