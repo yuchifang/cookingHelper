@@ -35,7 +35,10 @@ public class ShoppingListService
             WebHookEventDto.Source!.UserId!
         );
 
-        if (LineBotService._WebhookEventStatusStatic == KeywordGroup.InputPurchaseList)
+        if (
+            LineBotService._WebhookEventStatusStatic == KeywordGroup.InputPurchaseList
+            && WebHookEventMessage != KeywordGroup.PurchaseList
+        )
         {
             LineBotService._WebhookEventStatusStatic = "";
             await _shoppingListDatabaseService.UpdateUserShoppingText(
