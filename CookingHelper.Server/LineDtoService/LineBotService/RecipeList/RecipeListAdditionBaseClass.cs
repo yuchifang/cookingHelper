@@ -99,8 +99,7 @@ class RecipeListAdditionBaseClass : UIWithData
             FlexBubbleContainer.Hero = new FlexComponent
             {
                 Type = FlexComponentTypeEnum.Image,
-                Url =
-                    $"https://b2b7-2001-b011-7002-1eb9-3093-705d-19be-a830.ngrok-free.app/{RecipeItem.ImagePath}",
+                Url = $"https://cookinghelper.azurewebsites.net/{RecipeItem.ImagePath}",
                 Size = "full",
                 AspectMode = "cover",
                 AspectRatio = "20:13"
@@ -112,7 +111,7 @@ class RecipeListAdditionBaseClass : UIWithData
             {
                 Type = FlexComponentTypeEnum.Image,
                 Url =
-                    $"https://b2b7-2001-b011-7002-1eb9-3093-705d-19be-a830.ngrok-free.app/UploadFile/RecipeImage/CookingHelperLineLogo.png",
+                    $"https://cookinghelper.azurewebsites.net/UploadFile/RecipeImage/CookingHelperLineLogo.png",
                 Size = "full",
                 AspectMode = "cover",
                 AspectRatio = "20:13"
