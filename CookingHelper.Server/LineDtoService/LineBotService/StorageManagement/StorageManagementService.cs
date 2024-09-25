@@ -156,6 +156,7 @@ public class StorageManagementService
 
         if (UserListStoreList.StoreList.Count == 0)
         {
+            LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagement;
             _ReplyMessageListStatic = new List<object>
             {
                 new TextMessageObject
