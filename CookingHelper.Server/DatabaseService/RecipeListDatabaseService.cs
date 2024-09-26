@@ -96,32 +96,12 @@ public class RecipeListDatabaseService
         }
     }
 
-    public IEnumerable<RecipeItem> GetSearchedRecipeItem(RecipeInfo RecipeInfo)
+    public IQueryable<RecipeItem> GetSearchRecipeResult(string SearchText)
     {
-        IEnumerable<RecipeItem> RecipeItem = Enumerable.Empty<RecipeItem>();
-        if (RecipeInfo.Ingredients != null && RecipeInfo.Name != null)
-        {
-            RecipeItem = _userListDbContext
-                .RecipeItem.Where(item => item.Name.IndexOf(RecipeInfo.Name) != -1)
-                .AsEnumerable()
-                .Where(RecipeItem =>
-                    RecipeInfo.Ingredients.All(item => RecipeItem.Ingredients.Contains(item))
-                );
-        }
-        else if (RecipeInfo.Name != null)
-        {
-            RecipeItem = _userListDbContext.RecipeItem.Where(item =>
-                item.Name.IndexOf(RecipeInfo.Name) != -1
-            );
-        }
-        else if (RecipeInfo.Ingredients != null)
-        {
-            RecipeItem = _userListDbContext
-                .RecipeItem.AsEnumerable()
-                .Where(RecipeItem =>
-                    RecipeInfo.Ingredients.All(item => RecipeItem.Ingredients.Contains(item))
-                );
-        }
+        var RecipeItem = _userListDbContext.RecipeItem.Where(RecipeItem =>
+            RecipeItem.Name.IndexOf(SearchText) != -1
+            || RecipeItem.Ingredients.IndexOf(SearchText) != -1
+        );
         return RecipeItem;
     }
 
