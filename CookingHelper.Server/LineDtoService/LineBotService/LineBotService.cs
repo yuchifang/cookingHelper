@@ -101,6 +101,15 @@ public class LineBotService
             return;
         }
 
+        if (WebHookEventDto.Postback!.Data == "清空採買清單")
+        {
+            await _shoppingListDatabaseService.EmptyShoppingText(WebHookEventDto.Source!.UserId);
+            _WebhookEventStatusStatic = "";
+            await _shoppingListService.Init(WebHookEventDto);
+
+            return;
+        }
+
         if (WebHookEventDto.Postback!.Data == KeywordGroup.StorageManagement)
         {
             await _storageManagementService.GetStorage(WebHookEventDto);
