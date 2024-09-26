@@ -142,9 +142,16 @@ public class LineBotService
                 return;
             }
         }
+
+        if (WebHookEventDto.Postback!.Data == KeywordGroup.RecipeList)
+        {
+            await _recipeListService.GetRecipeList(WebHookEventDto);
+
+            return;
+        }
+
         if (
-            WebHookEventDto.Postback!.Data == KeywordGroup.RecipeList
-            || _WebhookEventStatusStatic == KeywordGroup.RecipeList
+            _WebhookEventStatusStatic == KeywordGroup.RecipeList
             || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
         )
         {
@@ -153,8 +160,6 @@ public class LineBotService
                 await _recipeListService.DeleteRecipePostBack(WebHookEventDto);
                 return;
             }
-
-            await _recipeListService.GetRecipeList(WebHookEventDto);
         }
     }
 
