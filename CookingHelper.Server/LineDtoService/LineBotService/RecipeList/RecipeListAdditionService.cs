@@ -262,7 +262,7 @@ public class RecipeListAdditionService
                 [
                     new TextMessageObject
                     {
-                        Text = "請輸入食材:",
+                        Text = "請輸入所需要的食材:",
                         QuickReply = new QuickReplyItemDto
                         {
                             Items = new List<QuickReplyButtonDto>
@@ -372,7 +372,7 @@ public class RecipeListAdditionService
                 [
                     new TextMessageObject
                     {
-                        Text = "請輸入步驟",
+                        Text = "請輸入下一個步驟",
                         QuickReply = new QuickReplyItemDto
                         {
                             Items = new List<QuickReplyButtonDto>
