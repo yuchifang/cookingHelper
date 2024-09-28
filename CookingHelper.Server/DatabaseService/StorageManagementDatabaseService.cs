@@ -37,10 +37,7 @@ public class StorageManagementDatabaseService
         }
     }
 
-    public async Task<IQueryable<StoreItem>> GetSearchedStoreItem(
-        StorageInfo StorageInfo,
-        string userId
-    )
+    public async Task<IQueryable<StoreItem>> GetSearchedStoreItem(string text, string userId)
     {
         try
         {
@@ -49,7 +46,7 @@ public class StorageManagementDatabaseService
             {
                 return UserListStoreList
                     .StoreList.AsEnumerable()
-                    .Where(item => ClassMatch(item, StorageInfo))
+                    .Where(item => item.Name.IndexOf(text) != -1 || text.IndexOf(item.Name) != -1)
                     .AsQueryable();
             }
             else
