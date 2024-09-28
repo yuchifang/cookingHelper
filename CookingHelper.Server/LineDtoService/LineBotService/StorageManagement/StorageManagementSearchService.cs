@@ -71,27 +71,26 @@ public class StorageManagementSearchService
         // 處理使用者查詢及修改
         else
         {
-            // 依使用者輸入
-            StringSlashAndColonToStorageInfo(
-                WebHookEventMessage,
-                out StorageInfo UserTypeStorageInfo,
-                out string InputErrorText
-            );
-            if (InputErrorText != "")
-            {
-                await _storageManagementService.GetStorage(WebHookEventDto);
-
-                StorageManagementService._ReplyMessageListStatic.Insert(
-                    0,
-                    new TextMessageObject { Text = "發生錯誤: 此欄位出現問題 " + InputErrorText }
-                );
-
-                return;
-            }
-
+            //? 使用者輸入
             // 修改
             if (_StorageEditInfoStatic.Status == "edit")
             {
+                StringSlashAndColonToStorageInfo(
+                    WebHookEventMessage,
+                    out StorageInfo UserTypeStorageInfo,
+                    out string InputErrorText
+                );
+                if (InputErrorText != "")
+                {
+                    await _storageManagementService.GetStorage(WebHookEventDto);
+
+                    StorageManagementService._ReplyMessageListStatic.Insert(
+                        0,
+                        new TextMessageObject { Text = "發生錯誤: 此欄位出現問題 " + InputErrorText }
+                    );
+
+                    return;
+                }
                 GetSearchStorageConfirmHint(WebHookEventDto, UserTypeStorageInfo);
                 return;
             }
@@ -99,7 +98,7 @@ public class StorageManagementSearchService
             _memoryCache.Remove("StorageSearch");
             IQueryable<StoreItem>? SearchedStoreItem =
                 await _storageManagementDatabaseService.GetSearchedStoreItem(
-                    UserTypeStorageInfo,
+                    WebHookEventMessage,
                     WebHookEventDto.Source!.UserId!
                 );
 
@@ -151,10 +150,9 @@ public class StorageManagementSearchService
             ReplyToken = WebHookEventDto.ReplyToken!,
             Messages = new List<object>
             {
-                new TextMessageObject { Text = "依格式輸入查詢資訊" },
                 new TextMessageObject
                 {
-                    Text = "若要尋找物品名稱為蘋果, 請輸入物品名稱:蘋果. \n要填入多筆資訊, 請用/號隔開, 如物品名稱:蘋果/有效日期:20230809",
+                    Text = "想找什麼?(輸入想找的物品)",
                     QuickReply = new QuickReplyItemDto
                     {
                         Items = new List<QuickReplyButtonDto>
