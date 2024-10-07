@@ -101,6 +101,15 @@ public class LineBotService
             return;
         }
 
+        if (WebHookEventDto.Postback!.Data == "清空採買清單")
+        {
+            await _shoppingListDatabaseService.EmptyShoppingText(WebHookEventDto.Source!.UserId);
+            _WebhookEventStatusStatic = "";
+            await _shoppingListService.Init(WebHookEventDto);
+
+            return;
+        }
+
         if (WebHookEventDto.Postback!.Data == KeywordGroup.StorageManagement)
         {
             await _storageManagementService.GetStorage(WebHookEventDto);
@@ -142,9 +151,16 @@ public class LineBotService
                 return;
             }
         }
+
+        if (WebHookEventDto.Postback!.Data == KeywordGroup.RecipeList)
+        {
+            await _recipeListService.GetRecipeList(WebHookEventDto);
+
+            return;
+        }
+
         if (
-            WebHookEventDto.Postback!.Data == KeywordGroup.RecipeList
-            || _WebhookEventStatusStatic == KeywordGroup.RecipeList
+            _WebhookEventStatusStatic == KeywordGroup.RecipeList
             || _WebhookEventStatusStatic == KeywordGroup.RecipeListSearch
         )
         {
@@ -153,8 +169,6 @@ public class LineBotService
                 await _recipeListService.DeleteRecipePostBack(WebHookEventDto);
                 return;
             }
-
-            await _recipeListService.GetRecipeList(WebHookEventDto);
         }
     }
 

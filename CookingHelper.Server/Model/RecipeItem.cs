@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace CookingHelper.Model;
 
@@ -11,6 +12,8 @@ public class RecipeItem
 
     [ForeignKey("UserId")]
     public string UserId { get; set; } = default!;
+
+    [JsonIgnore]
     public UserList UserList { get; set; } = default!;
 
     public string Name { get; set; } = default!;

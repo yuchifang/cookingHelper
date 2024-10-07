@@ -41,6 +41,7 @@ public class ShoppingListService
         )
         {
             LineBotService._WebhookEventStatusStatic = "";
+
             await _shoppingListDatabaseService.UpdateUserShoppingText(
                 null,
                 WebHookEventMessage,
@@ -73,10 +74,20 @@ public class ShoppingListService
                                     Action = new ActionDto
                                     {
                                         Type = ActionTypeEnum.Postback,
-                                        Label = "將上次的採買清單帶入輸入框",
+                                        Label = "將採買清單帶入輸入框",
                                         Data = "quick reply postback action",
                                         InputOption = PostbackInputOptionEnum.OpenKeyboard,
                                         FillInText = UserList.ShoppingListText!
+                                    }
+                                },
+                                new QuickReplyButtonDto
+                                {
+                                    Action = new ActionDto
+                                    {
+                                        Type = ActionTypeEnum.Postback,
+                                        Label = "清空採買清單",
+                                        Data = "清空採買清單",
+                                        InputOption = PostbackInputOptionEnum.OpenKeyboard,
                                     }
                                 },
                             }

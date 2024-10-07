@@ -13,5 +13,7 @@ public class StoreItem : StorageInfo
 
     [ForeignKey("UserId")]
     public string UserId { get; set; } = default!;
+
+    [JsonIgnore]
     public UserList UserList { get; set; } = default!;
 }

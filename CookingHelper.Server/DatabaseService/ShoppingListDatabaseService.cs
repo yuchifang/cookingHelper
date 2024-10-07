@@ -48,6 +48,28 @@ public class ShoppingListDatabaseService
         }
     }
 
+    public async Task EmptyShoppingText(string? userId)
+    {
+        try
+        {
+            var UserData = await GetUserList(userId!);
+            if (UserData != null)
+            {
+                UserData.ShoppingListText = "";
+                _userListDbContext.UserList.Update(UserData);
+                await _userListDbContext.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("EmptyShoppingText Error");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred:  {ex.Message}");
+        }
+    }
+
     public async Task UpdateUserShoppingText(
         string? userId,
         string UpdateShoppingText,
@@ -75,7 +97,8 @@ public class ShoppingListDatabaseService
         {
             try
             {
-                UserDataInput.ShoppingListText = UpdateShoppingText;
+                UserDataInput.ShoppingListText =
+                    UserDataInput.ShoppingListText + " " + UpdateShoppingText;
                 _userListDbContext.UserList.Update(UserDataInput);
                 await _userListDbContext.SaveChangesAsync();
             }

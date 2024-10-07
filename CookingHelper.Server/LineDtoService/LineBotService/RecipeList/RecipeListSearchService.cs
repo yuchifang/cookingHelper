@@ -24,7 +24,7 @@ public class RecipeListSearchService
 
     public async Task SearchRecipe(WebhookEventDto WebHookEventDto)
     {
-        string WebHookEventMessage = WebHookEventDto.Message!.Text!;
+        string WebHookEventMessage = WebHookEventDto.Message!.Text!.Trim();
         LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeListSearch;
         var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
 
@@ -39,13 +39,9 @@ public class RecipeListSearchService
         {
             _ReplyMessageListStatic = new List<object>
             {
-                new TextMessageObject { Text = "依格式輸入查詢資訊" },
-                new TextMessageObject { Text = "若要尋找食譜名稱裡面有番茄的食譜, 請輸入食譜名稱:番茄" },
-                new TextMessageObject { Text = "若要尋找食材裡面有蛋的食譜, 請輸入食材:蛋" },
-                new TextMessageObject { Text = "要填入多筆資訊, 請用/號隔開, 如食譜名稱:蘋果/食材:蛋" },
                 new TextMessageObject
                 {
-                    Text = "若要尋找多種食材, 請輸入食材:蛋,牛奶. 只能依據食材,食譜名稱搜尋",
+                    Text = "想要吃什麼? (輸入想要查詢項目)",
                     QuickReply = new QuickReplyItemDto
                     {
                         Items = new List<QuickReplyButtonDto>
@@ -66,40 +62,8 @@ public class RecipeListSearchService
         }
         else
         {
-            StringSlashAndColonToRecipeInfo(
-                WebHookEventMessage,
-                out RecipeInfo RecipeInfo,
-                out string ErrorText
-            );
-            if (ErrorText != "")
-            {
-                _ReplyMessageListStatic = new List<object>
-                {
-                    new TextMessageObject
-                    {
-                        Text = ErrorText,
-                        QuickReply = new QuickReplyItemDto
-                        {
-                            Items = new List<QuickReplyButtonDto>
-                            {
-                                RecipeMethodGroup.GetQuickReplyButton(
-                                    ActionTypeEnum.Message,
-                                    "返回",
-                                    "返回"
-                                )
-                            }
-                        }
-                    }
-                };
-                LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
-                {
-                    ReplyToken = WebHookEventDto.ReplyToken!,
-                    Messages = _ReplyMessageListStatic
-                };
-                return;
-            }
+            var RecipeItem = _recipeListDatabaseService.GetSearchRecipeResult(WebHookEventMessage);
 
-            var RecipeItem = _recipeListDatabaseService.GetSearchedRecipeItem(RecipeInfo);
             if (RecipeItem.Any() == false)
             {
                 _ReplyMessageListStatic = new List<object>
