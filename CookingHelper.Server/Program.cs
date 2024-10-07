@@ -21,21 +21,21 @@ namespace CookingHelper.Server
             builder.Services.AddSwaggerGen();
             if (builder.Environment.IsDevelopment())
             {
-                // var ConnectString = builder.Configuration.GetConnectionString("MySQLConnectString");
-                // builder.Services.AddDbContext<UserListDbContext>(Options =>
-                // {
-                //     Options.UseMySql(ConnectString, ServerVersion.AutoDetect(ConnectString));
-                // });
-                builder
-                    .Configuration.AddEnvironmentVariables()
-                    .AddJsonFile("appsettings.Production.json");
-                var ConnectString = builder.Configuration.GetConnectionString(
-                    "AZURE_SQL_CONNECTIONSTRING"
-                );
+                var ConnectString = builder.Configuration.GetConnectionString("MySQLConnectString");
                 builder.Services.AddDbContext<UserListDbContext>(Options =>
                 {
-                    Options.UseSqlServer(ConnectString);
+                    Options.UseMySql(ConnectString, ServerVersion.AutoDetect(ConnectString));
                 });
+                // builder
+                //     .Configuration.AddEnvironmentVariables()
+                //     .AddJsonFile("appsettings.Production.json");
+                // var ConnectString = builder.Configuration.GetConnectionString(
+                //     "AZURE_SQL_CONNECTIONSTRING"
+                // );
+                // builder.Services.AddDbContext<UserListDbContext>(Options =>
+                // {
+                //     Options.UseSqlServer(ConnectString);
+                // });
             }
             else
             {
