@@ -1,5 +1,7 @@
 /CookingHelper.Server/obj
 /CookingHelper.Server/bin
 /CookingHelper.Server/Migrations
+/CookingHelper.Server.Test/bin
+/CookingHelper.Server.Test/obj
 /.vscode
 /obj
