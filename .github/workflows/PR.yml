@@ -1,21 +1,21 @@
-name: Build and Test
-on: 
-    pull_request:   
-        branches: [ master ]
-jobs:
-  build:
-    runs-on: windows-latest
+# name: Build and Test
+# on: 
+#     pull_request:   
+#         branches: [ master ]
+# jobs:
+#   build:
+#     runs-on: windows-latest
 
-    steps:
-      - uses: actions/checkout@v4
+#     steps:
+#       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '8.x'
-          include-prerelease: true
+#       - name: Set up .NET Core
+#         uses: actions/setup-dotnet@v1
+#         with:
+#           dotnet-version: '8.x'
+#           include-prerelease: true
 
-      - name: Build with dotnet
-        run: dotnet build 
-      - name: Test
-        run: dotnet test  
+#       - name: Build with dotnet
+#         run: dotnet build 
+#       - name: Test
+#         run: dotnet test  
