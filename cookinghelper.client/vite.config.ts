@@ -12,7 +12,7 @@ import child_process from 'child_process';
 //         : `${process.env.HOME}/.aspnet/https`;
 // console.log("**************")
 // console.log(process.env.APPDATA);
-const baseFolder = "C:\Users\User\AppData\Roaming\ASP.NET\https";
+const baseFolder = "C:/Users/User/AppData/Roaming/ASP.NET/https";
 const certificateArg = process.argv.map(arg => arg.match(/--name=(?<value>.+)/i)).filter(Boolean)[0];
 const certificateName = certificateArg ? certificateArg.groups.value : "cookinghelper.client";
 
