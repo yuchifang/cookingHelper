@@ -16,6 +16,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 安裝 Node.js 環境
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
@@ -27,8 +33,10 @@ jobs:
 
       - name: dotnet publish 
         run: dotnet publish CookingHelper.Server/CookingHelper.Server.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+
       - name: install dotnet-ef
         run: dotnet tool install -g dotnet-ef
+        
       - name: dotnet migrate
         env:
           ASPNETCORE_ENVIRONMENT: Production
