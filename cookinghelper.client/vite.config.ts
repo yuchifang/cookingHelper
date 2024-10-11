@@ -6,13 +6,11 @@ import fs from 'fs';
 import path from 'path';
 import child_process from 'child_process';
 
-// const baseFolder =
-//     process.env.APPDATA !== undefined && process.env.APPDATA !== ''
-//         ? `${process.env.APPDATA}/ASP.NET/https`
-//         : `${process.env.HOME}/.aspnet/https`;
-// console.log("**************")
-// console.log(process.env.APPDATA);
-const baseFolder = "C:/Users/User/AppData/Roaming/ASP.NET/https";
+const baseFolder =
+    process.env.APPDATA !== undefined && process.env.APPDATA !== ''
+        ? `${process.env.APPDATA}/ASP.NET/https`
+        : `${process.env.HOME}/.aspnet/https`;
+
 const certificateArg = process.argv.map(arg => arg.match(/--name=(?<value>.+)/i)).filter(Boolean)[0];
 const certificateName = certificateArg ? certificateArg.groups.value : "cookinghelper.client";
 
@@ -27,22 +25,28 @@ console.log("---------------")
 console.log(certFilePath)
 console.log(keyFilePath)
 if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
-    try {
-        child_process.spawnSync('dotnet', [
-            'dev-certs',
-            'https',
-            '--export-path',
-            certFilePath,
-            '--format',
-            'Pem',
-            '--no-password',
-        ], { stdio: 'inherit' });
-    } catch (error) {
-        console.warn("Could not create certificate. Continuing without HTTPS support.");
-        throw error;
+    console.log('Generating certificate using dotnet dev-certs...');
+    const result = child_process.spawnSync('dotnet', [
+        'dev-certs',
+        'https',
+        '--export-path',
+        certFilePath,
+        '--format',
+        'Pem',
+        '--no-password',
+    ], { stdio: 'inherit' });
+
+    if (result.status !== 0) {
+        throw new Error("Failed to generate the HTTPS certificate.");
     }
 }
+// 確保讀取證書內容
+const cert = fs.readFileSync(certFilePath);
+const key = fs.readFileSync(keyFilePath);
+console.log("-------------");
+console.log(cert);
 
+console.log(key);
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [plugin()],
@@ -60,8 +64,8 @@ export default defineConfig({
         },
         port: 5173,
         https: {
-            key: fs.readFileSync(keyFilePath),
-            cert: fs.readFileSync(certFilePath),
+            key,
+            cert
         }
     }
 })
