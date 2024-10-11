@@ -10,6 +10,8 @@ const baseFolder =
     process.env.APPDATA !== undefined && process.env.APPDATA !== ''
         ? `${process.env.APPDATA}/ASP.NET/https`
         : `${process.env.HOME}/.aspnet/https`;
+console.log("**************")
+console.log(process.env.APPDATA);
 
 const certificateArg = process.argv.map(arg => arg.match(/--name=(?<value>.+)/i)).filter(Boolean)[0];
 const certificateName = certificateArg ? certificateArg.groups.value : "cookinghelper.client";
@@ -21,7 +23,9 @@ if (!certificateName) {
 
 const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
 const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
-
+console.log("---------------")
+console.log(certFilePath)
+console.log(keyFilePath)
 if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
     try {
         child_process.spawnSync('dotnet', [
@@ -35,6 +39,7 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
         ], { stdio: 'inherit' });
     } catch (error) {
         console.warn("Could not create certificate. Continuing without HTTPS support.");
+        throw error;
     }
 }
 
