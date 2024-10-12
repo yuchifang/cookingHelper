@@ -16,17 +16,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 安裝 Node.js 環境
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '8.x'
           include-prerelease: true
+      - name: Set up HTTPS certificates
+        run: |
+          echo "${{ secrets.COOKINGHELPER_CERT_PEM }}" > ${{ env.APPDATA }}/ASP.NET/https/cookinghelper.client.pem
+          echo "${{ secrets.COOKINGHELPER_CERT_KEY }}" > ${{ env.APPDATA }}/ASP.NET/https/cookinghelper.client.key
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
