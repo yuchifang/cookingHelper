@@ -21,10 +21,10 @@ jobs:
         with:
           dotnet-version: '8.x'
           include-prerelease: true
-      - name: Set up HTTPS certificates
-        run: |
-          echo "${{ secrets.COOKINGHELPER_CERT_PEM }}" > ${{ env.APPDATA }}/ASP.NET/https/cookinghelper.client.pem
-          echo "${{ secrets.COOKINGHELPER_CERT_KEY }}" > ${{ env.APPDATA }}/ASP.NET/https/cookinghelper.client.key
+      - name: Set environment variables
+        run: |  
+            echo "COOKINGHELPER_CERT_PEM=${{  secrets.COOKINGHELPER_CERT_PEM }}" >> $GITHUB_ENV
+            echo "COOKINGHELPER_CERT_KEY=${{  secrets.COOKINGHELPER_CERT_KEY }}" >> $GITHUB_ENV
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
