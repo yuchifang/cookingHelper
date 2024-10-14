@@ -12,10 +12,11 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
+    env:
+      COOKINGHELPER_CERT_KEY: ${{  secrets.COOKINGHELPER_CERT_KEY }}
+      COOKINGHELPER_CERT_PEM: ${{  secrets.COOKINGHELPER_CERT_PEM }}
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
@@ -26,10 +27,6 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish 
-        env:
-          COOKINGHELPER_CERT_KEY: ${{  secrets.COOKINGHELPER_CERT_KEY }}
-          COOKINGHELPER_CERT_PEM: ${{  secrets.COOKINGHELPER_CERT_PEM }}
-
         run: dotnet publish CookingHelper.Server/CookingHelper.Server.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: install dotnet-ef
@@ -38,8 +35,6 @@ jobs:
       - name: dotnet migrate
         env:
           ASPNETCORE_ENVIRONMENT: Production
-          COOKINGHELPER_CERT_KEY: ${{  secrets.COOKINGHELPER_CERT_KEY }}
-          COOKINGHELPER_CERT_PEM: ${{  secrets.COOKINGHELPER_CERT_PEM }}
         run: dotnet ef migrations bundle --runtime linux-x64 -p CookingHelper.Server\CookingHelper.Server.csproj -o ${{env.DOTNET_ROOT}}/myapp/migrate
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
