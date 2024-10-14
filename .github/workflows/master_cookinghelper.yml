@@ -38,6 +38,8 @@ jobs:
       - name: dotnet migrate
         env:
           ASPNETCORE_ENVIRONMENT: Production
+          COOKINGHELPER_CERT_KEY: ${{  secrets.COOKINGHELPER_CERT_KEY }}
+          COOKINGHELPER_CERT_PEM: ${{  secrets.COOKINGHELPER_CERT_PEM }}
         run: dotnet ef migrations bundle --runtime linux-x64 -p CookingHelper.Server\CookingHelper.Server.csproj -o ${{env.DOTNET_ROOT}}/myapp/migrate
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
