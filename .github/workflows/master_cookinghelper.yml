@@ -21,15 +21,15 @@ jobs:
         with:
           dotnet-version: '8.x'
           include-prerelease: true
-      - name: Set environment variables
-        run: |  
-            echo "COOKINGHELPER_CERT_PEM=${{  secrets.COOKINGHELPER_CERT_PEM }}" >> $GITHUB_ENV
-            echo "COOKINGHELPER_CERT_KEY=${{  secrets.COOKINGHELPER_CERT_KEY }}" >> $GITHUB_ENV
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
       - name: dotnet publish 
+        env:
+          COOKINGHELPER_CERT_KEY: ${{  secrets.COOKINGHELPER_CERT_KEY }}
+          COOKINGHELPER_CERT_PEM: ${{  secrets.COOKINGHELPER_CERT_PEM }}
+
         run: dotnet publish CookingHelper.Server/CookingHelper.Server.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: install dotnet-ef
