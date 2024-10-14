@@ -1,13 +1,63 @@
-name: Deployment
+name: Build and deploy ASP.Net Core app to Azure Web App - cookinghelper
 
 on:
-  push
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
 jobs:
-  deployment:
-    runs-on: ubuntu-latest
-    environment: 
-      name: production
-      url: https://github.com
+  build:
+    runs-on: windows-latest
+    env:
+      COOKINGHELPER_CERT_KEY: ${{  secrets.COOKINGHELPER_CERT_KEY }}
+      COOKINGHELPER_CERT_PEM: ${{  secrets.COOKINGHELPER_CERT_PEM }}
     steps:
-      - name: deploy
-        run: echo "Let's go"
+      - uses: actions/checkout@v4
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.x'
+          include-prerelease: true
+
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
+
+      - name: dotnet publish 
+       
+        run: dotnet publish CookingHelper.Server/CookingHelper.Server.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+
+      - name: install dotnet-ef
+        run: dotnet tool install -g dotnet-ef
+        
+      - name: dotnet migrate
+        env:
+          ASPNETCORE_ENVIRONMENT: Production
+        run: dotnet ef migrations bundle --runtime linux-x64 -p CookingHelper.Server\CookingHelper.Server.csproj -o ${{env.DOTNET_ROOT}}/myapp/migrate
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v3
+        with:
+          name: .net-app
+          path: ${{env.DOTNET_ROOT}}/myapp
+
+  deploy:
+    runs-on: windows-latest
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: .net-app
+      
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'cookinghelper'
+          slot-name: 'Production'
+          package: .
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_46DD7C09BCBE4843A15DAA6673EA95DE }}
