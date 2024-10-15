@@ -21,7 +21,7 @@ public class RecipeListService
 
     public async Task GetRecipeList(WebhookEventDto WebHookEventDto)
     {
-        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListBaseClass.Instance;
         string WebHookEventMessage = "";
         if (
             WebHookEventDto.GetType().GetProperty("Message") != null

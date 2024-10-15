@@ -26,7 +26,7 @@ public class RecipeListSearchService
     {
         string WebHookEventMessage = WebHookEventDto.Message!.Text!.Trim();
         LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeListSearch;
-        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListBaseClass.Instance;
 
         if (WebHookEventMessage == "取消查詢" || WebHookEventMessage == "返回")
         {

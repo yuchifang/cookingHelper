@@ -71,7 +71,7 @@ public class RecipeListAdditionService
             LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
             {
                 ReplyToken = WebHookEventDto.ReplyToken!,
-                Messages = RecipeListAdditionBaseClass.Instance.GetRecipeAdditionConfirmHint(
+                Messages = RecipeListBaseClass.Instance.GetRecipeAdditionConfirmHint(
                     _InputRecipeInfoStatic
                 )
             };
@@ -113,7 +113,7 @@ public class RecipeListAdditionService
     public void InitStatus()
     {
         LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeListAddition;
-        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListBaseClass.Instance;
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject { Text = "依食譜名稱,圖片,食材,步驟輸入", },
@@ -140,7 +140,7 @@ public class RecipeListAdditionService
 
     public void NameStatus(string WebHookEventMessage)
     {
-        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListBaseClass.Instance;
         _InputRecipeInfoStatic.Name = WebHookEventMessage;
         _ReplyMessageListStatic = new List<object>(
             [
@@ -186,7 +186,7 @@ public class RecipeListAdditionService
         response.EnsureSuccessStatusCode();
 
         var imageBytes = await response.Content.ReadAsByteArrayAsync();
-        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListBaseClass.Instance;
         if (imageBytes.Length > 4 * 1024 * 1024)
         {
             _ReplyMessageListStatic = new List<object>(
@@ -252,7 +252,7 @@ public class RecipeListAdditionService
 
     public void InputImageExceptionHandle(string WebHookEventMessage)
     {
-        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListBaseClass.Instance;
         if (WebHookEventMessage == null)
         {
             // 選擇略過的情況
@@ -311,7 +311,7 @@ public class RecipeListAdditionService
 
     public void IngredientsStatus(string WebHookEventMessage)
     {
-        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListBaseClass.Instance;
         _InputRecipeInfoStatic.Ingredients = WebHookEventMessage;
         _ReplyMessageListStatic = new List<object>(
             [
@@ -337,7 +337,7 @@ public class RecipeListAdditionService
 
     public void StepStatus(string WebHookEventMessage)
     {
-        var RecipeMethodGroup = RecipeListAdditionBaseClass.Instance;
+        var RecipeMethodGroup = RecipeListBaseClass.Instance;
         if (_InputRecipeInfoStatic.Step.Count == 20)
         {
             _ReplyMessageListStatic = new List<object>(
