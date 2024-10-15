@@ -17,6 +17,10 @@ jobs:
       COOKINGHELPER_CERT_PEM: ${{  secrets.COOKINGHELPER_CERT_PEM }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: "master"
+          fetch-depth: 1
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v1
         with:
@@ -37,7 +41,7 @@ jobs:
           ASPNETCORE_ENVIRONMENT: Production
         run: dotnet ef migrations bundle --runtime linux-x64 -p CookingHelper.Server\CookingHelper.Server.csproj -o ${{env.DOTNET_ROOT}}/myapp/migrate
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
@@ -51,7 +55,7 @@ jobs:
     
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: .net-app
       
