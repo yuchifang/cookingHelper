@@ -47,7 +47,7 @@ public class StorageManagementAdditionService
             LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
             {
                 ReplyToken = WebHookEventDto.ReplyToken!,
-                Messages = StorageAdditionBaseClass.Instance.GetStorageAdditionConfirmHint(
+                Messages = StorageBaseClass.Instance.GetStorageAdditionConfirmHint(
                     _InputStorageInfoStatic,
                     null
                 )
@@ -134,7 +134,7 @@ public class StorageManagementAdditionService
     public void InitStatus()
     {
         LineBotService._WebhookEventStatusStatic = KeywordGroup.StorageManagementAdded;
-        var StorageStatus = StorageAdditionBaseClass.Instance;
+        var StorageStatus = StorageBaseClass.Instance;
         _ReplyMessageListStatic = new List<object>(
             [
                 new TextMessageObject { Text = "依儲存位置,物品名稱,詳細位置,購買日期,有效日期輸入", },
@@ -161,7 +161,7 @@ public class StorageManagementAdditionService
 
     public void PlaceStatus(string WebHookEventMessage)
     {
-        var StorageStatus = StorageAdditionBaseClass.Instance;
+        var StorageStatus = StorageBaseClass.Instance;
         _InputStorageInfoStatic.Place = WebHookEventMessage;
         _ReplyMessageListStatic = new List<object>(
             [
@@ -188,7 +188,7 @@ public class StorageManagementAdditionService
 
     public void NameStatus(string WebHookEventMessage)
     {
-        var StorageStatus = StorageAdditionBaseClass.Instance;
+        var StorageStatus = StorageBaseClass.Instance;
         _InputStorageInfoStatic.Name = WebHookEventMessage;
         _ReplyMessageListStatic = StorageStatus.GetRegularReply("請輸入數量:");
         _InputStorageInfoStatic.Status = "amount";
@@ -196,7 +196,7 @@ public class StorageManagementAdditionService
 
     public void AmountStatus(string WebHookEventMessage)
     {
-        var StorageStatus = StorageAdditionBaseClass.Instance;
+        var StorageStatus = StorageBaseClass.Instance;
         _InputStorageInfoStatic.Amount = WebHookEventMessage;
         _ReplyMessageListStatic = StorageStatus.GetRegularReply("請輸入詳細位置:");
         _InputStorageInfoStatic.Status = "location";
@@ -204,7 +204,7 @@ public class StorageManagementAdditionService
 
     public void LocationStatus(string WebHookEventMessage)
     {
-        var StorageStatus = StorageAdditionBaseClass.Instance;
+        var StorageStatus = StorageBaseClass.Instance;
         _InputStorageInfoStatic.Location = WebHookEventMessage;
         _ReplyMessageListStatic = StorageStatus.GetRegularReply("請輸入購買日期(格式: YYYYMMDD):");
         _InputStorageInfoStatic.Status = "purchaseDate";
@@ -212,7 +212,7 @@ public class StorageManagementAdditionService
 
     public void PurchaseDateStatus(string WebHookEventMessage)
     {
-        var StorageStatus = StorageAdditionBaseClass.Instance;
+        var StorageStatus = StorageBaseClass.Instance;
         var dateString = WebHookEventMessage;
 
         _ReplyMessageListStatic = StorageStatus.GetRegularReply("請輸入有效日期(格式: YYYYMMDD):");
@@ -237,7 +237,7 @@ public class StorageManagementAdditionService
 
     public void ExpiryDateStatus(string WebHookEventMessage)
     {
-        var StorageStatus = StorageAdditionBaseClass.Instance;
+        var StorageStatus = StorageBaseClass.Instance;
         var dateString = WebHookEventMessage;
         if (dateString == null)
         {
@@ -265,7 +265,7 @@ public class StorageManagementAdditionService
 
     public void EditStatus(string WebHookEventMessage)
     {
-        var MethodGroup = StorageAdditionBaseClass.Instance;
+        var MethodGroup = StorageBaseClass.Instance;
         StringSlashAndColonToStorageInfo(
             WebHookEventMessage!,
             out StorageInfo StorageInfoData,
