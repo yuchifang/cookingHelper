@@ -5,9 +5,9 @@ using CookingHelper.Model;
 
 namespace CookingHelper.LineDtoService;
 
-class RecipeListAdditionBaseClass : UIWithData
+class RecipeListBaseClass : MessageUI
 {
-    public static RecipeListAdditionBaseClass Instance = new RecipeListAdditionBaseClass();
+    public static RecipeListBaseClass Instance = new RecipeListBaseClass();
 
     public FlexComponent DeleteButtonGroup(RecipeItem RecipeItem)
     {
@@ -32,7 +32,7 @@ class RecipeListAdditionBaseClass : UIWithData
         };
     }
 
-    public FlexComponent FlexComponentButtonGroup = new FlexComponent
+    public FlexComponent AddButtonGroup = new FlexComponent
     {
         Type = FlexComponentTypeEnum.Box,
         Layout = FlexComponentLayoutTypeEnum.Vertical,
@@ -68,7 +68,7 @@ class RecipeListAdditionBaseClass : UIWithData
     {
         if (InputFlexComponentButtonGroup == null)
         {
-            InputFlexComponentButtonGroup = FlexComponentButtonGroup;
+            InputFlexComponentButtonGroup = AddButtonGroup;
         }
 
         var RecipeTable = new List<FlexComponent>
@@ -76,8 +76,8 @@ class RecipeListAdditionBaseClass : UIWithData
             new FlexComponent { Type = FlexComponentTypeEnum.Separator, Margin = "xxl" },
             InputFlexComponentButtonGroup
         };
-        var RecipeInfoTable = GetRecipeInfoTable(RecipeItem);
-        RecipeTable.InsertRange(0, RecipeInfoTable);
+        var RecipeDetailTable = GetRecipeDetailTable(RecipeItem);
+        RecipeTable.InsertRange(0, RecipeDetailTable);
 
         var FlexBubbleContainer = new FlexBubbleContainer
         {
@@ -134,7 +134,7 @@ class RecipeListAdditionBaseClass : UIWithData
         return RecipeAdditionConfirmUIBlock;
     }
 
-    public List<FlexComponent> GetRecipeInfoTable(RecipeItem RecipeItem)
+    public List<FlexComponent> GetRecipeDetailTable(RecipeItem RecipeItem)
     {
         var IngredientsField = FieldFlexComponent(
             RecipeKeywordGroup.Ingredients,

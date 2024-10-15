@@ -55,7 +55,7 @@ public class StorageManagementService
             WebHookEventMessage = WebHookEventDto.Postback!.Data!;
         }
 
-        var MethodGroup = StorageSearchBaseClass.Instance;
+        var MethodGroup = StorageBaseClass.Instance;
         if (WebHookEventMessage == "返回")
         {
             _StorageStatic = "display";
@@ -227,12 +227,12 @@ public class StorageManagementService
             }
 
             var StorageFieldUIList = PaginatedStoreItem
-                .Select(MethodGroup.GetStorageUIField)
+                .Select(MethodGroup.GetStorageDetailField)
                 .ToList();
             _memoryCache.Set("StorageSearched", (IEnumerable<StoreItem>)PaginatedStoreItem);
             _ReplyMessageListStatic = new List<object>
             {
-                MethodGroup.GetStorageManagementUIBlock(
+                MethodGroup.GetStorageManagementFieldTable(
                     StorageFieldUIList,
                     hasNextPage,
                     hasPrevPage

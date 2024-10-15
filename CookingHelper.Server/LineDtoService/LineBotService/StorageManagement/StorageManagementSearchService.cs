@@ -35,7 +35,7 @@ public class StorageManagementSearchService
     public async Task SearchStorage(WebhookEventDto WebHookEventDto)
     {
         IQueryable<StoreItem> SearchResult = Enumerable.Empty<StoreItem>().AsQueryable();
-        var MethodGroup = StorageSearchBaseClass.Instance;
+        var MethodGroup = StorageBaseClass.Instance;
         string WebHookEventMessage = WebHookEventDto.Message!.Text!;
 
         if (WebHookEventMessage == "取消查詢" || WebHookEventMessage == "返回")
@@ -213,9 +213,9 @@ public class StorageManagementSearchService
 
     public void DeleteStorageInfoConfirmPostBack(WebhookEventDto WebHookEventDto)
     {
-        var MethodGroup = StorageSearchBaseClass.Instance;
+        var MethodGroup = StorageBaseClass.Instance;
         var StoreItem = JsonSerializer.Deserialize<StoreItem>(WebHookEventDto.Postback!.Data![1..]);
-        var StorageInfoTable = MethodGroup.GetStorageInfoTable(StoreItem!);
+        var StorageInfoTable = MethodGroup.GetStorageDetailTable(StoreItem!);
 
         var StorageTable = new List<FlexComponent>
         {
@@ -349,7 +349,7 @@ public class StorageManagementSearchService
         StorageInfo UserTypeStorageInfo
     )
     {
-        var MethodGroup = StorageSearchBaseClass.Instance;
+        var MethodGroup = StorageBaseClass.Instance;
         if (UserTypeStorageInfo.Place != null)
             _StorageEditInfoStatic.Place = UserTypeStorageInfo.Place;
         if (UserTypeStorageInfo.Name != null)

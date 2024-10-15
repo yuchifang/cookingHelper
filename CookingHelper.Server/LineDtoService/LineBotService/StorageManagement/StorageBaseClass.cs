@@ -7,11 +7,178 @@ using static CookingHelper.Utils;
 
 namespace CookingHelper.LineDtoService;
 
-public class StorageSearchBaseClass : UIWithData
+class StorageBaseClass : MessageUI
 {
-    public static StorageSearchBaseClass Instance = new StorageSearchBaseClass();
+    public static StorageBaseClass Instance = new StorageBaseClass();
+    public FlexComponent DefaultButtonGroup = new FlexComponent
+    {
+        Type = FlexComponentTypeEnum.Box,
+        Layout = FlexComponentLayoutTypeEnum.Vertical,
+        Contents = new List<FlexComponent>
+        {
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Button,
+                Action = new ActionDto
+                {
+                    Type = ActionTypeEnum.Message,
+                    Label = "新增",
+                    Text = "新增"
+                }
+            },
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Button,
+                Action = new ActionDto
+                {
+                    Type = ActionTypeEnum.Postback,
+                    Label = "修改",
+                    Data = "修改",
+                    InputOption = PostbackInputOptionEnum.OpenKeyboard
+                }
+            },
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Button,
+                Action = new ActionDto
+                {
+                    Type = ActionTypeEnum.Message,
+                    Label = "取消新增",
+                    Text = "取消新增",
+                }
+            }
+        }
+    };
 
-    public FlexComponent GetStorageUIField(StoreItem StoreItem, int index)
+    public List<object> GetStorageAdditionConfirmHint(
+        StorageInfo InputStorageInfoStatic,
+        FlexComponent? InputFlexComponentButtonGroup
+    )
+    {
+        if (InputFlexComponentButtonGroup == null)
+        {
+            InputFlexComponentButtonGroup = DefaultButtonGroup;
+        }
+
+        var StorageDetailTable = GetStorageDetailTable(InputStorageInfoStatic);
+
+        var StorageTable = new List<FlexComponent>
+        {
+            new FlexComponent { Type = FlexComponentTypeEnum.Separator, Margin = "xxl" },
+            InputFlexComponentButtonGroup!
+        };
+        StorageTable.InsertRange(0, StorageDetailTable);
+        return new List<object>
+        {
+            new FlexMessageObject<FlexBubbleContainer>
+            {
+                AltText = "庫存新增結果",
+                Contents = new FlexBubbleContainer
+                {
+                    Type = FlexContainerTypeEnum.Bubble,
+                    Styles = new FlexBubbleContainerStyle
+                    {
+                        Footer = new FlexBlockStyle { Separator = false }
+                    },
+                    Body = new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Box,
+                        Layout = FlexComponentLayoutTypeEnum.Vertical,
+
+                        Contents = StorageTable
+                    }
+                }
+            },
+        };
+    }
+
+    public List<FlexComponent> GetStorageDetailTable(StorageInfo StorageInfo)
+    {
+        var NameField = FieldFlexComponent(StorageManagementKeywordGroup.Name, StorageInfo.Name);
+        var AmountField = FieldFlexComponent(
+            StorageManagementKeywordGroup.Amount,
+            StorageInfo.Amount
+        );
+        var LocationField = FieldFlexComponent(
+            StorageManagementKeywordGroup.Location,
+            StorageInfo.Location
+        );
+        FlexComponent? PurchaseDateField;
+        if (StorageInfo.PurchaseDate != null)
+        {
+            string PurchaseDateString = DateOnlyToString(StorageInfo.PurchaseDate.Value, null);
+            PurchaseDateField = FieldFlexComponent(
+                StorageManagementKeywordGroup.PurchaseDate,
+                PurchaseDateString
+            );
+        }
+        else
+        {
+            PurchaseDateField = null;
+        }
+        FlexComponent? ExpiryDateField;
+        if (StorageInfo.ExpiryDate != null)
+        {
+            string ExpiryDateString = DateOnlyToString(StorageInfo.ExpiryDate.Value, null);
+
+            ExpiryDateField = FieldFlexComponent(
+                StorageManagementKeywordGroup.ExpiryDate,
+                ExpiryDateString
+            );
+        }
+        else
+        {
+            ExpiryDateField = null;
+        }
+
+        List<FlexComponent> FieldTable = new List<FlexComponent> { };
+
+        if (NameField != null)
+            FieldTable.Add(NameField);
+        if (AmountField != null)
+            FieldTable.Add(AmountField);
+        if (LocationField != null)
+            FieldTable.Add(LocationField);
+        if (PurchaseDateField != null)
+            FieldTable.Add(PurchaseDateField);
+        if (ExpiryDateField != null)
+            FieldTable.Add(ExpiryDateField);
+        return new List<FlexComponent>
+        {
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Box,
+                Layout = FlexComponentLayoutTypeEnum.Horizontal,
+                AlignItems = "center",
+                Contents = new List<FlexComponent>
+                {
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Text,
+                        Text = StorageManagementKeywordGroup.Place,
+                        Size = "md",
+                    },
+                    new FlexComponent
+                    {
+                        Type = FlexComponentTypeEnum.Text,
+                        Text = StorageInfo.Place,
+                        Size = "xl",
+                        Align = "end"
+                    }
+                }
+            },
+            new FlexComponent
+            {
+                Type = FlexComponentTypeEnum.Box,
+                Layout = FlexComponentLayoutTypeEnum.Vertical,
+                Margin = "xxl",
+                Spacing = "sm",
+                Contents = FieldTable
+            },
+        };
+    }
+
+    public FlexComponent GetStorageDetailField(StoreItem StoreItem, int index)
     {
         var LocationText = StoreItem.Location != null ? $" {StoreItem.Location}" : "";
         var AmountText = StoreItem.Amount != null ? $" {StoreItem.Amount}" : "";
@@ -44,7 +211,7 @@ public class StorageSearchBaseClass : UIWithData
         };
     }
 
-    public FlexMessageObject<FlexBubbleContainer> GetStorageManagementUIBlock(
+    public FlexMessageObject<FlexBubbleContainer> GetStorageManagementFieldTable(
         List<FlexComponent> StorageFieldUIList,
         bool hasNextPage,
         bool hasPrevPage
@@ -196,9 +363,9 @@ public class StorageSearchBaseClass : UIWithData
         };
     }
 
-    public FlexBubbleContainer GetFlexBubbleContainer(StoreItem StoreItem)
+    public FlexBubbleContainer GetResultItemUI(StoreItem StoreItem)
     {
-        var StorageInfoTable = GetStorageInfoTable(StoreItem);
+        var StorageDetailTable = GetStorageDetailTable(StoreItem);
         var StorageTable = new List<FlexComponent>
         {
             new FlexComponent { Type = FlexComponentTypeEnum.Separator, Margin = "xxl" },
@@ -243,7 +410,7 @@ public class StorageSearchBaseClass : UIWithData
                 }
             }
         };
-        StorageTable.InsertRange(0, StorageInfoTable);
+        StorageTable.InsertRange(0, StorageDetailTable);
         return new FlexBubbleContainer
         {
             Type = FlexContainerTypeEnum.Bubble,
@@ -257,13 +424,13 @@ public class StorageSearchBaseClass : UIWithData
         };
     }
 
-    public List<object> GetSearchResultItemList(List<StoreItem> StoreItemList)
+    public List<object> GetSearchResult(List<StoreItem> StoreItemList)
     {
-        var FlexCarouselContents = new List<FlexBubbleContainer>();
+        var SearchResultList = new List<FlexBubbleContainer>();
 
         foreach (StoreItem StoreItem in StoreItemList)
         {
-            FlexCarouselContents.Add(GetFlexBubbleContainer(StoreItem));
+            SearchResultList.Add(GetResultItemUI(StoreItem));
         }
 
         return new List<object>
@@ -274,7 +441,7 @@ public class StorageSearchBaseClass : UIWithData
                 Contents = new FlexCarouselContainer
                 {
                     Type = FlexContainerTypeEnum.Carousel,
-                    Contents = FlexCarouselContents
+                    Contents = SearchResultList
                 }
             }
         };
@@ -294,7 +461,7 @@ public class StorageSearchBaseClass : UIWithData
             out bool hasPrevPage
         );
 
-        var SearchGroup = GetSearchResultItemList(SearchedStoreItemQueryable.ToList());
+        var SearchGroup = GetSearchResult(SearchedStoreItemQueryable.ToList());
 
         if (hasNextPage && hasPrevPage)
         {
