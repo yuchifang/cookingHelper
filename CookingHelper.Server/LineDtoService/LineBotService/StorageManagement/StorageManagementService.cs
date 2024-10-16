@@ -121,7 +121,8 @@ public class StorageManagementService
 
         var UserListStoreList =
             await _storageManagementDatabaseService.GetUserListWithStoreListNoTracking(
-                WebHookEventDto!.Source!.UserId!
+                WebHookEventDto!.Source!.UserId!,
+                WebHookEventDto
             );
         if (WebHookEventMessage == KeywordGroup.StorageManagement)
         {

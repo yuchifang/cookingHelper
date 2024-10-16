@@ -32,7 +32,8 @@ public class ShoppingListService
         var ReplyMessageList = new List<TextMessageObject>();
 
         var UserList = await _shoppingListDatabaseService.GetUserList(
-            WebHookEventDto.Source!.UserId!
+            WebHookEventDto.Source!.UserId!,
+            WebHookEventDto
         );
 
         if (
@@ -45,7 +46,8 @@ public class ShoppingListService
             await _shoppingListDatabaseService.UpdateUserShoppingText(
                 null,
                 WebHookEventMessage,
-                UserList
+                UserList,
+                WebHookEventDto
             );
 
             await Init(WebHookEventDto);

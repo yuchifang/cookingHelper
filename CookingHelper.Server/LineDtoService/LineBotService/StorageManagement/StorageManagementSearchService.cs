@@ -61,7 +61,8 @@ public class StorageManagementSearchService
             _StorageEditInfoStatic.Status = "search";
             await _storageManagementDatabaseService.UpdateStoreItem(
                 _StorageEditInfoStatic,
-                WebHookEventDto.Source!.UserId!
+                WebHookEventDto.Source!.UserId!,
+                WebHookEventDto
             );
             _StorageEditInfoStatic = new SearchStorageEditInfo();
             await _storageManagementService.GetStorage(WebHookEventDto);
@@ -99,7 +100,8 @@ public class StorageManagementSearchService
             IQueryable<StoreItem>? SearchedStoreItem =
                 await _storageManagementDatabaseService.GetSearchedStoreItem(
                     WebHookEventMessage,
-                    WebHookEventDto.Source!.UserId!
+                    WebHookEventDto.Source!.UserId!,
+                    WebHookEventDto
                 );
 
             if (SearchedStoreItem.ToList().Count == 0)
@@ -180,7 +182,11 @@ public class StorageManagementSearchService
         var StoreItem = JsonSerializer.Deserialize<StoreItem>(WebHookEventDto.Postback!.Data![1..]);
         if (StoreItem != null)
         {
-            await _storageManagementDatabaseService.DeleteStoreItem(StoreItem, userId);
+            await _storageManagementDatabaseService.DeleteStoreItem(
+                StoreItem,
+                userId,
+                WebHookEventDto
+            );
         }
 
         LineBotService._ReplyMessageRequestStatic = new ReplyMessageRequestDto<object>
