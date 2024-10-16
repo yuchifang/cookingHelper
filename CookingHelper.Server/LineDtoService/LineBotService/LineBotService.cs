@@ -81,7 +81,8 @@ public class LineBotService
                 case WebhookEventTypeEnum.Follow:
                     Console.WriteLine($"使用者{WebHookEventDto.Source!.UserId}將我們新增為好友！");
                     await _shoppingListDatabaseService.AddEmptyShoppingListText(
-                        WebHookEventDto.Source!.UserId!
+                        WebHookEventDto.Source!.UserId!,
+                        WebHookEventDto
                     );
 
                     break;
@@ -103,7 +104,10 @@ public class LineBotService
 
         if (WebHookEventDto.Postback!.Data == "清空採買清單")
         {
-            await _shoppingListDatabaseService.EmptyShoppingText(WebHookEventDto.Source!.UserId);
+            await _shoppingListDatabaseService.EmptyShoppingText(
+                WebHookEventDto.Source!.UserId,
+                WebHookEventDto
+            );
             _WebhookEventStatusStatic = "";
             await _shoppingListService.Init(WebHookEventDto);
 
@@ -274,6 +278,21 @@ public class LineBotService
                 await _recipeListAdditionService.ImageContentStatusImageEvent(WebHookEventDto);
                 break;
         }
+    }
+
+    public async Task ErrorHandler(string ErrorText, WebhookEventDto WebHookEventDto)
+    {
+        await ReplyMessageHandler(
+            "text",
+            new ReplyMessageRequestDto<TextMessageObject>
+            {
+                ReplyToken = WebHookEventDto.ReplyToken!,
+                Messages = new List<TextMessageObject>
+                {
+                    new TextMessageObject { Text = "發生錯誤" + ErrorText, }
+                }
+            }
+        );
     }
 
     public async Task ReplyMessageHandler<T>(
