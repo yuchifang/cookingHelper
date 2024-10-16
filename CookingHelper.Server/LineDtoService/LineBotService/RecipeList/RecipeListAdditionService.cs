@@ -82,7 +82,8 @@ public class RecipeListAdditionService
             LineBotService._WebhookEventStatusStatic = KeywordGroup.RecipeList;
             await _recipeListDatabaseService.AddRecipe(
                 _InputRecipeInfoStatic,
-                WebHookEventDto.Source!.UserId!
+                WebHookEventDto.Source!.UserId!,
+                WebHookEventDto
             );
             _InputRecipeInfoStatic = new InputRecipeInfo();
             await _recipeListService.GetRecipeList(WebHookEventDto);

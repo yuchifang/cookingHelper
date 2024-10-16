@@ -58,7 +58,8 @@ public class StorageManagementAdditionService
         {
             await _storageManagementDatabaseService.AddStoreItemData(
                 WebHookEventDto.Source!.UserId!,
-                _InputStorageInfoStatic
+                _InputStorageInfoStatic,
+                WebHookEventDto
             );
             _InputStorageInfoStatic = new InputStorageInfo();
 

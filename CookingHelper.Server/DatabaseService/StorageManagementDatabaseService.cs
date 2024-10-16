@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using CookingHelper.Data;
+using CookingHelper.LineDto;
 using CookingHelper.LineDtoService;
 using CookingHelper.Model;
 using Microsoft.EntityFrameworkCore;
@@ -11,12 +12,21 @@ public class StorageManagementDatabaseService
 {
     private readonly UserListDbContext _userListDbContext;
 
-    public StorageManagementDatabaseService(UserListDbContext UserListDbContext)
+    private readonly IServiceProvider _ServiceProvider;
+
+    public StorageManagementDatabaseService(
+        UserListDbContext UserListDbContext,
+        IServiceProvider ServiceProvider
+    )
     {
+        _ServiceProvider = ServiceProvider;
         _userListDbContext = UserListDbContext;
     }
 
-    public async Task<UserListStoreList> GetUserListWithStoreListNoTracking(string userId)
+    public async Task<UserListStoreList> GetUserListWithStoreListNoTracking(
+        string userId,
+        WebhookEventDto WebhookEventDto
+    )
     {
         try
         {
@@ -33,15 +43,28 @@ public class StorageManagementDatabaseService
         {
             Console.WriteLine(ex.Message);
             Console.WriteLine(ex?.InnerException?.Message);
+            await _ServiceProvider
+                .GetService<LineBotService>()!
+                .ErrorHandler(
+                    $"${userId} GetUserListWithStoreListNoTracking Error",
+                    WebhookEventDto
+                );
             throw new Exception(nameof(ex));
         }
     }
 
-    public async Task<IQueryable<StoreItem>> GetSearchedStoreItem(string text, string userId)
+    public async Task<IQueryable<StoreItem>> GetSearchedStoreItem(
+        string text,
+        string userId,
+        WebhookEventDto WebhookEventDto
+    )
     {
         try
         {
-            var UserListStoreList = await GetUserListWithStoreListNoTracking(userId);
+            var UserListStoreList = await GetUserListWithStoreListNoTracking(
+                userId,
+                WebhookEventDto
+            );
             if (UserListStoreList != null)
             {
                 return UserListStoreList
@@ -60,11 +83,19 @@ public class StorageManagementDatabaseService
             Console.WriteLine("********");
             Console.WriteLine(ex?.InnerException?.Message);
             Console.WriteLine("********");
+            await _ServiceProvider
+                .GetService<LineBotService>()!
+                .ErrorHandler($"${userId} GetSearchedStoreItem Error", WebhookEventDto);
+
             throw new Exception(nameof(ex));
         }
     }
 
-    public async Task AddStoreItemData(string userId, InputStorageInfo InputStorageInfo)
+    public async Task AddStoreItemData(
+        string userId,
+        InputStorageInfo InputStorageInfo,
+        WebhookEventDto WebhookEventDto
+    )
     {
         try
         {
@@ -89,15 +120,25 @@ public class StorageManagementDatabaseService
             Console.WriteLine("********");
             Console.WriteLine(ex?.InnerException?.Message);
             Console.WriteLine("********");
+            await _ServiceProvider
+                .GetService<LineBotService>()!
+                .ErrorHandler($"${userId} AddStoreItemData Error", WebhookEventDto);
             throw new Exception(nameof(ex));
         }
     }
 
-    public async Task UpdateStoreItem(StoreItem StoreItem, string userId)
+    public async Task UpdateStoreItem(
+        StoreItem StoreItem,
+        string userId,
+        WebhookEventDto WebhookEventDto
+    )
     {
         try
         {
-            var UserListStoreList = await GetUserListWithStoreListNoTracking(userId);
+            var UserListStoreList = await GetUserListWithStoreListNoTracking(
+                userId,
+                WebhookEventDto
+            );
             if (UserListStoreList != null)
             {
                 StoreItem? UpdateItem = UserListStoreList.StoreList.Single(item =>
@@ -117,6 +158,9 @@ public class StorageManagementDatabaseService
                 }
                 else
                 {
+                    await _ServiceProvider
+                        .GetService<LineBotService>()!
+                        .ErrorHandler($"${userId} UpdateItem==null Error", WebhookEventDto);
                     throw new Exception("Error");
                 }
             }
@@ -127,15 +171,25 @@ public class StorageManagementDatabaseService
             Console.WriteLine("********");
             Console.WriteLine(ex?.InnerException?.Message);
             Console.WriteLine("********");
+            await _ServiceProvider
+                .GetService<LineBotService>()!
+                .ErrorHandler($"${userId} UpdateStoreItem", WebhookEventDto);
             throw new Exception(nameof(ex));
         }
     }
 
-    public async Task DeleteStoreItem(StoreItem StoreItem, string userId)
+    public async Task DeleteStoreItem(
+        StoreItem StoreItem,
+        string userId,
+        WebhookEventDto WebhookEventDto
+    )
     {
         try
         {
-            var UserListStoreList = await GetUserListWithStoreListNoTracking(userId);
+            var UserListStoreList = await GetUserListWithStoreListNoTracking(
+                userId,
+                WebhookEventDto
+            );
             if (UserListStoreList != null)
             {
                 StoreItem? RemoveItem = UserListStoreList.StoreList.Single(item =>
@@ -148,6 +202,9 @@ public class StorageManagementDatabaseService
                 }
                 else
                 {
+                    await _ServiceProvider
+                        .GetService<LineBotService>()!
+                        .ErrorHandler($"${userId} RemoveItem==null", WebhookEventDto);
                     throw new Exception("Error");
                 }
             }
@@ -158,6 +215,9 @@ public class StorageManagementDatabaseService
             Console.WriteLine("********");
             Console.WriteLine(ex?.InnerException?.Message);
             Console.WriteLine("********");
+            await _ServiceProvider
+                .GetService<LineBotService>()!
+                .ErrorHandler($"${userId} UpdateStoreItem", WebhookEventDto);
             throw new Exception(nameof(ex));
         }
     }

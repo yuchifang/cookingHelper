@@ -194,7 +194,7 @@ public class RecipeListService
         );
         if (RecipeItem != null)
         {
-            await _recipeListDatabaseService.DeleteRecipeItem(RecipeItem, userId);
+            await _recipeListDatabaseService.DeleteRecipeItem(RecipeItem, userId, WebHookEventDto);
             await GetRecipeList(WebHookEventDto);
         }
     }
