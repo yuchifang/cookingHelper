@@ -3,6 +3,7 @@ using CookingHelper.LineDto;
 using CookingHelper.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CookingHelper.Server.Test;
 
@@ -13,24 +14,27 @@ public class CookingHelperServerTest
     private UserListDbContext _userListDbContext;
 
     private DbContextOptions<UserListDbContext> _userListDbContextOptions;
-
+    private ServiceProvider _serviceProvider;
     private IConfiguration _configuration;
 
     [SetUp]
     public void Setup()
     {
+        // 建立 DbContextOptions
         _userListDbContextOptions = new DbContextOptionsBuilder<UserListDbContext>()
             .UseInMemoryDatabase(databaseName: "TestDatabase")
             .Options;
 
+        // 建立 DbContext
         _userListDbContext = new UserListDbContext(_userListDbContextOptions);
 
+        // 使用 ConfigurationBuilder 建立 IConfiguration 實例
         var inMemorySettings = new Dictionary<string, string> { { "SomeSetting", "SomeValue" } };
 
-        // 使用 ConfigurationBuilder 建立 IConfiguration 實例
         _configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings) // 使用內存中的 key-value 集合
             .Build();
+
         _userListDbContext.UserList.AddRange(
             new List<UserList>
             {
@@ -65,9 +69,15 @@ public class CookingHelperServerTest
             }
         );
         _userListDbContext.SaveChangesAsync();
+
+        // 建立 serviceProvider
+        var serviceCollection = new ServiceCollection();
+        _serviceProvider = serviceCollection.BuildServiceProvider();
+
         _recipeListDatabaseService = new RecipeListDatabaseService(
             _userListDbContext,
-            _configuration
+            _configuration,
+            _serviceProvider
         );
     }
 
