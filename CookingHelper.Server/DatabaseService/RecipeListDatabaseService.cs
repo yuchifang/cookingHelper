@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 using CookingHelper.Data;
+using CookingHelper.LineDto;
+using CookingHelper.LineDtoService;
 using CookingHelper.Model;
 using Microsoft.EntityFrameworkCore;
 using static CookingHelper.Utils;
@@ -8,14 +10,17 @@ public class RecipeListDatabaseService
 {
     private readonly UserListDbContext _userListDbContext;
     private readonly IConfiguration _configuration;
+    private readonly IServiceProvider _ServiceProvider;
 
     public RecipeListDatabaseService(
         UserListDbContext UserListDbContext,
-        IConfiguration configuration
+        IConfiguration configuration,
+        IServiceProvider ServiceProvider
     )
     {
         _userListDbContext = UserListDbContext;
         _configuration = configuration;
+        _ServiceProvider = ServiceProvider;
     }
 
     public async Task<UserListRecipeList> GetRecipeList(string userId)
@@ -30,7 +35,11 @@ public class RecipeListDatabaseService
         return UserList;
     }
 
-    public async Task AddRecipe(RecipeItem RecipeItem, string userId)
+    public async Task AddRecipe(
+        RecipeItem RecipeItem,
+        string userId,
+        WebhookEventDto WebHookEventDto
+    )
     {
         try
         {
@@ -52,11 +61,17 @@ public class RecipeListDatabaseService
             Console.WriteLine("********");
             Console.WriteLine(ex?.InnerException?.Message);
             Console.WriteLine("********");
-            throw new Exception(nameof(ex));
+            await _ServiceProvider
+                .GetService<LineBotService>()!
+                .ErrorHandler($"${userId} AddRecipe Error", WebHookEventDto);
         }
     }
 
-    public async Task DeleteRecipeItem(RecipeItem RecipeItem, string userId)
+    public async Task DeleteRecipeItem(
+        RecipeItem RecipeItem,
+        string userId,
+        WebhookEventDto WebHookEventDto
+    )
     {
         try
         {
@@ -82,7 +97,9 @@ public class RecipeListDatabaseService
                 }
                 else
                 {
-                    throw new Exception("Error");
+                    await _ServiceProvider
+                        .GetService<LineBotService>()!
+                        .ErrorHandler($"${userId} RemoveItem = null", WebHookEventDto);
                 }
             }
         }
@@ -92,7 +109,9 @@ public class RecipeListDatabaseService
             Console.WriteLine("********");
             Console.WriteLine(ex?.InnerException?.Message);
             Console.WriteLine("********");
-            throw new Exception(nameof(ex));
+            await _ServiceProvider
+                .GetService<LineBotService>()!
+                .ErrorHandler($"${userId} DeleteRecipeItem Error", WebHookEventDto);
         }
     }
 

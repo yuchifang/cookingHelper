@@ -1,4 +1,6 @@
 using CookingHelper.Data;
+using CookingHelper.LineDto;
+using CookingHelper.LineDtoService;
 using CookingHelper.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,12 +10,18 @@ public class ShoppingListDatabaseService
 {
     private readonly UserListDbContext _userListDbContext;
 
-    public ShoppingListDatabaseService(UserListDbContext UserListDbContext)
+    private readonly IServiceProvider _ServiceProvider;
+
+    public ShoppingListDatabaseService(
+        UserListDbContext UserListDbContext,
+        IServiceProvider ServiceProvider
+    )
     {
         _userListDbContext = UserListDbContext;
+        _ServiceProvider = ServiceProvider;
     }
 
-    public async Task<UserList> GetUserList(string userId)
+    public async Task<UserList> GetUserList(string userId, WebhookEventDto WebHookEventDto)
     {
         try
         {
@@ -25,15 +33,18 @@ public class ShoppingListDatabaseService
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred: {ex.Message}");
+            await _ServiceProvider
+                .GetService<LineBotService>()!
+                .ErrorHandler($"${userId} GetUserList Error", WebHookEventDto);
             throw new Exception(nameof(ex));
         }
     }
 
-    public async Task AddEmptyShoppingListText(string userId)
+    public async Task AddEmptyShoppingListText(string userId, WebhookEventDto WebHookEventDto)
     {
         try
         {
-            var UserList = await GetUserList(userId);
+            var UserList = await GetUserList(userId, WebHookEventDto);
             if (UserList == null)
             {
                 await _userListDbContext.UserList.AddAsync(
@@ -45,14 +56,18 @@ public class ShoppingListDatabaseService
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred:  {ex.Message}");
+            await _ServiceProvider
+                .GetService<LineBotService>()!
+                .ErrorHandler($"${userId} AddEmptyShoppingListText Error", WebHookEventDto);
+            throw new Exception("AddEmptyShoppingListText Error");
         }
     }
 
-    public async Task EmptyShoppingText(string? userId)
+    public async Task EmptyShoppingText(string? userId, WebhookEventDto WebHookEventDto)
     {
         try
         {
-            var UserData = await GetUserList(userId!);
+            var UserData = await GetUserList(userId!, WebHookEventDto);
             if (UserData != null)
             {
                 UserData.ShoppingListText = "";
@@ -61,6 +76,9 @@ public class ShoppingListDatabaseService
             }
             else
             {
+                await _ServiceProvider
+                    .GetService<LineBotService>()!
+                    .ErrorHandler($"${userId} EmptyShoppingText Error", WebHookEventDto);
                 throw new Exception("EmptyShoppingText Error");
             }
         }
@@ -73,14 +91,15 @@ public class ShoppingListDatabaseService
     public async Task UpdateUserShoppingText(
         string? userId,
         string UpdateShoppingText,
-        UserList? UserDataInput
+        UserList? UserDataInput,
+        WebhookEventDto WebHookEventDto
     )
     {
         if (UserDataInput == null)
         {
             try
             {
-                var UserData = await GetUserList(userId!);
+                var UserData = await GetUserList(userId!, WebHookEventDto);
                 if (UserData != null)
                 {
                     UserData.ShoppingListText = UpdateShoppingText;
@@ -91,6 +110,10 @@ public class ShoppingListDatabaseService
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred:  {ex.Message}");
+                await _ServiceProvider
+                    .GetService<LineBotService>()!
+                    .ErrorHandler($"${userId} UpdateUserShoppingText Error", WebHookEventDto);
+                throw new Exception("UpdateUserShoppingText Error");
             }
         }
         else
@@ -105,6 +128,10 @@ public class ShoppingListDatabaseService
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred:  {ex.Message}");
+                await _ServiceProvider
+                    .GetService<LineBotService>()!
+                    .ErrorHandler($"${userId} UpdateUserShoppingText Error", WebHookEventDto);
+                throw new Exception("UpdateUserShoppingText Error");
             }
         }
     }
