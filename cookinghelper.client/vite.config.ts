@@ -3,8 +3,9 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
 import dotenv from "dotenv";
-
-dotenv.config();
+if (process.env.NODE_ENV !== 'production') {
+    dotenv.config();
+}
 
 const certFileContent = process.env.COOKINGHELPER_CERT_PEM;
 const keyFileContent = process.env.COOKINGHELPER_CERT_KEY;
