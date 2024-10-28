@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
@@ -12,22 +11,28 @@ import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import ForgotPassword from '../ForgotPassword';
-import { useFetcher, useSubmit } from 'react-router-dom';
+import { Params, useActionData, useFetcher } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import Alert from '@mui/material/Alert';
 /*
     ? Content-Type 連結紀錄
     application/json
     ? submit 可以 submit FormData
-    ? FormData 是甚麼        
+    ? FormData 是甚麼   
+    ! 紀錄 useActionData    
+    <Form method="post"> or useSubmit() 才使用
+    使用 fetcher.data 資料會存在這邊
+    onSubmit 可以覆蓋
+    material UI 
+        TextField 功能
+    
+    fetcher.formdata 使用方式
+
+    ? 加入 eslint?? dotnet ??
 */
 
-
-
-export async function action({ params, request }: { params: any, request: any }) {
-
-    //? action request type, params type
+export async function action({ params, request }: { params: Params, request: Request }) {
     let formData: FormData = await request.formData();
-    console.log("params", params)
-    console.log("request", formData);
 
     const response = await fetch("api/account/login", {
         method: 'POST',
@@ -36,10 +41,17 @@ export async function action({ params, request }: { params: any, request: any })
         },
         body: JSON.stringify({ email: formData.get("email"), password: formData.get("password") })
     });
-    console.log("response", response)
-    const data = await response.json();
-    console.log("data", data);
-    return null;
+    const responseData = await response.json();
+
+    if (!response.ok) {
+
+        return responseData;
+    } else {
+
+    }
+
+    console.log("data", responseData);
+    // 做換頁
 }
 
 
@@ -88,13 +100,22 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export function SignInPage(props: { disableCustomTheme?: boolean }) {
-    const [emailError, setEmailError] = React.useState(false);
-    const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
-    const [passwordError, setPasswordError] = React.useState(false);
-    const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-    const [open, setOpen] = React.useState(false);
+    const [emailError, setEmailError] = useState(false);
+    const [emailErrorMessage, setEmailErrorMessage] = useState('');
+    const [passwordError, setPasswordError] = useState(false);
+    const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+    const [open, setOpen] = useState(false);
     let fetcher = useFetcher();
+    const response = fetcher.data;
 
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const submitFormData = new FormData(event.currentTarget);
+        if (validateInputs()) {
+            fetcher.submit(submitFormData, { method: "post", action: "/" })
+        }
+    }
 
 
     const handleClickOpen = () => {
@@ -105,42 +126,7 @@ export function SignInPage(props: { disableCustomTheme?: boolean }) {
         setOpen(false);
     };
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        const submitFormData = new FormData(event.currentTarget);
-        console.log(submitFormData);
-        event.preventDefault();
-        if (emailError || passwordError) {
-            console.log("error123");
-            return;
-        }
-        let submit = useSubmit();
-        console.log("error");
-        submit(submitFormData, { method: 'POST', action: "/" });
-        console.log("error2");
 
-        /*
-        ? submit 可以 submit FormData
-        ? FormData 是甚麼
-        const response = await fetch("api/account/login", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email: submitFormData.get("email"), password: submitFormData.get("password") })
-        });
-        const data = await response.json();
-        */
-        /*
-            ? Content-Type 連結紀錄
-            application/json
-            
-        */
-
-        //? proxy 設定 紀錄page
-        // console.log(data);
-        // 做換頁
-
-    };
 
     const validateInputs = () => {
         const email = document.getElementById('email') as HTMLInputElement;
@@ -180,11 +166,8 @@ export function SignInPage(props: { disableCustomTheme?: boolean }) {
                     >
                         Sign in
                     </Typography>
-                    <fetcher.Form method="post" action="/">
+                    <fetcher.Form method="post" onSubmit={handleSubmit} >
                         <Box
-                            // component="div"
-                            // onSubmit={handleSubmit}
-                            // noValidate
                             sx={{
                                 display: 'flex',
                                 flexDirection: 'column',
@@ -244,6 +227,9 @@ export function SignInPage(props: { disableCustomTheme?: boolean }) {
                                 control={<Checkbox value="remember" color="primary" />}
                                 label="Remember me"
                             />
+                            {response && <Alert severity="error">
+                                {response.message}
+                            </Alert>}
                             <ForgotPassword open={open} handleClose={handleClose} />
                             <Button
                                 type="submit"
