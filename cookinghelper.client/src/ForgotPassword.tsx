@@ -6,11 +6,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import OutlinedInput from "@mui/material/OutlinedInput";
-// test
 
 interface ForgotPasswordProps {
   open: boolean;
-  data?: () => void;
   handleClose: () => void;
 }
 
