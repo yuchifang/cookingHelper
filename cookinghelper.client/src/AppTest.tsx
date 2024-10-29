@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 interface Forecast {
-  date: string; temperatureC: number;
+  date: string;
+  temperatureC: number;
   temperatureF: number;
   summary: string;
 }
 
 function AppTest() {
-  const [forecasts, setForecasts] = useState<Forecast[]>();
+  const [forecasts,
+    setForecasts] = useState<Forecast[]>();
 
   useEffect(() => {
     populateWeatherData();
