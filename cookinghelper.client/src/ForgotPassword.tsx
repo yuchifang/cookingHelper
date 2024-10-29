@@ -38,8 +38,7 @@ export default function ForgotPassword({
           link to reset your password.
         </DialogContentText>
         <OutlinedInput
-          autoFocus
-          required
+          autoFocus required
           margin="dense"
           id="email"
           name="email"
