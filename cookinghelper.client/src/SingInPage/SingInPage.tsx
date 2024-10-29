@@ -26,13 +26,9 @@ import Alert from "@mui/material/Alert";
     換頁
     SingInPage
 
-    測試
 */
 
-export async function action({
-  params,
-  request,
-}: {
+export async function action({ params, request, }: {
   params: Params;
   request: Request;
 }) {
