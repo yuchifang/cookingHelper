@@ -29,8 +29,7 @@ import Alert from "@mui/material/Alert";
 */
 
 export async function action({
-  params,
-  request,
+  params, request,
 }: {
   params: Params;
   request: Request;
