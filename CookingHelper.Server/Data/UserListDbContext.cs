@@ -9,9 +9,9 @@ public class UserListDbContext : DbContext
         : base(options) { }
 
     public DbSet<UserList> UserList { get; set; }
-
     public DbSet<StoreItem> StoreItem { get; set; }
     public DbSet<RecipeItem> RecipeItem { get; set; }
+    public DbSet<Account> Account { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -48,6 +48,10 @@ public class UserListDbContext : DbContext
             .Entity<RecipeItem>()
             .Property(RecipeItem => RecipeItem.RecipeItemId)
             .ValueGeneratedOnAdd();
+
+        modelBuilder.Entity<Account>().HasKey(Account => Account.AccountId);
+
+        modelBuilder.Entity<Account>().Property(Account => Account.AccountId).ValueGeneratedOnAdd();
 
         modelBuilder.Entity<UserList>().ToTable("UserList");
 
