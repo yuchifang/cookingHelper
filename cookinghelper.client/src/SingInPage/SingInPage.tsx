@@ -11,52 +11,16 @@ import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
 import ForgotPassword from "../ForgotPassword";
-import { Params, useActionData, useFetcher } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Params, useFetcher, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import Alert from "@mui/material/Alert";
 /*
-   ? FormData 是甚麼   
-    
-        
-    ? 加入 eslint?? dotnet ??
+   
+    換頁 SingInPage    
     ? fetcher.formdata 使用方式
     ? loader 觸發時機  只有在換頁或是action 呼叫時在會觸發(action 呼叫時在會觸發?
     <Form method="post" action="/songs" />;  action 為送到哪個路由的 action?
-
-    換頁
-    SingInPage
-    test
 */
-
-export async function action({
-  params,
-  request,
-}: {
-  params: Params;
-  request: Request;
-}) {
-  let formData: FormData = await request.formData();
-
-  const response = await fetch("api/account/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email: formData.get("email"),
-      password: formData.get("password"),
-    }),
-  });
-  const responseData = await response.json();
-
-  if (!response.ok) {
-    return responseData;
-  } else {
-  }
-
-  console.log("data", responseData);
-  // 做換頁
-}
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -100,14 +64,42 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
   },
 }));
 
-export function SignInPage(props: { disableCustomTheme?: boolean }) {
+export async function action({
+  request,
+}: {
+  params: Params;
+  request: Request;
+}) {
+  const formData: FormData = await request.formData();
+
+  const response = await fetch("api/account/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email: formData.get("email"),
+      password: formData.get("password"),
+    }),
+  });
+
+  const responseData = await response.json();
+  return responseData;
+}
+
+export function SignInPage() {
   const [emailError, setEmailError] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [open, setOpen] = useState(false);
-  let fetcher = useFetcher();
-  const response = fetcher.data;
+  const navigate = useNavigate();
+  const fetcher = useFetcher();
+  const responseData = fetcher.data;
+  if (responseData && !("message" in responseData)) {
+    navigate("/admin", { state: responseData });
+    return;
+  }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -224,7 +216,9 @@ export function SignInPage(props: { disableCustomTheme?: boolean }) {
                 control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
               />
-              {response && <Alert severity="error">{response.message}</Alert>}
+              {responseData && (
+                <Alert severity="error">{responseData.message}</Alert>
+              )}
               <ForgotPassword open={open} handleClose={handleClose} />
               <Button
                 type="submit"
