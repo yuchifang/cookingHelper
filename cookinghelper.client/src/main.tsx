@@ -5,12 +5,11 @@ import AdminPage from "./AdminPage";
 import "./index.css";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import AppTEST from "./AppTest";
 
 /*
   login後 進 /admin 的 route
 */
-const router = createBrowserRouter([SingInPage, AppTEST, AdminPage]);
+const router = createBrowserRouter([SingInPage, AdminPage]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
