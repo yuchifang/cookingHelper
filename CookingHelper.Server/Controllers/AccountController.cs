@@ -32,7 +32,8 @@ public class AccountController : ControllerBase
         /*
             寫登入
             驗證是不是 email 後端也寫
-            限制 Permission 的 value
+            限制 Permission 的 value 
+            guest admin
             
             完成 route
             登入 => 跳到 分析的 Page
