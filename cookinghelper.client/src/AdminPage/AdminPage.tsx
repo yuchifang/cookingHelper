@@ -4,31 +4,62 @@ import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import { useState } from "react";
 import { styled } from "@mui/material/styles";
+import Button from "@mui/material/Button";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
 }
+/*
+  fangfelipe@gmail.com
+  123456
+  admin
 
-// 建立 styled page
+  test@gmail.com
+  123456
+  guest
+*/
 
+/*
+  ? 分頁上的 icon
+
+  ?成功創建帳號 開提示
+    https://mui.com/material-ui/react-snackbar/
+  
+  ?右上角登出 
+*/
 export function AdminPage() {
   const [value, setValue] = useState(0);
 
   const location = useLocation();
-  console.log("location", location);
+  let userInfo;
+  if ("userInfo" in location.state) {
+    userInfo = location.state.userInfo;
+  } else {
+    throw new Error("AdminPage locationData error");
+  }
+
+  console.log("locationData", userInfo);
+
+  const tabList = [<Tab label="使用分析" sx={{ fontSize: "25px" }} />];
+  if (userInfo.permission == "admin") {
+    tabList.push(<Tab label="帳號管理" sx={{ fontSize: "25px" }} />);
+  }
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
   return (
     <AdminPageContainer>
-      <Box>
+      <HeaderContainer>
         <Tabs value={value} onChange={handleChange}>
-          <Tab label="使用分析" sx={{ fontSize: "25px" }} />
-          <Tab label="帳號管理" sx={{ fontSize: "25px" }} />
+          {tabList}
         </Tabs>
-      </Box>
+        <Button variant="outlined" sx={{ fontSize: "23px" }}>
+          登出
+        </Button>
+      </HeaderContainer>
       <CustomTabPanel value={value} index={0}>
         分析
       </CustomTabPanel>
@@ -44,7 +75,7 @@ function CustomTabPanel(props: TabPanelProps) {
 
   return (
     <div hidden={value !== index} {...other}>
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ p: 3, color: "black" }}>{children}</Box>}
     </div>
   );
 }
@@ -53,4 +84,9 @@ const AdminPageContainer = styled(Box)(() => ({
   minWidth: "1360px",
   width: "100%",
   height: "100%",
+}));
+
+const HeaderContainer = styled(Box)(() => ({
+  display: "flex",
+  justifyContent: "space-between",
 }));
