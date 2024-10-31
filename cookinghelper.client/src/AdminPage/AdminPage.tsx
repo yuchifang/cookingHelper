@@ -21,6 +21,7 @@ interface TabPanelProps {
 */
 
 /*
+  ? //? 帳號判斷要用 session 嗎?  chatgpt
   ? 分頁上的 icon
 
   ?成功創建帳號 開提示
@@ -28,6 +29,8 @@ interface TabPanelProps {
   
   ?右上角登出 
 */
+const tabList = [<Tab label="使用分析" sx={{ fontSize: "25px" }} />];
+
 export function AdminPage() {
   const [value, setValue] = useState(0);
 
@@ -41,7 +44,6 @@ export function AdminPage() {
 
   console.log("locationData", userInfo);
 
-  const tabList = [<Tab label="使用分析" sx={{ fontSize: "25px" }} />];
   if (userInfo.permission == "admin") {
     tabList.push(<Tab label="帳號管理" sx={{ fontSize: "25px" }} />);
   }
