@@ -11,10 +11,10 @@
     "prepare": "cd .. && husky cookinghelper.client/.husky"
   },
   "lint-staged": {
-    "src/**": [
-      "eslint --fix",
-      "prettier --write --ignore-unknown"
-    ]
+    "src/**/**.{ts,tsx}": [
+      "eslint --fix"
+    ],
+    "src/**": "prettier --write --ignore-unknown"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",
