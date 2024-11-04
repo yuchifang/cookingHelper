@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace CookingHelper.LineDto;
 
 public class WebhookEventDto
@@ -5,6 +7,8 @@ public class WebhookEventDto
     public string Type { get; set; } = default!; // 事件類型
     public string Mode { get; set; } = default!; // Channel state : active | standby
     public long Timestamp { get; set; } // 事件發生時間 : event occurred time in milliseconds
+
+    [JsonPropertyName("source")]
     public SourceDto? Source { get; set; } // 事件來源 : user | group chat | multi-person chat
     public string WebhookEventId { get; set; } = default!; // webhook event id - ULID format
     public DeliverycontextDto DeliveryContext { get; set; } = default!; // 是否為重新傳送之事件 DeliveryContext.IsRedelivery : true | false
@@ -35,6 +39,8 @@ public class Params
 public class SourceDto
 {
     public string Type { get; set; } = default!;
+
+    [JsonPropertyName("userId")]
     public string? UserId { get; set; }
     public string? GroupId { get; set; }
     public string? RoomId { get; set; }
