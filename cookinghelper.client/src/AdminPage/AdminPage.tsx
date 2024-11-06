@@ -29,9 +29,9 @@ interface TabPanelProps {
   
   ?右上角登出 
 */
-const tabList = [<Tab label="使用分析" sx={{ fontSize: "25px" }} />];
 
 export function AdminPage() {
+  const tabList = [<Tab label="使用分析" sx={{ fontSize: "25px" }} />];
   const [value, setValue] = useState(0);
 
   const location = useLocation();
@@ -71,7 +71,13 @@ export function AdminPage() {
     </AdminPageContainer>
   );
 }
+// 使用 recharts 完成圖表
+// 使用 https://codesandbox.io/p/sandbox/simple-bar-chart-72d7y5?file=%2Fsrc%2FApp.tsx
 
+// Y軸 次數=> 在當天有使用的人數
+// X軸 時間=>
+// 操作不同功能呈現不同圖表
+//? 在 server 建立 middleware 看看可不可以取的使用者的 ID 並記錄
 function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
