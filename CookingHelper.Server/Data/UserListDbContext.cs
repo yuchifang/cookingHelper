@@ -13,6 +13,8 @@ public class UserListDbContext : DbContext
     public DbSet<RecipeItem> RecipeItem { get; set; }
     public DbSet<Account> Account { get; set; }
 
+    public DbSet<ApiLog> ApiLog { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserList>(entityBuilder =>
@@ -53,10 +55,18 @@ public class UserListDbContext : DbContext
 
         modelBuilder.Entity<Account>().Property(Account => Account.AccountId).ValueGeneratedOnAdd();
 
+        modelBuilder.Entity<ApiLog>().HasKey(ApiLog => ApiLog.Id);
+
+        modelBuilder.Entity<ApiLog>().Property(ApiLog => ApiLog.Id).ValueGeneratedOnAdd();
+
         modelBuilder.Entity<UserList>().ToTable("UserList");
 
         modelBuilder.Entity<StoreItem>().ToTable("StoreItem");
 
         modelBuilder.Entity<RecipeItem>().ToTable("RecipeItem");
+
+        modelBuilder.Entity<Account>().ToTable("Account");
+
+        modelBuilder.Entity<ApiLog>().ToTable("ApiLog");
     }
 }
