@@ -1,5 +1,7 @@
+using System.Text.Json;
 using CookingHelper.Data;
 using CookingHelper.DatabaseService;
+using CookingHelper.LineDto;
 using CookingHelper.LineDtoService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -11,12 +13,12 @@ namespace CookingHelper.Server
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            // builder.Services.AddApplicationInsightsTelemetry();
+
             builder.Logging.ClearProviders().AddConsole();
             builder.Services.AddMemoryCache();
             builder.Services.AddHttpClient();
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             if (builder.Environment.IsDevelopment())
@@ -64,6 +66,14 @@ namespace CookingHelper.Server
 
             var app = builder.Build();
 
+            app.UseWhen(
+                context => context.Request.Path.StartsWithSegments("/api/LineBot/Webhook"),
+                appBuilder =>
+                {
+                    appBuilder.UseMiddleware<ApiLoggingMiddleware>();
+                }
+            );
+
             app.UseDefaultFiles();
             app.UseStaticFiles(
                 new StaticFileOptions
@@ -79,7 +89,6 @@ namespace CookingHelper.Server
                 }
             );
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
