@@ -7,7 +7,7 @@ namespace CookingHelper.LineDtoService
 {
     public class RichMenuService
     {
-        private static HttpClient client = new HttpClient();
+        private readonly HttpClient client = new HttpClient();
         private readonly JsonProvider _jsonProvider = new JsonProvider();
         private readonly string validateRichMenuUri =
             "https://api.line.me/v2/bot/richmenu/validate";
