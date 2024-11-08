@@ -1,20 +1,25 @@
 using System.Text.Json;
 using CookingHelper.Data;
 using CookingHelper.LineDto;
+using CookingHelper.Service;
+
+namespace CookingHelper.Middleware;
 
 public class ApiLoggingMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ApiLogService _apiLogService;
 
-    public ApiLoggingMiddleware(RequestDelegate next)
+    public ApiLoggingMiddleware(RequestDelegate next, ApiLogService apiLogService)
     {
         _next = next;
+        _apiLogService = apiLogService;
     }
 
     // Y軸 次數=> 在當天有使用的人數
     // X軸 時間=>
     // 操作不同功能呈現不同圖表
-    // todo 修改此 page
+
     public async Task InvokeAsync(HttpContext context)
     {
         var nowDate = DateTime.UtcNow;
@@ -30,20 +35,10 @@ public class ApiLoggingMiddleware
         }
 
         await _next(context);
+        var ApiLogDic = _apiLogService.GetLogs();
+        if (ApiLogDic.ContainsKey(UserId))
+            return;
 
-        var apiLog = new ApiLog
-        {
-            // UTC+0
-            LogTime = nowDate,
-            UserId = UserId
-        };
-
-        using (var scope = context.RequestServices.CreateScope())
-        {
-            var service = scope.ServiceProvider;
-            var dbContext = service.GetRequiredService<UserListDbContext>();
-            dbContext.ApiLog.Add(apiLog);
-            await dbContext.SaveChangesAsync();
-        }
+        _apiLogService.AddLog(UserId, nowDate);
     }
 }
