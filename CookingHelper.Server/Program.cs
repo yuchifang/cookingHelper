@@ -3,6 +3,8 @@ using CookingHelper.Data;
 using CookingHelper.DatabaseService;
 using CookingHelper.LineDto;
 using CookingHelper.LineDtoService;
+using CookingHelper.Middleware;
+using CookingHelper.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -42,6 +44,8 @@ namespace CookingHelper.Server
                     );
                 });
             }
+            builder.Services.AddHostedService<ApiLogBackgroundService>();
+            builder.Services.AddSingleton<ApiLogService, ApiLogService>();
             builder.Services.AddScoped<LineBotService, LineBotService>();
             builder.Services.AddScoped<RichMenuService, RichMenuService>();
             builder.Services.AddScoped<ShoppingListDatabaseService, ShoppingListDatabaseService>();
