@@ -2,9 +2,9 @@ namespace CookingHelper.Service;
 
 public class ApiLogService
 {
-    private readonly Dictionary<string, DateTime> _logs = new Dictionary<string, DateTime>();
+    private readonly Dictionary<string, long> _logs = new Dictionary<string, long>();
 
-    public void AddLog(string userId, DateTime time)
+    public void AddLog(string userId, long time)
     {
         lock (_logs)
         {
@@ -12,16 +12,16 @@ public class ApiLogService
         }
     }
 
-    public Dictionary<string, DateTime> GetLogs()
+    public Dictionary<string, long> GetLogs()
     {
         return _logs;
     }
 
-    public Dictionary<string, DateTime> GetAndClearLogs()
+    public Dictionary<string, long> GetAndClearLogs()
     {
         lock (_logs)
         {
-            var logsToSave = new Dictionary<string, DateTime>(_logs);
+            var logsToSave = new Dictionary<string, long>(_logs);
             _logs.Clear();
             return logsToSave;
         }
