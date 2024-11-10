@@ -22,7 +22,8 @@ public class ApiLoggingMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var nowDate = DateTime.UtcNow;
+        var utcNowDate = DateTime.UtcNow;
+        var msTimestamp = new DateTimeOffset(utcNowDate).ToUnixTimeMilliseconds();
 
         context.Request.EnableBuffering();
         string UserId;
@@ -31,7 +32,14 @@ public class ApiLoggingMiddleware
             var body = await reader.ReadToEndAsync();
             context.Request.Body.Position = 0;
             var requestBody = JsonSerializer.Deserialize<WebhookRequestBodyDto>(body);
-            UserId = requestBody!.Events[0].Source!.UserId!;
+            if (requestBody != null && requestBody.Events != null && requestBody.Events.Count != 0)
+            {
+                UserId = requestBody!.Events[0].Source!.UserId!;
+            }
+            else
+            {
+                return;
+            }
         }
 
         await _next(context);
@@ -39,6 +47,6 @@ public class ApiLoggingMiddleware
         if (ApiLogDic.ContainsKey(UserId))
             return;
 
-        _apiLogService.AddLog(UserId, nowDate);
+        _apiLogService.AddLog(UserId, msTimestamp);
     }
 }
