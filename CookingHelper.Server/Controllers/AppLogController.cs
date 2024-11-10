@@ -14,10 +14,13 @@ public class AppLogController : ControllerBase
     }
 
     [HttpGet("getLogList")]
-    public async Task<ActionResult> GetLogList(DateTime startTime, DateTime endTime)
+    public async Task<ActionResult> GetLogList(string startTime, string endTime)
     {
+        var startTimeLong = Convert.ToInt64(startTime);
+        var endTimeLong = Convert.ToInt64(endTime);
+
         var logList = await _userListDbContext
-            .ApiLog.Where(item => startTime <= item.LogTime && item.LogTime <= endTime)
+            .ApiLog.Where(item => startTimeLong >= item.LogTime && item.LogTime >= endTimeLong)
             .ToListAsync();
 
         return Ok(logList);
