@@ -1,15 +1,17 @@
-import { useLocation } from "react-router-dom";
+import { useLoaderData, useLocation } from "react-router-dom";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import { useState } from "react";
 import { styled } from "@mui/material/styles";
 import Button from "@mui/material/Button";
+import AnalyzeBlock from "./AnalyzeBlock";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
 }
+
 /*
   fangfelipe@gmail.com
   123456
@@ -21,19 +23,64 @@ interface TabPanelProps {
 */
 
 /*
-  ? //? 帳號判斷要用 session 嗎?  chatgpt
-  ? 分頁上的 icon
+  todo 分析 page
+  ? 建立 loader fetch 資料
+  ? 印象 loader react-router-dom 有些東西要釐清
+  todo 調整一個參數 觸發 Form? 或是觸發 state 透過 rerender 觸發 loader?
 
+  ?? X軸的值超過100個 想辦法計算成100個
+  使用 recharts 完成圖表
+  使用 https://codesandbox.io/p/sandbox/simple-bar-chart-72d7y5?file=%2Fsrc%2FApp.tsx
+
+  ?? 用 react router dom 的 state 判斷登入狀態安全嗎
+  ? //? 帳號判斷要用 session 嗎?  chatgpt
+
+
+  todo 建立帳號的 page
   ?成功創建帳號 開提示
     https://mui.com/material-ui/react-snackbar/
   
   ?右上角登出 
+
+  ? 登入, 註冊 加入 loading 
+
+  ?忘記密碼
+    email 後端也寫
+
+  
+  
 */
+
+// Y軸 次數=> 在當天有使用的人數
+// X軸 時間=>
+// 操作不同功能呈現不同圖表
+//! 進行 dotnet migration
+//! 紀錄 HTTP GET
+//? 在這邊預設時間
+export async function loader() {
+  // ?先設定預設時間 現在, 到前7天
+  // 先把 UTC+8的時間轉成 UTC時間, 再轉成msTimeStamp
+
+  const startUTCZTimestamp = Date.parse(new Date(Date.now()).toISOString());
+  const endUTCZTimestamp = Date.parse(
+    new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+  );
+
+  const response = await fetch(
+    `api/applog/getLogList?startTime=${startUTCZTimestamp}&endTime=${endUTCZTimestamp}`,
+    {
+      method: "GET",
+    },
+  );
+  const responseData = await response.json();
+  return responseData;
+}
 
 export function AdminPage() {
   const tabList = [<Tab label="使用分析" sx={{ fontSize: "25px" }} />];
   const [value, setValue] = useState(0);
-
+  const loader = useLoaderData();
+  console.log(loader);
   const location = useLocation();
   let userInfo;
   if ("userInfo" in location.state) {
@@ -41,8 +88,6 @@ export function AdminPage() {
   } else {
     throw new Error("AdminPage locationData error");
   }
-
-  console.log("locationData", userInfo);
 
   if (userInfo.permission == "admin") {
     tabList.push(<Tab label="帳號管理" sx={{ fontSize: "25px" }} />);
@@ -63,7 +108,7 @@ export function AdminPage() {
         </Button>
       </HeaderContainer>
       <CustomTabPanel value={value} index={0}>
-        分析
+        <AnalyzeBlock loader={loader} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         帳號
@@ -71,13 +116,7 @@ export function AdminPage() {
     </AdminPageContainer>
   );
 }
-// 使用 recharts 完成圖表
-// 使用 https://codesandbox.io/p/sandbox/simple-bar-chart-72d7y5?file=%2Fsrc%2FApp.tsx
 
-// Y軸 次數=> 在當天有使用的人數
-// X軸 時間=>
-// 操作不同功能呈現不同圖表
-//? 在 server 建立 middleware 看看可不可以取的使用者的 ID 並記錄
 function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
