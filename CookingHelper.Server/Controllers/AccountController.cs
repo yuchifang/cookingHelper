@@ -29,18 +29,6 @@ public class AccountController : ControllerBase
             return BadRequest(new { message = "This email address is already registered." });
         }
 
-        /*
-            寫登入
-            驗證是不是 email 後端也寫
-            限制 Permission 的 value 
-            guest admin
-            
-            完成 route
-            登入 => 跳到 分析的 Page
-            分析的 page 有分析, 更建立帳號
-            
-        */
-
         string passwordHash = BCrypt.HashPassword(request.Password, workFactor: 11);
         var account = new Account
         {
