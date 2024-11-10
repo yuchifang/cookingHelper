@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import { useState } from "react";
 import { styled } from "@mui/material/styles";
 import Button from "@mui/material/Button";
-import AnalyzeBlock from "./AnalyzeBlock";
+import AnalyzeBlock, { Log } from "./AnalyzeBlock";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -79,7 +79,7 @@ export async function loader() {
 export function AdminPage() {
   const tabList = [<Tab label="使用分析" sx={{ fontSize: "25px" }} />];
   const [value, setValue] = useState(0);
-  const loader = useLoaderData();
+  const loader: Log[] = useLoaderData() as Log[];
   console.log(loader);
   const location = useLocation();
   let userInfo;
