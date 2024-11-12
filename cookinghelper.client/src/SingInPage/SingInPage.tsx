@@ -12,7 +12,7 @@ import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/system";
 import ForgotPassword from "../ForgotPassword";
 import { Params, useFetcher, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 /*
    
@@ -54,11 +54,18 @@ export function SignInPage() {
   const navigate = useNavigate();
   const fetcher = useFetcher();
   const responseData = fetcher.data;
-  if (responseData && !("message" in responseData)) {
-    navigate("/admin", { state: { userInfo: responseData } });
-    //? 帳號判斷要用 session 嗎?
-    return;
+  console.log({ responseData });
+  let dependency: React.DependencyList = [responseData];
+  if (responseData) {
+    dependency = [responseData, responseData.accountId];
   }
+
+  useEffect(() => {
+    if (responseData && !("message" in responseData)) {
+      navigate("/admin", { state: { userInfo: responseData } });
+      //? 帳號判斷要用 session 嗎?
+    }
+  }, dependency);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -175,7 +182,7 @@ export function SignInPage() {
                 control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
               />
-              {responseData && (
+              {responseData && responseData.message && (
                 <Alert severity="error">{responseData.message}</Alert>
               )}
               <ForgotPassword open={open} handleClose={handleClose} />
