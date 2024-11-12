@@ -29,6 +29,15 @@ interface TabPanelProps {
   ? 印象 loader react-router-dom 有些東西要釐清
   todo 調整一個參數 觸發 Form? 或是觸發 state 透過 rerender 觸發 loader?
 
+  ? 時間用 setState 處理
+  ? 時間 起始時間 大於 結束時間出現錯誤
+  todo 建 useEffect 如果 上述兩個 state 改變則 做一次更新
+  todo 並看看 loader 狀況
+  todo 傳資料給 loader ??
+  todo 建立 router page
+
+
+
   ?? X軸的值超過100個 想辦法計算成100個
   使用 recharts 完成圖表
   使用 https://codesandbox.io/p/sandbox/simple-bar-chart-72d7y5?file=%2Fsrc%2FApp.tsx
@@ -52,30 +61,28 @@ interface TabPanelProps {
   
 */
 
-// Y軸 次數=> 在當天有使用的人數
-// X軸 時間=>
-// 操作不同功能呈現不同圖表
 //! 進行 dotnet migration
 //! 紀錄 HTTP GET
 //? 在這邊預設時間
-// export async function loader() {
-//   // ?先設定預設時間 現在, 到前7天
-//   // 先把 UTC+8的時間轉成 UTC時間, 再轉成msTimeStamp
+export async function loader() {
+  console.log("loader");
+  // ?先設定預設時間 現在, 到前7天
+  // 先把 UTC+8的時間轉成 UTC時間, 再轉成msTimeStamp
 
-//   const startUTCZTimestamp = Date.parse(new Date(Date.now()).toISOString());
-//   const endUTCZTimestamp = Date.parse(
-//     new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
-//   );
+  const endUTCZTimestamp = Date.parse(new Date(Date.now()).toISOString());
+  const startUTCZTimestamp = Date.parse(
+    new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+  );
 
-//   const response = await fetch(
-//     `api/applog/getLogList?startTime=${startUTCZTimestamp}&endTime=${endUTCZTimestamp}`,
-//     {
-//       method: "GET",
-//     },
-//   );
-//   const responseData = await response.json();
-//   return responseData;
-// }
+  const response = await fetch(
+    `api/applog/getLogList?startTime=${startUTCZTimestamp}&endTime=${endUTCZTimestamp}`,
+    {
+      method: "GET",
+    },
+  );
+  const responseData = await response.json();
+  return responseData;
+}
 
 export function AdminPage() {
   const tabList = [<Tab label="系統分析" sx={{ fontSize: "25px" }} />];
@@ -83,6 +90,7 @@ export function AdminPage() {
   const loader: Log[] = useLoaderData() as Log[];
   console.log(loader);
   const location = useLocation();
+  console.log({ location });
   let userInfo;
   if ("userInfo" in location.state) {
     userInfo = location.state.userInfo;
@@ -110,7 +118,6 @@ export function AdminPage() {
       </HeaderContainer>
       <CustomTabPanel value={value} index={0}>
         <AnalyzeBlock loader={loader} />
-        {/* <AnalyzeBlock /> */}
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         帳號
