@@ -19,13 +19,13 @@ export default function DateUnitButton() {
       <MenuButtonStyled>選擇時間單位</MenuButtonStyled>
       <Menu slots={{ listbox: AnimatedListbox }}>
         <MenuItemStyled onClick={createHandleMenuClick("Profile")}>
-          Profile
+          周
         </MenuItemStyled>
         <MenuItemStyled onClick={createHandleMenuClick("Language settings")}>
-          Language settings
+          月
         </MenuItemStyled>
         <MenuItemStyled onClick={createHandleMenuClick("Log out")}>
-          Log out
+          年
         </MenuItemStyled>
       </Menu>
     </Dropdown>
@@ -140,12 +140,12 @@ const MenuItemStyled = styled(MenuItem)(
 
 const MenuButtonStyled = styled(MenuButton)(
   () => `
-  
+    letter-spacing: 1.5px;
     font-family: 'IBM Plex Sans', sans-serif;
-    font-weight: 600;
-    font-size: 0.875rem;
+    
+    font-size: 1rem;
     line-height: 1.5;
-    padding: 8px 16px;
+    padding: 7px 9px;
     border-radius: 8px;
     color: white;
     transition: all 150ms ease;
