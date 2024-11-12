@@ -9,7 +9,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
-import { styled } from "@mui/material/styles";
+import { styled } from "@mui/system";
 import ForgotPassword from "../ForgotPassword";
 import { Params, useFetcher, useNavigate } from "react-router-dom";
 import { useState } from "react";
