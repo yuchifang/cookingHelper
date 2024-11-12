@@ -3,7 +3,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import { useState } from "react";
-import { styled } from "@mui/material/styles";
+import { styled } from "@mui/system";
 import Button from "@mui/material/Button";
 import AnalyzeBlock, { Log } from "./AnalyzeBlock";
 interface TabPanelProps {
@@ -13,6 +13,7 @@ interface TabPanelProps {
 }
 
 /*
+  ? 前後端做 Trim
   fangfelipe@gmail.com
   123456
   admin
@@ -57,27 +58,27 @@ interface TabPanelProps {
 //! 進行 dotnet migration
 //! 紀錄 HTTP GET
 //? 在這邊預設時間
-export async function loader() {
-  // ?先設定預設時間 現在, 到前7天
-  // 先把 UTC+8的時間轉成 UTC時間, 再轉成msTimeStamp
+// export async function loader() {
+//   // ?先設定預設時間 現在, 到前7天
+//   // 先把 UTC+8的時間轉成 UTC時間, 再轉成msTimeStamp
 
-  const startUTCZTimestamp = Date.parse(new Date(Date.now()).toISOString());
-  const endUTCZTimestamp = Date.parse(
-    new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
-  );
+//   const startUTCZTimestamp = Date.parse(new Date(Date.now()).toISOString());
+//   const endUTCZTimestamp = Date.parse(
+//     new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+//   );
 
-  const response = await fetch(
-    `api/applog/getLogList?startTime=${startUTCZTimestamp}&endTime=${endUTCZTimestamp}`,
-    {
-      method: "GET",
-    },
-  );
-  const responseData = await response.json();
-  return responseData;
-}
+//   const response = await fetch(
+//     `api/applog/getLogList?startTime=${startUTCZTimestamp}&endTime=${endUTCZTimestamp}`,
+//     {
+//       method: "GET",
+//     },
+//   );
+//   const responseData = await response.json();
+//   return responseData;
+// }
 
 export function AdminPage() {
-  const tabList = [<Tab label="使用分析" sx={{ fontSize: "25px" }} />];
+  const tabList = [<Tab label="系統分析" sx={{ fontSize: "25px" }} />];
   const [value, setValue] = useState(0);
   const loader: Log[] = useLoaderData() as Log[];
   console.log(loader);
@@ -109,6 +110,7 @@ export function AdminPage() {
       </HeaderContainer>
       <CustomTabPanel value={value} index={0}>
         <AnalyzeBlock loader={loader} />
+        {/* <AnalyzeBlock /> */}
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         帳號
