@@ -20,7 +20,7 @@ public class AppLogController : ControllerBase
         var endTimeLong = Convert.ToInt64(endTime);
 
         var logList = await _userListDbContext
-            .ApiLog.Where(item => startTimeLong >= item.LogTime && item.LogTime >= endTimeLong)
+            .ApiLog.Where(item => endTimeLong >= item.LogTime && item.LogTime >= startTimeLong)
             .ToListAsync();
 
         return Ok(logList);
