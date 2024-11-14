@@ -71,6 +71,7 @@ public class AppLogController : ControllerBase
         {
             if (dateUnit == "day")
             {
+                // 統計 logList的資料,並去除重複的
                 var BarChartDic = logList
                     .Select(entry => new
                     { //! 轉 UTC +8
@@ -85,7 +86,7 @@ public class AppLogController : ControllerBase
                         Count = group.Count()
                     })
                     .ToDictionary(entry => entry.Date, entry => entry.Count);
-
+                // 依時間單位,時間範圍產生 所有的空資料, 有值則填值
                 var BarChartData = Enumerable
                     .Range(0, (endDateTime - startDateTime).Days + 1)
                     .Select(offset => startDateTime.AddDays(offset))
