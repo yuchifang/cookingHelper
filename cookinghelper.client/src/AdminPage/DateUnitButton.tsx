@@ -18,13 +18,13 @@ export default function DateUnitButton() {
     <Dropdown>
       <MenuButtonStyled>選擇時間單位</MenuButtonStyled>
       <Menu slots={{ listbox: AnimatedListbox }}>
-        <MenuItemStyled onClick={createHandleMenuClick("Profile")}>
-          周
+        <MenuItemStyled onClick={createHandleMenuClick("day")}>
+          日
         </MenuItemStyled>
-        <MenuItemStyled onClick={createHandleMenuClick("Language settings")}>
+        <MenuItemStyled onClick={createHandleMenuClick("month")}>
           月
         </MenuItemStyled>
-        <MenuItemStyled onClick={createHandleMenuClick("Log out")}>
+        <MenuItemStyled onClick={createHandleMenuClick("year")}>
           年
         </MenuItemStyled>
       </Menu>
