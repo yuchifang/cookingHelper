@@ -12,11 +12,6 @@ public class ApiLogService
         }
     }
 
-    public Dictionary<string, long> GetLogs()
-    {
-        return _logs;
-    }
-
     public Dictionary<string, long> GetAndClearLogs()
     {
         lock (_logs)
