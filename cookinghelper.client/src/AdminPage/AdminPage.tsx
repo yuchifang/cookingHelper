@@ -1,11 +1,11 @@
-import { useLoaderData, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import { useState } from "react";
 import { styled } from "@mui/system";
 import Button from "@mui/material/Button";
-import AnalyzeBlock, { Log } from "./AnalyzeBlock";
+import AnalyzeBlock from "./AnalyzeBlock";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -60,37 +60,16 @@ interface TabPanelProps {
   
 */
 
-//! 進行 dotnet migration
+// todo 把 前端的更新時間, 單位 接上 api
+// todo 確認 loader 呼叫時機
+
 //! 紀錄 HTTP GET
 //? 在這邊預設時間
-export async function loader() {
-  console.log("loader");
-  // ?先設定預設時間 現在, 到前7天
-  // 先把 UTC+8的時間轉成 UTC時間, 再轉成msTimeStamp
-
-  const endUtcZMSTimestamp = Date.parse(
-    new Date(Math.ceil(Date.now() / 1000)).toISOString(),
-  );
-  const startUtcZMSTimestamp = Date.parse(
-    new Date(Math.ceil(Date.now() / 1000) - 60 * 60 * 24 * 7).toISOString(),
-  );
-
-  //!UTC+0
-  const response = await fetch(
-    `api/applog/getLogList?startTime=${startUtcZMSTimestamp}&endTime=${endUtcZMSTimestamp}&dateUnit=day`,
-    {
-      method: "GET",
-    },
-  );
-  const responseData = await response.json();
-  return responseData;
-}
 
 export function AdminPage() {
   const tabList = [<Tab label="系統分析" sx={{ fontSize: "25px" }} />];
   const [value, setValue] = useState(0);
-  const loader: Log[] = useLoaderData() as Log[];
-  console.log(loader);
+
   const location = useLocation();
   console.log({ location });
   let userInfo;
@@ -108,6 +87,7 @@ export function AdminPage() {
     setValue(newValue);
   };
 
+  //! 這邊的 tabs 要改成 Route 的寫法??
   return (
     <AdminPageContainer>
       <HeaderContainer>
@@ -119,7 +99,7 @@ export function AdminPage() {
         </Button>
       </HeaderContainer>
       <CustomTabPanel value={value} index={0}>
-        <AnalyzeBlock loader={loader} />
+        <AnalyzeBlock />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         帳號
