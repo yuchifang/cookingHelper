@@ -19,35 +19,56 @@ import DateUnitButton from "./DateUnitButton";
 import { useEffect, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import Alert from "@mui/material/Alert";
+import { getBarChart } from "../api";
 
-export interface Log {
-  id: number;
-  logTime: number;
-  userId: string;
+interface Log {
+  count: number;
+  date: string;
 }
 //! 怎麼上到 azure
 //! check azure cost
+/*
+  todo 把 前端的更新時間, 單位 接上 api
+  todo 
+*/
 
 //! todo dayJs Ms?
-export default function AnalyzeBlock({ loader }: { loader: Log[] }) {
-  const [startTime, setStartTime] = useState<Dayjs | null>(dayjs("2022-04-10"));
-  const [endTime, setEndTime] = useState<Dayjs | null>(dayjs("2022-04-17"));
+export default function AnalyzeBlock() {
+  const [startTime, setStartTime] = useState<Dayjs | null>(
+    dayjs.unix(Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 7),
+  );
+  const [endTime, setEndTime] = useState<Dayjs | null>(dayjs(Date.now()));
+  const [dateUnit, setDateUnit] = useState<"day" | "month" | "year">("day");
   const [dateRangeHasError, setDateRangeHasError] = useState(false);
-  const msStartTime = startTime!.valueOf();
-  const msEndTime = endTime!.valueOf();
+  const [barChart, setBarChart] = useState<Log[] | null>(null);
+
+  const dateUnitDisplay =
+    dateUnit == "day" ? "日" : dateUnit == "month" ? "月" : "年";
 
   useEffect(() => {
-    if (msStartTime >= msEndTime) {
+    // 建立一個 Page for react 處理 api
+    const secondStartTime = startTime!.unix();
+    const secondEndTime = endTime!.unix();
+    async function runAsync() {
+      const responseData = await getBarChart({
+        startUtcZSecondTimestamp: secondStartTime,
+        endUtcZSecondTimestamp: secondEndTime,
+        dateUnit: dateUnit,
+      });
+
+      setBarChart(responseData);
+    }
+    if (secondStartTime >= secondEndTime) {
       setDateRangeHasError(true);
     } else {
       setDateRangeHasError(false);
+      runAsync();
     }
-  }, [endTime, startTime]);
+  }, [endTime, startTime, dateUnit]);
 
   console.log({ startTime });
   console.log({ endTime });
 
-  console.log({ loader });
   // todo 建立假資料
   // todo 用 SQL
 
@@ -85,33 +106,38 @@ export default function AnalyzeBlock({ loader }: { loader: Log[] }) {
           </LocalizationProvider>
         </DateBlock>
       </DateRangeBlock>
+
       <BarChartBlock>
-        <ResponsiveContainer
-          style={{ marginBottom: "15px" }}
-          width={"100%"}
-          height={300}
-        >
-          <BarChart
-            data={loader}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#B3CDAD" activeBar={false} />
-          </BarChart>
-        </ResponsiveContainer>
-        <XAxisDateUnit>月</XAxisDateUnit>
-        <YAxisFrequencyUnit>次數</YAxisFrequencyUnit>
+        {barChart && (
+          <>
+            <ResponsiveContainer
+              style={{ marginBottom: "15px" }}
+              width={"100%"}
+              height={300}
+            >
+              <BarChart
+                data={barChart!}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#B3CDAD" activeBar={false} />
+              </BarChart>
+            </ResponsiveContainer>
+            <XAxisDateUnit>{dateUnitDisplay}</XAxisDateUnit>
+            <YAxisFrequencyUnit>次數</YAxisFrequencyUnit>
+          </>
+        )}
       </BarChartBlock>
       <DateUnitBlock>
-        <DateUnitButton />
+        <DateUnitButton setDateUnit={setDateUnit} />
       </DateUnitBlock>
     </AnalyzeContainer>
   );

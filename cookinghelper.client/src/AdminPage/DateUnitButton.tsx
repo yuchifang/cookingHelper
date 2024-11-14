@@ -8,10 +8,15 @@ import { CssTransition } from "@mui/base/Transitions";
 
 import { styled } from "@mui/system";
 
-export default function DateUnitButton() {
-  const createHandleMenuClick = (menuItem: string) => {
+export default function DateUnitButton({
+  setDateUnit,
+}: {
+  setDateUnit: React.Dispatch<React.SetStateAction<"day" | "month" | "year">>;
+}) {
+  //! 紀錄 Typescript page
+  const createHandleMenuClick = (menuItem: "day" | "month" | "year") => {
     return () => {
-      console.log(`Clicked on ${menuItem}`);
+      setDateUnit(menuItem);
     };
   };
   return (
