@@ -28,15 +28,14 @@ interface TabPanelProps {
   ? 建立 loader fetch 資料
   ? 印象 loader react-router-dom 有些東西要釐清
   todo 調整一個參數 觸發 Form? 或是觸發 state 透過 rerender 觸發 loader?
-
-  ? 時間用 setState 處理
-  ? 時間 起始時間 大於 結束時間出現錯誤
-  todo 建 useEffect 如果 上述兩個 state 改變則 做一次更新
+  
   todo 並看看 loader 狀況
   todo 傳資料給 loader ??
-  todo 建立 router page
+  todo 把目前的 router 建立 page
 
 
+  todo here 建立圖表 用假資料
+  
 
   ?? X軸的值超過100個 想辦法計算成100個
   使用 recharts 完成圖表
@@ -69,13 +68,16 @@ export async function loader() {
   // ?先設定預設時間 現在, 到前7天
   // 先把 UTC+8的時間轉成 UTC時間, 再轉成msTimeStamp
 
-  const endUTCZTimestamp = Date.parse(new Date(Date.now()).toISOString());
-  const startUTCZTimestamp = Date.parse(
-    new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+  const endUtcZMSTimestamp = Date.parse(
+    new Date(Math.ceil(Date.now() / 1000)).toISOString(),
+  );
+  const startUtcZMSTimestamp = Date.parse(
+    new Date(Math.ceil(Date.now() / 1000) - 60 * 60 * 24 * 7).toISOString(),
   );
 
+  //!UTC+0
   const response = await fetch(
-    `api/applog/getLogList?startTime=${startUTCZTimestamp}&endTime=${endUTCZTimestamp}`,
+    `api/applog/getLogList?startTime=${startUtcZMSTimestamp}&endTime=${endUtcZMSTimestamp}&dateUnit=day`,
     {
       method: "GET",
     },
