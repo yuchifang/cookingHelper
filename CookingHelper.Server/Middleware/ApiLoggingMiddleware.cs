@@ -22,8 +22,9 @@ public class ApiLoggingMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
+        //! UTC+0 確認
         var utcNowDate = DateTime.UtcNow;
-        var msTimestamp = new DateTimeOffset(utcNowDate).ToUnixTimeMilliseconds();
+        var sTimestamp = new DateTimeOffset(utcNowDate).ToUnixTimeSeconds();
 
         context.Request.EnableBuffering();
         string UserId;
@@ -43,10 +44,7 @@ public class ApiLoggingMiddleware
         }
 
         await _next(context);
-        var ApiLogDic = _apiLogService.GetLogs();
-        if (ApiLogDic.ContainsKey(UserId))
-            return;
 
-        _apiLogService.AddLog(UserId, msTimestamp);
+        _apiLogService.AddLog(UserId, sTimestamp);
     }
 }
