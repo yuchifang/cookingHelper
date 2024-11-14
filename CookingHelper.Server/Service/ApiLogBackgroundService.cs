@@ -19,7 +19,7 @@ public class ApiLogBackgroundService : BackgroundService
         {
             //todo 測試 每分鐘更新一次,
             // 正式 每天更新一次
-            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
+            await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
             Console.WriteLine("ApiLogBackgroundService 正在執行");
             var logDic = _apiLogService.GetAndClearLogs();
             if (logDic.Count != 0)
