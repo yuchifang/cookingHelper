@@ -14,13 +14,6 @@ import ForgotPassword from "../ForgotPassword";
 import { Params, useFetcher, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
-/*
-   
-    換頁 SingInPage    
-    ? fetcher.formdata 使用方式
-    ? loader 觸發時機  只有在換頁或是action 呼叫時在會觸發(action 呼叫時在會觸發?
-    <Form method="post" action="/songs" />;  action 為送到哪個路由的 action?
-*/
 
 export async function action({
   request,

@@ -8,9 +8,6 @@ import GlobalStyles from "@mui/material/GlobalStyles";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorElement from "./ErrorElement";
 
-/*
-  login後 進 /admin 的 route
-*/
 const router = createBrowserRouter([
   SingInPage,
   {

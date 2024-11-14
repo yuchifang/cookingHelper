@@ -25,14 +25,7 @@ interface Log {
   count: number;
   date: string;
 }
-//! 怎麼上到 azure
-//! check azure cost
-/*
-  todo 把 前端的更新時間, 單位 接上 api
-  todo 
-*/
 
-//! todo dayJs Ms?
 export default function AnalyzeBlock() {
   const [startTime, setStartTime] = useState<Dayjs | null>(
     dayjs.unix(Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 7),
@@ -46,7 +39,7 @@ export default function AnalyzeBlock() {
     dateUnit == "day" ? "日" : dateUnit == "month" ? "月" : "年";
 
   useEffect(() => {
-    // 建立一個 Page for react 處理 api
+    //todo 建立一個 Page for react 處理 api
     const secondStartTime = startTime!.unix();
     const secondEndTime = endTime!.unix();
     async function runAsync() {
@@ -68,9 +61,6 @@ export default function AnalyzeBlock() {
 
   console.log({ startTime });
   console.log({ endTime });
-
-  // todo 建立假資料
-  // todo 用 SQL
 
   return (
     <AnalyzeContainer>
