@@ -12,7 +12,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Rectangle,
   ResponsiveContainer,
 } from "recharts";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -47,55 +46,11 @@ export default function AnalyzeBlock({ loader }: { loader: Log[] }) {
 
   console.log({ startTime });
   console.log({ endTime });
-  console.log("ms 轉 dayjs", dayjs(1318781876000));
-  console.log("dayjs 轉 ms", dayjs("2019-01-25").valueOf());
 
-  console.log(loader);
+  console.log({ loader });
+  // todo 建立假資料
+  // todo 用 SQL
 
-  const data = [
-    {
-      name: "Page A",
-      uv: 4000,
-      pv: 2400,
-      amt: 2400,
-    },
-    {
-      name: "Page B",
-      uv: 3000,
-      pv: 1398,
-      amt: 2210,
-    },
-    {
-      name: "Page C",
-      uv: 2000,
-      pv: 9800,
-      amt: 2290,
-    },
-    {
-      name: "Page D",
-      uv: 2780,
-      pv: 3908,
-      amt: 2000,
-    },
-    {
-      name: "Page E",
-      uv: 1890,
-      pv: 4800,
-      amt: 2181,
-    },
-    {
-      name: "Page F",
-      uv: 2390,
-      pv: 3800,
-      amt: 2500,
-    },
-    {
-      name: "Page G",
-      uv: 3490,
-      pv: 4300,
-      amt: 2100,
-    },
-  ];
   return (
     <AnalyzeContainer>
       <DateRangeBlock>
@@ -137,7 +92,7 @@ export default function AnalyzeBlock({ loader }: { loader: Log[] }) {
           height={300}
         >
           <BarChart
-            data={data}
+            data={loader}
             margin={{
               top: 5,
               right: 30,
@@ -146,19 +101,10 @@ export default function AnalyzeBlock({ loader }: { loader: Log[] }) {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
+            <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
-            <Bar
-              dataKey="uv"
-              fill="#B3CDAD"
-              activeBar={<Rectangle fill="pink" stroke="blue" />}
-            />
-            <Bar
-              dataKey="pv"
-              fill="#FF5F5E"
-              activeBar={<Rectangle fill="gold" stroke="purple" />}
-            />
+            <Bar dataKey="count" fill="#B3CDAD" activeBar={false} />
           </BarChart>
         </ResponsiveContainer>
         <XAxisDateUnit>月</XAxisDateUnit>
@@ -220,4 +166,7 @@ const YAxisFrequencyUnit = styled.p`
 const BarChartBlock = styled.div`
   position: relative;
   width: 100%;
+  .recharts-tooltip-cursor {
+    visibility: hidden;
+  }
 `;
