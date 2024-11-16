@@ -14,8 +14,8 @@ export async function getBarChart({
         method: "GET",
       },
     );
-    const responseData = await response.json();
-    return responseData;
+
+    return response;
   } catch (error) {
     console.log(error);
     throw error;
