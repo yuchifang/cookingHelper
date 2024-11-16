@@ -37,18 +37,20 @@ export default function AnalyzeBlock() {
 
   const dateUnitDisplay =
     dateUnit == "day" ? "日" : dateUnit == "month" ? "月" : "年";
-
+  console.log({ dateUnit });
   useEffect(() => {
     //todo 建立一個 Page for react 處理 api
     const secondStartTime = startTime!.unix();
     const secondEndTime = endTime!.unix();
     async function runAsync() {
-      const responseData = await getBarChart({
+      const response = await getBarChart({
         startUtcZSecondTimestamp: secondStartTime,
         endUtcZSecondTimestamp: secondEndTime,
         dateUnit: dateUnit,
       });
-
+      console.log(response);
+      const responseData = await response.json();
+      console.log(responseData);
       setBarChart(responseData);
     }
     if (secondStartTime >= secondEndTime) {
@@ -167,11 +169,12 @@ const DateUnitBlock = muiStyled(Box)(() => ({
 
 const XAxisDateUnit = styled.p`
   position: absolute;
-  bottom: 15px;
+  bottom: 2px;
   right: 15px;
   font-size: 25px;
   font-weight: bold;
 `;
+
 const YAxisFrequencyUnit = styled.p`
   position: absolute;
   top: -35px;
@@ -179,9 +182,11 @@ const YAxisFrequencyUnit = styled.p`
   font-size: 25px;
   font-weight: bold;
 `;
+
 const BarChartBlock = styled.div`
   position: relative;
   width: 100%;
+  margin-bottom: 5px;
   .recharts-tooltip-cursor {
     visibility: hidden;
   }
