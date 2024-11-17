@@ -24,7 +24,7 @@ public class AppLogController : ControllerBase
         var startTimeLong = Convert.ToInt64(startTime);
         var endTimeLong = Convert.ToInt64(endTime);
 
-        List<ApiLog>? logList = await _userListDbContext
+        List<ApiLog>? dateRangeLog = await _userListDbContext
             .ApiLog.Where(item => endTimeLong >= item.LogTime && item.LogTime >= startTimeLong)
             .ToListAsync();
         /*
@@ -47,10 +47,13 @@ public class AppLogController : ControllerBase
 
         //! 加 alert
         //! 只要 string 前五個字
+
+
+        //! normal 11/10 號頭有問題 here
         if (dateUnit == "day")
         {
             // 統計 logList的資料,並去除重複的
-            var BarChartList = logList
+            var noRepeatValueLogGroup = dateRangeLog
                 .Select(entry => new
                 { //! 轉 UTC +8
                     Date = DateTimeOffset.FromUnixTimeSeconds(entry.LogTime).LocalDateTime.Date,
@@ -67,24 +70,21 @@ public class AppLogController : ControllerBase
             unit = 60 * 60 * 24;
             if ((endTimeLong - startTimeLong) / unit > 100)
             {
-                var BarChartListList = BarChartList.OrderBy(entry => entry.Date).ToList();
+                var logGroupData = noRepeatValueLogGroup.OrderBy(entry => entry.Date).ToList();
                 var limitCount = 100;
-                var random = new Random();
                 var offset = (endDateTime - startDateTime) / limitCount;
-                Console.WriteLine(offset + "offset");
-                Console.WriteLine(startDateTime + "startDateTime");
-                Console.WriteLine(endDateTime + "endDateTime");
+
                 // 依時間單位,時間範圍產生 所有的空資料, 有值則填值
-                var DateList = Enumerable
+                var BarChartAdjustData = Enumerable
                     .Range(1, limitCount)
-                    .Select((space) => startDateTime.Add(offset * space))
+                    .Select((spaceCount) => startDateTime.Add(offset * spaceCount))
                     //! UTC+8
                     .Select(date => DateOnly.FromDateTime(date.ToLocalTime()))
                     .Select(date =>
                     {
                         var tempCount = 0;
                         var itemsToRemove = new List<ChatBar>();
-                        foreach (ChatBar barChartItem in BarChartListList)
+                        foreach (ChatBar barChartItem in logGroupData)
                         {
                             if (barChartItem.Date < date)
                             {
@@ -94,17 +94,20 @@ public class AppLogController : ControllerBase
                         }
                         foreach (var item in itemsToRemove)
                         {
-                            BarChartListList.Remove(item);
+                            logGroupData.Remove(item);
                         }
                         return new { Date = date.ToString("yyyy-MM-dd"), Count = tempCount };
                     })
                     .OrderBy(entry => entry.Date)
                     .ToList();
 
-                return Ok(DateList);
+                return Ok(BarChartAdjustData);
             }
 
-            var BarChartDic = BarChartList.ToDictionary(entry => entry.Date, entry => entry.Count);
+            var logGroupDic = noRepeatValueLogGroup.ToDictionary(
+                entry => entry.Date,
+                entry => entry.Count
+            );
             var BarChartData = Enumerable
                 .Range(0, (endDateTime - startDateTime).Days + 1)
                 .Select(offset => startDateTime.AddDays(offset))
@@ -113,7 +116,7 @@ public class AppLogController : ControllerBase
                 .Select(date => new
                 {
                     Date = date.ToString("yyyy-MM-dd"),
-                    Count = BarChartDic.ContainsKey(date) ? BarChartDic[date] : 0
+                    Count = logGroupDic.ContainsKey(date) ? logGroupDic[date] : 0
                 })
                 .OrderBy(entry => entry.Date)
                 .ToList();
@@ -122,53 +125,71 @@ public class AppLogController : ControllerBase
         }
         else if (dateUnit == "month")
         {
-            var BarChartDic = logList
+            var noRepeatValueLogGroup = dateRangeLog
                 .Select(entry => new
                 { //! 轉 UTC +8
                     Date = DateTimeOffset
                         .FromUnixTimeSeconds(entry.LogTime)
-                        .LocalDateTime.ToString("yyyy-MM"), // todo month
+                        .LocalDateTime.ToString("yyyy-MM"),
                     entry.UserId
                 })
                 .Distinct()
                 .GroupBy(entry => entry.Date)
-                .Select(group => new
-                {
-                    Date = group.Key, //todo month
-                    Count = group.Count()
-                })
-                .ToDictionary(entry => entry.Date, entry => entry.Count);
+                .Select(group => new { Date = group.Key, Count = group.Count() });
+
+            //.ToDictionary(entry => entry.Date, entry => entry.Count);
             var totalMonth =
                 ((endDateTime.Year - startDateTime.Year) * 12)
                 + (endDateTime.Month - startDateTime.Month);
 
             if (totalMonth > 100)
             {
-                var sampleCount = 100;
-                var random = new Random();
-
-                var DateList = Enumerable
-                    .Range(
-                        0,
-                        endDateTime.Month
-                            - startDateTime.Month
-                            + 12 * (endDateTime.Year - startDateTime.Year)
-                            + 1
-                    )
-                    .Select(startDateTime.AddMonths)
-                    //! UTC+8
-                    .Select(date => DateOnly.FromDateTime(date.ToLocalTime()).ToString("yyyy-MM"))
-                    .OrderBy(x => random.Next())
-                    .Take(sampleCount)
-                    .Select(date => new
+                var logData = noRepeatValueLogGroup
+                    .Select(item =>
                     {
-                        Date = date,
-                        Count = BarChartDic.ContainsKey(date) ? BarChartDic[date] : 0
+                        var date = DateOnly.ParseExact(item.Date, "yyyy-MM");
+
+                        return new ChatBar { Date = date, Count = item.Count };
                     })
                     .OrderBy(entry => entry.Date)
                     .ToList();
-                return Ok(DateList);
+
+                var limitCount = 100;
+                var offset = (endDateTime - startDateTime) / limitCount;
+
+                var BarChartAdjustData = Enumerable
+                    .Range(1, limitCount)
+                    .Select((spaceCount) => startDateTime.Add(offset * spaceCount))
+                    //! UTC+8
+                    .Select(date => DateOnly.FromDateTime(date.ToLocalTime()))
+                    .Select(date =>
+                    {
+                        var tempCount = 0;
+                        var itemsToRemove = new List<ChatBar>();
+                        foreach (var barChartItem in logData)
+                        {
+                            if (barChartItem.Date < date)
+                            {
+                                tempCount += barChartItem.Count;
+                                itemsToRemove.Add(barChartItem);
+                            }
+                        }
+                        foreach (var item in itemsToRemove)
+                        {
+                            logData.Remove(item);
+                        }
+                        return new { Date = date.ToString("yyyy-MM"), Count = tempCount };
+                    })
+                    .OrderBy(entry => entry.Date)
+                    .ToList();
+                return Ok(BarChartAdjustData);
             }
+
+            var logGroupDic = noRepeatValueLogGroup.ToDictionary(
+                entry => entry.Date,
+                entry => entry.Count
+            );
+
             //! Timespan Page
             var BarChartData = Enumerable
                 .Range(
@@ -177,14 +198,14 @@ public class AppLogController : ControllerBase
                         - startDateTime.Month
                         + 12 * (endDateTime.Year - startDateTime.Year)
                         + 1
-                ) //todo month
+                )
                 .Select(startDateTime.AddMonths)
                 //! UTC+8
-                .Select(date => DateOnly.FromDateTime(date.ToLocalTime()).ToString("yyyy-MM"))
+                .Select(date => date.ToLocalTime().ToString("yyyy-MM"))
                 .Select(date => new
                 {
                     Date = date,
-                    Count = BarChartDic.ContainsKey(date) ? BarChartDic[date] : 0
+                    Count = logGroupDic.ContainsKey(date) ? logGroupDic[date] : 0
                 })
                 .OrderBy(entry => entry.Date)
                 .ToList();
@@ -192,7 +213,7 @@ public class AppLogController : ControllerBase
         }
         else if (dateUnit == "year")
         {
-            var BarChartDic = logList
+            var logGroup = dateRangeLog
                 .Select(entry => new
                 { //! 轉 UTC +8
                     Date = DateTimeOffset
@@ -220,7 +241,7 @@ public class AppLogController : ControllerBase
                     .Select(date => new
                     {
                         Date = date,
-                        Count = BarChartDic.ContainsKey(date) ? BarChartDic[date] : 0
+                        Count = logGroup.ContainsKey(date) ? logGroup[date] : 0
                     })
                     .OrderBy(entry => entry.Date)
                     .ToList();
@@ -234,7 +255,7 @@ public class AppLogController : ControllerBase
                 .Select(date => new
                 {
                     Date = date,
-                    Count = BarChartDic.ContainsKey(date) ? BarChartDic[date] : 0
+                    Count = logGroup.ContainsKey(date) ? logGroup[date] : 0
                 })
                 .OrderBy(entry => entry.Date)
                 .ToList();
