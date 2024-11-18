@@ -141,14 +141,14 @@ public class AppLogController : ControllerBase
             var noRepeatLogGroup = dateRangeLog
                 .Select(entry => new
                 { //! 轉 UTC +8
-                    Date = DateTimeOffset
-                        .FromUnixTimeSeconds(entry.LogTime)
-                        .LocalDateTime.ToString("yyyy-MM"),
+                    Date = DateOnly.FromDateTime(
+                        DateTimeOffset.FromUnixTimeSeconds(entry.LogTime).LocalDateTime.Date
+                    ),
                     entry.UserId
                 })
                 .Distinct()
                 .GroupBy(entry => entry.Date)
-                .Select(group => new { Date = group.Key, Count = group.Count() });
+                .Select(group => new ChatBar { Date = group.Key, Count = group.Count() });
 
             var totalMonth =
                 ((endDateTime.Year - startDateTime.Year) * 12)
@@ -156,15 +156,7 @@ public class AppLogController : ControllerBase
 
             if (totalMonth > 100)
             {
-                var logData = noRepeatLogGroup
-                    .Select(item =>
-                    {
-                        var date = DateOnly.ParseExact(item.Date, "yyyy-MM");
-
-                        return new ChatBar { Date = date, Count = item.Count };
-                    })
-                    .OrderBy(entry => entry.Date)
-                    .ToList();
+                var logData = noRepeatLogGroup.OrderBy(entry => entry.Date).ToList();
 
                 var limitCount = 100;
                 var offset = (endDateTime - startDateTime) / limitCount;
@@ -213,10 +205,10 @@ public class AppLogController : ControllerBase
                 )
                 .Select(startDateTime.AddMonths)
                 //! UTC+8
-                .Select(date => date.ToLocalTime().ToString("yyyy-MM"))
+                .Select(date => DateOnly.FromDateTime(date.ToLocalTime().Date))
                 .Select(date => new
                 {
-                    Date = date,
+                    Date = date.ToString("yyyy-MM"),
                     Count = logGroupDic.ContainsKey(date) ? logGroupDic[date] : 0
                 })
                 .OrderBy(entry => entry.Date)
@@ -264,7 +256,7 @@ public class AppLogController : ControllerBase
                         var itemsToRemove = new List<ChatBar>();
                         foreach (var barChartItem in logData)
                         {
-                            if (barChartItem.Date < date)
+                            if (barChartItem.Date <= date)
                             {
                                 tempCount += barChartItem.Count;
                                 itemsToRemove.Add(barChartItem);
