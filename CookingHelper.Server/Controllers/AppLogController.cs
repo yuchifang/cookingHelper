@@ -33,25 +33,6 @@ public class AppLogController : ControllerBase
             .Where(item => CustomCondition(item, endDateOnly, startDateOnly))
             .ToList();
 
-        /*
-            如果超過 100 筆計算方式會改變
-            空值也算
-            這段時間 除以單位 整數為多少 代表有幾筆資料
-        */
-
-
-        //! 簡化這部分
-
-        //! 完成 year
-        //! 建立 圖表的 page
-        //! 建立 日歷的 page
-        //! 建立 分頁的 page
-
-        //! 加 alert
-        //! 只要 string 前五個字
-
-
-
         if (dateUnit == "day")
         {
             // 統計 ApiLog的資料,並去除重複的
@@ -191,7 +172,6 @@ public class AppLogController : ControllerBase
                 entry => entry.Count
             );
 
-            //! Timespan Page
             var BarChartData = Enumerable
                 .Range(
                     0,

@@ -31,19 +31,14 @@ interface TabPanelProps {
 /*
   ! 怎麼上到 azure
   ! check azure cost
-  todo 分析 page
-
-  todo here 把 圖表完成 後端
-  ? loader 觸發時機  只有在換頁或是action 呼叫時在會觸發(action 呼叫時在會觸發?
   
-  ?? X軸的值超過100個 想辦法計算成100個
-  ! 圖表 page ??
-  todo 建立假資料
-  todo 用 SQL
-  todo api 錯誤處理
 
+  todo 把 圖表完成 後端
+  ? loader 觸發時機  只有在換頁或是action 呼叫時在會觸發(action 呼叫時在會觸發?
+  todo 用 SQL 產生更多假資料
 
   ?? 用 react router dom 的 state 判斷登入狀態安全嗎
+  todo here
   ? //? 帳號判斷要用 session 嗎?  chatgpt
 
 

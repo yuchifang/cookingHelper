@@ -16,10 +16,6 @@ public class ApiLoggingMiddleware
         _apiLogService = apiLogService;
     }
 
-    // Y軸 次數=> 在當天有使用的人數
-    // X軸 時間=>
-    // 操作不同功能呈現不同圖表
-
     public async Task InvokeAsync(HttpContext context)
     {
         //! UTC+0 確認

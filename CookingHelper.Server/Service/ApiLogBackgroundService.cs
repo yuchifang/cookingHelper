@@ -17,7 +17,6 @@ public class ApiLogBackgroundService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            //todo 測試 每分鐘更新一次,
             // 正式 每天更新一次
             await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
             Console.WriteLine("ApiLogBackgroundService 正在執行");
