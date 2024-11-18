@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box";
-
 import { styled as muiStyled } from "@mui/system";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -26,6 +25,8 @@ interface Log {
   date: string;
 }
 
+//todo 建立一個 Page for react 處理 api
+
 export default function AnalyzeBlock() {
   const [startTime, setStartTime] = useState<Dayjs | null>(
     dayjs.unix(Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 7),
@@ -38,14 +39,10 @@ export default function AnalyzeBlock() {
   const [overLimit, setOverLimit] = useState(false);
   const [barChart, setBarChart] = useState<Log[] | null>(null);
 
-  console.log(endTime?.toString());
-  console.log(startTime?.toString());
-
   const dateUnitDisplay =
     dateUnit == "day" ? "日" : dateUnit == "month" ? "月" : "年";
 
   useEffect(() => {
-    //todo 建立一個 Page for react 處理 api
     const secondStartTime = startTime!.unix();
     const secondEndTime = endTime!.unix();
     async function runAsync() {
@@ -200,6 +197,7 @@ const BarChartBlock = styled.div`
   position: relative;
   width: 100%;
   margin-bottom: 5px;
+  min-height: 315px;
   .recharts-tooltip-cursor {
     visibility: hidden;
   }
