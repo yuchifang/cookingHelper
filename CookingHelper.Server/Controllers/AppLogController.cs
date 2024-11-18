@@ -32,6 +32,12 @@ public class AppLogController : ControllerBase
             .ApiLog.AsEnumerable()
             .Where(item => CustomCondition(item, endDateOnly, startDateOnly))
             .ToList();
+
+        Console.WriteLine("endDateOnly");
+        Console.WriteLine(endDateOnly);
+        Console.WriteLine("startDateOnly");
+        Console.WriteLine(startDateOnly);
+
         /*
             如果超過 100 筆計算方式會改變
             空值也算
@@ -49,22 +55,25 @@ public class AppLogController : ControllerBase
         //! 加 alert
         //! 只要 string 前五個字
 
+        /*
+            todo day normal unit change unit
+            todo 字串?
+        */
 
-        //! normal 11/10 號頭有問題 here
         if (dateUnit == "day")
         {
-            // 統計 logList的資料,並去除重複的
+            // 統計 ApiLog的資料,並去除重複的
             var noRepeatLogGroup = dateRangeLog
                 .Select(entry => new
                 { //! 轉 UTC +8
-                    Date = DateTimeOffset
-                        .FromUnixTimeSeconds(entry.LogTime)
-                        .LocalDateTime.ToString("yyyy-MM-dd"),
+                    Date = DateOnly.FromDateTime(
+                        DateTimeOffset.FromUnixTimeSeconds(entry.LogTime).LocalDateTime.Date
+                    ),
                     entry.UserId
                 })
                 .Distinct()
                 .GroupBy(entry => entry.Date)
-                .Select(group => new ChatBarString { Date = group.Key, Count = group.Count() });
+                .Select(group => new ChatBar { Date = group.Key, Count = group.Count() });
 
             var DateUnit = 60 * 60 * 24;
             if ((endTimeLong - startTimeLong) / DateUnit > 100)
@@ -74,7 +83,7 @@ public class AppLogController : ControllerBase
                 var limitCount = 100;
                 var offset = (endDateTime - startDateTime) / limitCount;
 
-                // 依時間單位,時間範圍產生 所有的空資料, 有值則填值
+                // 依時間單位,時間範圍產生所有的空資料, 有值則填值
                 var BarChartAdjustData = Enumerable
                     .Range(1, limitCount)
                     .Select((spaceCount) => startDateTime.Add(offset * spaceCount))
@@ -83,11 +92,10 @@ public class AppLogController : ControllerBase
                     .Select(date =>
                     {
                         var tempCount = 0;
-                        var itemsToRemove = new List<ChatBarString>();
+                        var itemsToRemove = new List<ChatBar>();
                         foreach (var barChartItem in logGroupData)
                         {
-                            var barChartDate = DateOnly.ParseExact(barChartItem.Date, "yyyy-MM-dd");
-                            if (barChartDate < date)
+                            if (barChartItem.Date <= date)
                             {
                                 tempCount += barChartItem.Count;
                                 itemsToRemove.Add(barChartItem);
@@ -109,16 +117,17 @@ public class AppLogController : ControllerBase
                 entry => entry.Date,
                 entry => entry.Count
             );
+
             var BarChartData = Enumerable
                 .Range(0, (endDateTime - startDateTime).Days + 1)
                 .Select(offset => startDateTime.AddDays(offset))
                 //! UTC+8
-                .Select(date => date.ToLocalTime().Date.ToString("yyyy-MM-dd"))
+                .Select(date => DateOnly.FromDateTime(date.ToLocalTime()))
                 .Select(date =>
                 {
                     return new
                     {
-                        Date = date,
+                        Date = date.ToString("MM-dd"),
                         Count = logGroupDic.ContainsKey(date) ? logGroupDic[date] : 0
                     };
                 })
@@ -141,7 +150,6 @@ public class AppLogController : ControllerBase
                 .GroupBy(entry => entry.Date)
                 .Select(group => new { Date = group.Key, Count = group.Count() });
 
-            //.ToDictionary(entry => entry.Date, entry => entry.Count);
             var totalMonth =
                 ((endDateTime.Year - startDateTime.Year) * 12)
                 + (endDateTime.Month - startDateTime.Month);
@@ -172,7 +180,7 @@ public class AppLogController : ControllerBase
                         var itemsToRemove = new List<ChatBar>();
                         foreach (var barChartItem in logData)
                         {
-                            if (barChartItem.Date < date)
+                            if (barChartItem.Date <= date)
                             {
                                 tempCount += barChartItem.Count;
                                 itemsToRemove.Add(barChartItem);
@@ -297,10 +305,11 @@ public class AppLogController : ControllerBase
 
     static bool CustomCondition(ApiLog ApiLog, DateOnly endDateOnly, DateOnly startDateOnly)
     {
-        Console.WriteLine("----------------------------");
+        Console.WriteLine("asd");
         Console.WriteLine(
             DateOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(ApiLog.LogTime).DateTime)
         );
+
         return endDateOnly
                 >= DateOnly.FromDateTime(
                     DateTimeOffset.FromUnixTimeSeconds(ApiLog.LogTime).DateTime
