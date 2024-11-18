@@ -21,8 +21,12 @@ public class AccountController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<Account>> Register(Account request)
     {
+        string RequestEmail = request.Email.Trim();
+        string RequestPermission = request.Permission.Trim();
+        string RequestName = request.Name.Trim();
+
         var accountExist = await _userListDbContext.Account.FirstOrDefaultAsync(account =>
-            account.Email == request.Email
+            account.Email == RequestEmail
         );
         if (accountExist != null)
         {
@@ -32,10 +36,10 @@ public class AccountController : ControllerBase
         string passwordHash = BCrypt.HashPassword(request.Password, workFactor: 11);
         var account = new Account
         {
-            Email = request.Email,
+            Email = RequestEmail,
             Password = passwordHash,
-            Name = request.Name,
-            Permission = request.Permission
+            Name = RequestName,
+            Permission = RequestPermission
         };
         await _userListDbContext.AddAsync(account);
         await _userListDbContext.SaveChangesAsync();
@@ -51,8 +55,9 @@ public class AccountController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult> Login(LoginRequestDto LoginRequestDto)
     {
+        string LoginRequestDtoEmail = LoginRequestDto.Email.Trim();
         var loginAccount = await _userListDbContext.Account.SingleOrDefaultAsync(account =>
-            account.Email == LoginRequestDto.Email
+            account.Email == LoginRequestDtoEmail
         );
 
         if (loginAccount == null || !BCrypt.Verify(LoginRequestDto.Password, loginAccount.Password))
