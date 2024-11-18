@@ -33,17 +33,12 @@ public class AppLogController : ControllerBase
             .Where(item => CustomCondition(item, endDateOnly, startDateOnly))
             .ToList();
 
-        Console.WriteLine("endDateOnly");
-        Console.WriteLine(endDateOnly);
-        Console.WriteLine("startDateOnly");
-        Console.WriteLine(startDateOnly);
-
         /*
             如果超過 100 筆計算方式會改變
             空值也算
             這段時間 除以單位 整數為多少 代表有幾筆資料
         */
-        Console.WriteLine(startTimeLong + "startTimeLong");
+
 
         //! 簡化這部分
 
@@ -55,10 +50,7 @@ public class AppLogController : ControllerBase
         //! 加 alert
         //! 只要 string 前五個字
 
-        /*
-            todo day normal unit change unit
-            todo 字串?
-        */
+
 
         if (dateUnit == "day")
         {
@@ -110,7 +102,7 @@ public class AppLogController : ControllerBase
                     .OrderBy(entry => entry.Date)
                     .ToList();
 
-                return Ok(BarChartAdjustData);
+                return Ok(new { BarChartData = BarChartAdjustData, OverLimit = true });
             }
 
             var logGroupDic = noRepeatLogGroup.ToDictionary(
@@ -134,15 +126,18 @@ public class AppLogController : ControllerBase
                 .OrderBy(entry => entry.Date)
                 .ToList();
 
-            return Ok(BarChartData);
+            return Ok(new { BarChartData, OverLimit = false });
         }
         else if (dateUnit == "month")
         {
             var noRepeatLogGroup = dateRangeLog
                 .Select(entry => new
                 { //! 轉 UTC +8
-                    Date = DateOnly.FromDateTime(
-                        DateTimeOffset.FromUnixTimeSeconds(entry.LogTime).LocalDateTime.Date
+                    Date = DateOnly.ParseExact(
+                        DateTimeOffset
+                            .FromUnixTimeSeconds(entry.LogTime)
+                            .LocalDateTime.ToString("yyyy-MM"),
+                        "yyyy-MM"
                     ),
                     entry.UserId
                 })
@@ -165,7 +160,9 @@ public class AppLogController : ControllerBase
                     .Range(1, limitCount)
                     .Select((spaceCount) => startDateTime.Add(offset * spaceCount))
                     //! UTC+8
-                    .Select(date => DateOnly.FromDateTime(date.ToLocalTime()))
+                    .Select(date =>
+                        DateOnly.ParseExact(date.ToLocalTime().ToString("yyyy-MM"), "yyyy-MM")
+                    )
                     .Select(date =>
                     {
                         var tempCount = 0;
@@ -186,7 +183,7 @@ public class AppLogController : ControllerBase
                     })
                     .OrderBy(entry => entry.Date)
                     .ToList();
-                return Ok(BarChartAdjustData);
+                return Ok(new { BarChartData = BarChartAdjustData, OverLimit = true });
             }
 
             var logGroupDic = noRepeatLogGroup.ToDictionary(
@@ -205,7 +202,9 @@ public class AppLogController : ControllerBase
                 )
                 .Select(startDateTime.AddMonths)
                 //! UTC+8
-                .Select(date => DateOnly.FromDateTime(date.ToLocalTime().Date))
+                .Select(date =>
+                    DateOnly.ParseExact(date.ToLocalTime().ToString("yyyy-MM"), "yyyy-MM")
+                )
                 .Select(date => new
                 {
                     Date = date.ToString("yyyy-MM"),
@@ -213,34 +212,29 @@ public class AppLogController : ControllerBase
                 })
                 .OrderBy(entry => entry.Date)
                 .ToList();
-            return Ok(BarChartData);
+            return Ok(new { BarChartData, OverLimit = false });
         }
         else if (dateUnit == "year")
         {
             var noRepeatLogGroup = dateRangeLog
                 .Select(entry => new
                 { //! 轉 UTC +8
-                    Date = DateTimeOffset
-                        .FromUnixTimeSeconds(entry.LogTime)
-                        .LocalDateTime.ToString("yyyy"),
+                    Date = DateOnly.ParseExact(
+                        DateTimeOffset
+                            .FromUnixTimeSeconds(entry.LogTime)
+                            .LocalDateTime.ToString("yyyy"),
+                        "yyyy"
+                    ),
                     entry.UserId
                 })
                 .Distinct()
                 .GroupBy(entry => entry.Date)
-                .Select(group => new { Date = group.Key, Count = group.Count() });
+                .Select(group => new ChatBar { Date = group.Key, Count = group.Count() });
 
             var totalYear = endDateTime.Year - startDateTime.Year;
             if (totalYear > 100)
             {
-                var logData = noRepeatLogGroup
-                    .Select(item =>
-                    {
-                        var date = DateOnly.ParseExact(item.Date, "yyyy");
-
-                        return new ChatBar { Date = date, Count = item.Count };
-                    })
-                    .OrderBy(entry => entry.Date)
-                    .ToList();
+                var logData = noRepeatLogGroup.OrderBy(entry => entry.Date).ToList();
 
                 var limitCount = 100;
                 var offset = (endDateTime - startDateTime) / limitCount;
@@ -249,7 +243,9 @@ public class AppLogController : ControllerBase
                     .Range(1, limitCount)
                     .Select((spaceCount) => startDateTime.Add(offset * spaceCount))
                     //! UTC+8
-                    .Select(date => DateOnly.FromDateTime(date.ToLocalTime()))
+                    .Select(date =>
+                        DateOnly.ParseExact(date.ToLocalTime().ToString("yyyy"), "yyyy")
+                    )
                     .Select(date =>
                     {
                         var tempCount = 0;
@@ -270,7 +266,7 @@ public class AppLogController : ControllerBase
                     })
                     .OrderBy(entry => entry.Date)
                     .ToList();
-                return Ok(BarChartAdjustData);
+                return Ok(new { BarChartData = BarChartAdjustData, OverLimit = true });
             }
 
             var logGroupDic = noRepeatLogGroup.ToDictionary(
@@ -282,26 +278,21 @@ public class AppLogController : ControllerBase
                 .Range(0, endDateTime.Year - startDateTime.Year + 1)
                 .Select(startDateTime.AddYears)
                 //! UTC+8
-                .Select(date => DateOnly.FromDateTime(date.ToLocalTime()).ToString("yyyy"))
+                .Select(date => DateOnly.ParseExact(date.ToLocalTime().ToString("yyyy"), "yyyy"))
                 .Select(date => new
                 {
-                    Date = date,
+                    Date = date.ToString("yyyy"),
                     Count = logGroupDic.ContainsKey(date) ? logGroupDic[date] : 0
                 })
                 .OrderBy(entry => entry.Date)
                 .ToList();
-            return Ok(BarChartData);
+            return Ok(new { BarChartData, OverLimit = false });
         }
         return NotFound();
     }
 
     static bool CustomCondition(ApiLog ApiLog, DateOnly endDateOnly, DateOnly startDateOnly)
     {
-        Console.WriteLine("asd");
-        Console.WriteLine(
-            DateOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(ApiLog.LogTime).DateTime)
-        );
-
         return endDateOnly
                 >= DateOnly.FromDateTime(
                     DateTimeOffset.FromUnixTimeSeconds(ApiLog.LogTime).DateTime
@@ -313,12 +304,6 @@ public class AppLogController : ControllerBase
     public class ChatBar
     {
         public DateOnly Date { get; set; } = default!;
-        public int Count { get; set; } = default!;
-    }
-
-    public class ChatBarString
-    {
-        public string Date { get; set; } = default!;
         public int Count { get; set; } = default!;
     }
 }

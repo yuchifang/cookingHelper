@@ -35,6 +35,7 @@ export default function AnalyzeBlock() {
   );
   const [dateUnit, setDateUnit] = useState<"day" | "month" | "year">("day");
   const [dateRangeHasError, setDateRangeHasError] = useState(false);
+  const [overLimit, setOverLimit] = useState(false);
   const [barChart, setBarChart] = useState<Log[] | null>(null);
 
   console.log(endTime?.toString());
@@ -53,10 +54,11 @@ export default function AnalyzeBlock() {
         endUtcZSecondTimestamp: secondEndTime,
         dateUnit: dateUnit,
       });
-      console.log(response);
+
       const responseData = await response.json();
-      console.log(responseData);
-      setBarChart(responseData);
+
+      setBarChart(responseData.barChartData);
+      setOverLimit(responseData.overLimit);
     }
     if (secondStartTime >= secondEndTime) {
       setDateRangeHasError(true);
@@ -77,6 +79,16 @@ export default function AnalyzeBlock() {
             severity="error"
           >
             結束時間早於起始時間
+          </Alert>
+        )}
+        {overLimit && (
+          <Alert
+            style={{
+              marginRight: "15px",
+            }}
+            severity="error"
+          >
+            資料筆數超過100筆,會調整時間單位呈現
           </Alert>
         )}
         <DateBlock>
