@@ -30,14 +30,19 @@ export default function AnalyzeBlock() {
   const [startTime, setStartTime] = useState<Dayjs | null>(
     dayjs.unix(Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 7),
   );
-  const [endTime, setEndTime] = useState<Dayjs | null>(dayjs(Date.now()));
+  const [endTime, setEndTime] = useState<Dayjs | null>(
+    dayjs.unix(Math.floor(Date.now() / 1000)),
+  );
   const [dateUnit, setDateUnit] = useState<"day" | "month" | "year">("day");
   const [dateRangeHasError, setDateRangeHasError] = useState(false);
   const [barChart, setBarChart] = useState<Log[] | null>(null);
 
+  console.log(endTime?.toString());
+  console.log(startTime?.toString());
+
   const dateUnitDisplay =
     dateUnit == "day" ? "日" : dateUnit == "month" ? "月" : "年";
-  console.log({ dateUnit });
+
   useEffect(() => {
     //todo 建立一個 Page for react 處理 api
     const secondStartTime = startTime!.unix();
@@ -60,9 +65,6 @@ export default function AnalyzeBlock() {
       runAsync();
     }
   }, [endTime, startTime, dateUnit]);
-
-  console.log({ startTime });
-  console.log({ endTime });
 
   return (
     <AnalyzeContainer>
@@ -98,7 +100,6 @@ export default function AnalyzeBlock() {
           </LocalizationProvider>
         </DateBlock>
       </DateRangeBlock>
-
       <BarChartBlock>
         {barChart && (
           <>
