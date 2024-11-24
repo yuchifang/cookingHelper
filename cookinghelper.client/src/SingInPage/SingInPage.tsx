@@ -11,9 +11,34 @@ import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/system";
 import ForgotPassword from "../ForgotPassword";
-import { Params, useFetcher, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Params, redirect, useFetcher } from "react-router-dom";
+import { useState } from "react";
 import Alert from "@mui/material/Alert";
+import axios from "axios";
+
+//! axios 與 fetch 差別
+
+//! Aspnet Core Identity ? search?
+
+//!  Azure Table Storage.
+
+//! Microsoft identity platform
+
+/*
+  todo Axios vs fetch 差別
+  todo admin page
+  todo 建立帳號test
+
+*/
+
+export async function loader() {
+  console.log("asd123");
+  const response = await axios.get("/api/AccountIdentity/status");
+  if (response?.data?.isAuthenticated) {
+    return redirect("/admin"); // 已登入，跳轉到首頁
+  }
+  return null;
+}
 
 export async function action({
   request,
@@ -23,7 +48,7 @@ export async function action({
 }) {
   const formData: FormData = await request.formData();
 
-  const response = await fetch("api/account/login", {
+  const response = await fetch("api/AccountIdentity/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -31,9 +56,13 @@ export async function action({
     body: JSON.stringify({
       email: formData.get("email"),
       password: formData.get("password"),
+      rememberMe: formData.get("remember") == "remember" ? true : false,
     }),
   });
 
+  if (response.ok) {
+    return redirect("/admin");
+  }
   const responseData = await response.json();
   return responseData;
 }
@@ -44,21 +73,9 @@ export function SignInPage() {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
+
   const fetcher = useFetcher();
   const responseData = fetcher.data;
-  console.log({ responseData });
-  let dependency: React.DependencyList = [responseData];
-  if (responseData) {
-    dependency = [responseData, responseData.accountId];
-  }
-
-  useEffect(() => {
-    if (responseData && !("message" in responseData)) {
-      navigate("/admin", { state: { userInfo: responseData } });
-      //? 帳號判斷要用 session 嗎?
-    }
-  }, dependency);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -172,7 +189,9 @@ export function SignInPage() {
                 />
               </FormControl>
               <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
+                control={
+                  <Checkbox name="remember" value="remember" color="primary" />
+                }
                 label="Remember me"
               />
               {responseData && responseData.message && (
