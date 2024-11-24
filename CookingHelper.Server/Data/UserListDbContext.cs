@@ -1,9 +1,10 @@
 using CookingHelper.Model;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CookingHelper.Data;
 
-public class UserListDbContext : DbContext
+public class UserListDbContext : IdentityDbContext<ApplicationUser>
 {
     public UserListDbContext(DbContextOptions<UserListDbContext> options)
         : base(options) { }
@@ -17,6 +18,7 @@ public class UserListDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<UserList>(entityBuilder =>
         {
             entityBuilder.Property(e => e.UserId);

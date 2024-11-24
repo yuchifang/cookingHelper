@@ -4,7 +4,10 @@ using CookingHelper.DatabaseService;
 using CookingHelper.LineDto;
 using CookingHelper.LineDtoService;
 using CookingHelper.Middleware;
+using CookingHelper.Model;
 using CookingHelper.Service;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -44,6 +47,7 @@ namespace CookingHelper.Server
                     );
                 });
             }
+
             builder.Services.AddHostedService<ApiLogBackgroundService>();
             builder.Services.AddSingleton<ApiLogService, ApiLogService>();
             builder.Services.AddScoped<LineBotService, LineBotService>();
@@ -67,6 +71,33 @@ namespace CookingHelper.Server
             builder.Services.AddScoped<RecipeListDatabaseService, RecipeListDatabaseService>();
             builder.Services.AddScoped<RecipeListAdditionService, RecipeListAdditionService>();
             builder.Services.AddScoped<RecipeListSearchService, RecipeListSearchService>();
+
+            // Add Identity
+            builder
+                .Services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<UserListDbContext>()
+                .AddDefaultTokenProviders();
+
+            //!  重新產生 AppLog 的資料
+            //! line 帳號重新登入
+            /*
+                todo 紀錄 page
+                DBContext 要加一行
+                base.OnModelCreating(modelBuilder);
+                todo
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                todo 檢查 cookie
+                todo 忘記密碼
+
+                todo react api 有建議用哪個套件嗎 目前用 fetch
+                todo 錯誤處理
+            */
+
+            // Configure Identity options
+            builder.Services.Configure<IdentityOptions>(IdentityConfigureOptions);
+
+            // Configure Cookie settings
+            builder.Services.ConfigureApplicationCookie(CookieAuthenticationOptions);
 
             var app = builder.Build();
 
@@ -101,6 +132,7 @@ namespace CookingHelper.Server
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
@@ -108,6 +140,32 @@ namespace CookingHelper.Server
             app.MapFallbackToFile("/index.html");
 
             app.Run();
+        }
+
+        public static void IdentityConfigureOptions(IdentityOptions options)
+        {
+            // Password settings
+            options.Password.RequireDigit = false;
+
+            options.Password.RequireLowercase = false;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequiredLength = 6;
+
+            // Lockout settings
+            // options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            // options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.AllowedForNewUsers = true;
+
+            // User settings
+            options.User.RequireUniqueEmail = true;
+        }
+
+        public static void CookieAuthenticationOptions(CookieAuthenticationOptions options)
+        {
+            options.Cookie.HttpOnly = true;
+            options.ExpireTimeSpan = TimeSpan.FromDays(14); // Example: 2 weeks
+            options.SlidingExpiration = true;
         }
     }
 }
