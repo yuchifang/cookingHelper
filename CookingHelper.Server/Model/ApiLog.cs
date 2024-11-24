@@ -1,3 +1,5 @@
+namespace CookingHelper.Model;
+
 public class ApiLog
 {
     public int Id { get; set; } = default!;

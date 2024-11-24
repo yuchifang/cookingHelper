@@ -1,4 +1,5 @@
 using CookingHelper.Data;
+using CookingHelper.Model;
 
 namespace CookingHelper.Service;
 
