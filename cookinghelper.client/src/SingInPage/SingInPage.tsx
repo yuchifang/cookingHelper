@@ -35,7 +35,7 @@ export async function loader() {
   console.log("asd123");
   const response = await axios.get("/api/AccountIdentity/status");
   if (response?.data?.isAuthenticated) {
-    return redirect("/admin"); // 已登入，跳轉到首頁
+    return redirect("/account"); // 已登入，跳轉到首頁
   }
   return null;
 }
@@ -61,7 +61,7 @@ export async function action({
   });
 
   if (response.ok) {
-    return redirect("/admin");
+    return redirect("/account");
   }
   const responseData = await response.json();
   return responseData;
