@@ -7,6 +7,7 @@ import { styled } from "@mui/system";
 import Button from "@mui/material/Button";
 import AnalyzeBlock from "./AnalyzeBlock";
 import axios from "axios";
+import AccountBlock from "./AccountBlock";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -38,11 +39,11 @@ interface TabPanelProps {
   todo 用 SQL 產生更多假資料
 
   ?? 用 react router dom 的 state 判斷登入狀態安全嗎
-  todo here
+  todo 
   ? //? 帳號判斷要用 session 嗎?  chatgpt
 
 
-  todo 建立帳號的 page
+  todo 建立帳號的 page here
   ?成功創建帳號 開提示
     https://mui.com/material-ui/react-snackbar/
   
@@ -82,7 +83,6 @@ export function AdminPage() {
     setValue(newValue);
   };
 
-  //! 這邊的 tabs 要改成 Route 的寫法??
   return (
     <AdminPageContainer>
       <HeaderContainer>
@@ -97,7 +97,7 @@ export function AdminPage() {
         <AnalyzeBlock />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        帳號
+        <AccountBlock />
       </CustomTabPanel>
     </AdminPageContainer>
   );
