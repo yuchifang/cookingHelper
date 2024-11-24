@@ -64,6 +64,6 @@ public class AccountController : ControllerBase
         {
             return NotFound(new { message = "Wrong Username Or Password" });
         }
-        return Ok(loginAccount);
+        return Ok("User logged in successfully.");
     }
 }
