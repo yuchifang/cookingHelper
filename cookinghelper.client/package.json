@@ -24,6 +24,7 @@
     "@mui/styled-engine-sc": "^6.1.4",
     "@mui/system": "^6.1.6",
     "@mui/x-date-pickers": "^7.22.2",
+    "axios": "^1.7.7",
     "cross-env": "^7.0.3",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
