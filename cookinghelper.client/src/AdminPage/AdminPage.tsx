@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { redirect, useLoaderData } from "react-router-dom";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -6,6 +6,7 @@ import { useState } from "react";
 import { styled } from "@mui/system";
 import Button from "@mui/material/Button";
 import AnalyzeBlock from "./AnalyzeBlock";
+import axios from "axios";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -18,19 +19,18 @@ interface TabPanelProps {
 */
 
 /*
-  ? 前後端做 Trim
-  fangfelipe@gmail.com
-  123456
-  admin
-
-  test@gmail.com
-  123456
-  guest
+  {
+  "email": "fangfelipe@gmail.com",
+  "password": "123456",
+  "permission": "admin",
+  "username": "fangfelipe@gmail.com"
+}
 */
 
 /*
   ! 怎麼上到 azure
   ! check azure cost
+  ! 正式機 也要 dotnet ef migrations add someThing
   
 
   todo 把 圖表完成 後端
@@ -53,21 +53,28 @@ interface TabPanelProps {
   ?忘記密碼
     email 後端也寫  
 */
+export async function loader() {
+  const response = await axios.get("/api/AccountIdentity/status");
+  if (response.data.isAuthenticated) {
+    const data = await response.data;
+    return data;
+  } else {
+    return redirect("/");
+  }
+}
+
+interface Status {
+  isAuthenticated: boolean;
+  username: string;
+  permission: string;
+}
 
 export function AdminPage() {
   const tabList = [<Tab label="系統分析" sx={{ fontSize: "25px" }} />];
   const [value, setValue] = useState(0);
+  const data: Status = useLoaderData() as Status;
 
-  const location = useLocation();
-
-  let userInfo;
-  if ("userInfo" in location.state) {
-    userInfo = location.state.userInfo;
-  } else {
-    throw new Error("AdminPage locationData error");
-  }
-
-  if (userInfo.permission == "admin") {
+  if (data && data?.permission == "admin") {
     tabList.push(<Tab label="帳號管理" sx={{ fontSize: "25px" }} />);
   }
 
