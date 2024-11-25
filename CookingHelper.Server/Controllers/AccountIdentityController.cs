@@ -72,7 +72,7 @@ public class AccountIdentityController : ControllerBase
         var result = await _userManager.CreateAsync(user, model.Password);
 
         if (!result.Succeeded)
-            return BadRequest(result.Errors);
+            return Conflict(new { message = "This email address is already registered." }); // 做其他
 
         return Ok("User registered successfully.");
     }
