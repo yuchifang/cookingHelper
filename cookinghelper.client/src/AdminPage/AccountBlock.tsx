@@ -7,62 +7,47 @@ import FormLabel from "@mui/material/FormLabel";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/system/Box";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/system";
 import Stack from "@mui/material/Stack";
 
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormHelperText from "@mui/material/FormHelperText";
-import { Params, useFetcher } from "react-router-dom";
-import axios from "axios";
 
-export async function action({
-  request,
-}: {
-  params: Params;
-  request: Request;
-}) {
-  const formData: FormData = await request.formData();
-  const response = await axios.post(
-    "/api/AccountIdentity/register",
-    {
-      email: formData.get("email"),
-      password: formData.get("password"),
-      permission: formData.get("permission"),
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    },
-  );
-  console.log({ response });
-  return response.data;
+import axios, { AxiosError } from "axios";
+import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
+
+interface ApiStatus {
+  status: string;
+  message: string;
 }
-// todo 這邊用 ref 來處理
-// todo 不要用 form 去接資料 直接用 useEffect 處理
-// todo 前面的要不要 也用Ref
-// todo here
 
 export default function AccountBlock() {
   const [emailError, setEmailError] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-  const [age, setAge] = useState("guest");
-  const fetcher = useFetcher();
-  const responseData = fetcher.data;
-  console.log({ responseData });
+  const [apiStatus, setApiStatus] = useState<ApiStatus>({
+    status: "init",
+    message: "",
+  });
+
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const permissionRef = useRef<HTMLSelectElement>(null);
 
   const validateInputs = () => {
-    const email = document.getElementById("email") as HTMLInputElement;
-    const password = document.getElementById("password") as HTMLInputElement;
-
     let isValid = true;
 
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
+    if (
+      !emailRef.current ||
+      !emailRef.current.value ||
+      !/\S+@\S+\.\S+/.test(emailRef.current.value)
+    ) {
       setEmailError(true);
       setEmailErrorMessage("Please enter a valid email address.");
       isValid = false;
@@ -71,7 +56,11 @@ export default function AccountBlock() {
       setEmailErrorMessage("");
     }
 
-    if (!password.value || password.value.length < 6) {
+    if (
+      !passwordRef.current ||
+      !passwordRef.current.value ||
+      passwordRef.current.value.length < 6
+    ) {
       setPasswordError(true);
       setPasswordErrorMessage("Password must be at least 6 characters long.");
       isValid = false;
@@ -83,23 +72,51 @@ export default function AccountBlock() {
     return isValid;
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
+  /*
+    ! api 錯誤處理 中斷, 連接api Page
+    checkbox, select 情況
+    setState 傳function 紀錄 page 
+    axios fetch 差別 page
+
+    ! 全部改成 axios 加錯誤處理
+  */
+
+  const handleSubmit = async () => {
+    if (!validateInputs()) {
       return;
     }
-    const submitFormData = new FormData(event.currentTarget);
-    fetcher.submit(submitFormData, { method: "post", action: "/account" });
+    setApiStatus(() => ({ status: "loading", message: "" }));
+    if (apiStatus.status === "loading") return;
+    try {
+      await axios.post(
+        "/api/AccountIdentity/register",
+        {
+          email: emailRef.current!.value,
+          password: passwordRef.current!.value,
+          permission: permissionRef.current!.value,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      setApiStatus(() => ({ status: "success", message: "" }));
+    } catch (error) {
+      const err = error as AxiosError<Error>;
+
+      setApiStatus(() => ({
+        status: "error",
+        message: err.response!.data.message,
+      }));
+    }
   };
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value as string);
+  const handleClose = () => {
+    setApiStatus(() => ({ status: "init", message: "" }));
   };
-  //todo
-  // https://mui.com/material-ui/react-snackbar/
-  // todo
-  // 這邊用 action
-  //
+
   return (
     <SignUpContainer>
       <Card>
@@ -110,66 +127,77 @@ export default function AccountBlock() {
         >
           註冊帳號
         </Typography>
-        <fetcher.Form method="post" onSubmit={handleSubmit}>
-          <Box
-            component="form"
-            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-          >
-            <FormControl>
-              <FormLabel htmlFor="email">Email</FormLabel>
-              <TextField
-                required
-                fullWidth
-                id="email"
-                placeholder="your@email.com"
-                name="email"
-                autoComplete="email"
-                variant="outlined"
-                error={emailError}
-                helperText={emailErrorMessage}
-                color={passwordError ? "error" : "primary"}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="password">Password</FormLabel>
-              <TextField
-                required
-                fullWidth
-                name="password"
-                placeholder="••••••"
-                type="password"
-                id="password"
-                autoComplete="new-password"
-                variant="outlined"
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                color={passwordError ? "error" : "primary"}
-              />
-            </FormControl>
-            <FormControl fullWidth>
-              <Select
-                name="permission"
-                value={age}
-                onChange={handleChange}
-                displayEmpty
-                inputProps={{ "aria-label": "Without label" }}
-              >
-                <MenuItem value={"guest"}>guest</MenuItem>
-                <MenuItem value={"admin"}>admin</MenuItem>
-              </Select>
-              <FormHelperText>Permission</FormHelperText>
-            </FormControl>
-            <Button
-              type="submit"
+
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <FormControl>
+            <FormLabel htmlFor="email">Email</FormLabel>
+            <TextField
+              inputRef={emailRef}
+              required
               fullWidth
-              variant="contained"
-              onClick={validateInputs}
+              id="email"
+              placeholder="your@email.com"
+              name="email"
+              autoComplete="email"
+              variant="outlined"
+              error={emailError}
+              helperText={emailErrorMessage}
+              color={passwordError ? "error" : "primary"}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="password">Password</FormLabel>
+            <TextField
+              inputRef={passwordRef}
+              required
+              fullWidth
+              name="password"
+              placeholder="••••••"
+              type="password"
+              id="password"
+              autoComplete="new-password"
+              variant="outlined"
+              error={passwordError}
+              helperText={passwordErrorMessage}
+              color={passwordError ? "error" : "primary"}
+            />
+          </FormControl>
+          <FormControl fullWidth>
+            <Select
+              name="permission"
+              defaultValue="guest"
+              inputRef={permissionRef}
+              displayEmpty
+              inputProps={{ "aria-label": "Without label" }}
             >
-              註冊
-            </Button>
-          </Box>
-        </fetcher.Form>
+              <MenuItem value={"guest"}>guest</MenuItem>
+              <MenuItem value={"admin"}>admin</MenuItem>
+            </Select>
+            <FormHelperText>Permission</FormHelperText>
+          </FormControl>
+          <Button
+            type="submit"
+            fullWidth
+            variant="outlined"
+            onClick={handleSubmit}
+          >
+            {apiStatus.status === "loading" ? (
+              <CircularProgress size="25px" />
+            ) : (
+              "register"
+            )}
+          </Button>
+        </Box>
+        {apiStatus.status === "error" && (
+          <Alert severity="error">{apiStatus.message}</Alert>
+        )}
       </Card>
+      <Snackbar
+        open={apiStatus.status === "success"}
+        autoHideDuration={1500}
+        message="註冊成功"
+        onClose={handleClose}
+      />
     </SignUpContainer>
   );
 }
@@ -185,8 +213,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 const SignUpContainer = styled(Stack)(({ theme }) => ({
-  height: "calc((1 - var(--template-frame-height, 0)) * 100dvh)",
-  minHeight: "100%",
+  minHeight: "507px",
   padding: theme.spacing(2),
   [theme.breakpoints.up("sm")]: {
     padding: theme.spacing(4),
