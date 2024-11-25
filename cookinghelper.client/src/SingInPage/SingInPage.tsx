@@ -11,10 +11,11 @@ import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/system";
 import ForgotPassword from "../ForgotPassword";
-import { Params, redirect, useFetcher } from "react-router-dom";
-import { useState } from "react";
+import { redirect, useNavigate } from "react-router-dom";
+import { useRef, useState } from "react";
 import Alert from "@mui/material/Alert";
 import axios from "axios";
+import CircularProgress from "@mui/material/CircularProgress";
 
 //! axios 與 fetch 差別
 
@@ -32,39 +33,11 @@ import axios from "axios";
 */
 
 export async function loader() {
-  console.log("asd123");
   const response = await axios.get("/api/AccountIdentity/status");
   if (response?.data?.isAuthenticated) {
-    return redirect("/account"); // 已登入，跳轉到首頁
+    return redirect("/admin"); // 已登入，跳轉到首頁
   }
   return null;
-}
-
-export async function action({
-  request,
-}: {
-  params: Params;
-  request: Request;
-}) {
-  const formData: FormData = await request.formData();
-
-  const response = await fetch("api/AccountIdentity/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email: formData.get("email"),
-      password: formData.get("password"),
-      rememberMe: formData.get("remember") == "remember" ? true : false,
-    }),
-  });
-
-  if (response.ok) {
-    return redirect("/account");
-  }
-  const responseData = await response.json();
-  return responseData;
 }
 
 export function SignInPage() {
@@ -73,33 +46,26 @@ export function SignInPage() {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [open, setOpen] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const navigate = useNavigate();
+  const [isChecked, setIsChecked] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const fetcher = useFetcher();
-  const responseData = fetcher.data;
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const submitFormData = new FormData(event.currentTarget);
-    if (validateInputs()) {
-      fetcher.submit(submitFormData, { method: "post", action: "/" });
-    }
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(event.target.checked);
   };
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
+  //todo ref Page
 
   const validateInputs = () => {
-    const email = document.getElementById("email") as HTMLInputElement;
-    const password = document.getElementById("password") as HTMLInputElement;
-
     let isValid = true;
 
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
+    if (
+      !emailRef.current ||
+      !emailRef.current.value ||
+      !/\S+@\S+\.\S+/.test(emailRef.current.value)
+    ) {
       setEmailError(true);
       setEmailErrorMessage("Please enter a valid email address.");
       isValid = false;
@@ -108,7 +74,11 @@ export function SignInPage() {
       setEmailErrorMessage("");
     }
 
-    if (!password.value || password.value.length < 6) {
+    if (
+      !passwordRef.current ||
+      !passwordRef.current.value ||
+      passwordRef.current.value.length < 6
+    ) {
       setPasswordError(true);
       setPasswordErrorMessage("Password must be at least 6 characters long.");
       isValid = false;
@@ -118,6 +88,37 @@ export function SignInPage() {
     }
 
     return isValid;
+  };
+
+  const handleSubmit = async () => {
+    if (validateInputs()) {
+      setLoading(true);
+      const response = await fetch("api/AccountIdentity/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: (emailRef.current as HTMLInputElement).value,
+          password: (passwordRef.current as HTMLInputElement).value,
+          rememberMe: isChecked,
+        }),
+      });
+      setLoading(false);
+      if (response.ok) {
+        return navigate("/admin", { replace: true });
+      }
+      const responseData = await response.json();
+      setErrorMessage(responseData.message);
+    }
+  };
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
   };
 
   return (
@@ -131,83 +132,89 @@ export function SignInPage() {
           >
             Sign in
           </Typography>
-          <fetcher.Form method="post" onSubmit={handleSubmit}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                width: "100%",
-                gap: 2,
-              }}
-            >
-              <FormControl>
-                <Box sx={{ display: "flex", justifyContent: "start" }}>
-                  <FormLabel htmlFor="email">Email</FormLabel>
-                </Box>
-                <TextField
-                  error={emailError}
-                  helperText={emailErrorMessage}
-                  id="email"
-                  type="email"
-                  name="email"
-                  placeholder="your@email.com"
-                  autoComplete="email"
-                  autoFocus
-                  required
-                  fullWidth
-                  variant="outlined"
-                  color={emailError ? "error" : "primary"}
-                  sx={{ ariaLabel: "email" }}
-                />
-              </FormControl>
-              <FormControl>
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <FormLabel htmlFor="password">Password</FormLabel>
-                  <Link
-                    component="button"
-                    type="button"
-                    onClick={handleClickOpen}
-                    variant="body2"
-                    sx={{ alignSelf: "baseline" }}
-                  >
-                    Forgot your password?
-                  </Link>
-                </Box>
-                <TextField
-                  error={passwordError}
-                  helperText={passwordErrorMessage}
-                  name="password"
-                  placeholder="••••••"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
-                  autoFocus
-                  required
-                  fullWidth
-                  variant="outlined"
-                  color={passwordError ? "error" : "primary"}
-                />
-              </FormControl>
-              <FormControlLabel
-                control={
-                  <Checkbox name="remember" value="remember" color="primary" />
-                }
-                label="Remember me"
-              />
-              {responseData && responseData.message && (
-                <Alert severity="error">{responseData.message}</Alert>
-              )}
-              <ForgotPassword open={open} handleClose={handleClose} />
-              <Button
-                type="submit"
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+              gap: 2,
+            }}
+          >
+            <FormControl>
+              <Box sx={{ display: "flex", justifyContent: "start" }}>
+                <FormLabel htmlFor="email">Email</FormLabel>
+              </Box>
+              <TextField
+                inputRef={emailRef}
+                error={emailError}
+                helperText={emailErrorMessage}
+                id="email"
+                type="email"
+                name="email"
+                placeholder="your@email.com"
+                autoComplete="email"
+                autoFocus
+                required
                 fullWidth
-                variant="contained"
-                onClick={validateInputs}
-              >
-                Sign in
-              </Button>
-            </Box>
-          </fetcher.Form>
+                variant="outlined"
+                color={emailError ? "error" : "primary"}
+                sx={{ ariaLabel: "email" }}
+              />
+            </FormControl>
+            <FormControl>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <FormLabel htmlFor="password">Password</FormLabel>
+                <Link
+                  component="button"
+                  type="button"
+                  onClick={handleClickOpen}
+                  variant="body2"
+                  sx={{ alignSelf: "baseline" }}
+                >
+                  Forgot your password?
+                </Link>
+              </Box>
+              <TextField
+                inputRef={passwordRef}
+                error={passwordError}
+                helperText={passwordErrorMessage}
+                name="password"
+                placeholder="••••••"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+                autoFocus
+                required
+                fullWidth
+                variant="outlined"
+                color={passwordError ? "error" : "primary"}
+              />
+            </FormControl>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isChecked}
+                  onChange={handleChange}
+                  name="remember"
+                  color="primary"
+                />
+              }
+              label="Remember me"
+            />
+            {errorMessage != "" && (
+              <Alert severity="error">{errorMessage}</Alert>
+            )}
+            <ForgotPassword open={open} handleClose={handleClose} />
+            <Button
+              type="submit"
+              fullWidth
+              variant="outlined"
+              onClick={handleSubmit}
+            >
+              {loading ? <CircularProgress size="24.5px" /> : "Sign in"}
+            </Button>
+          </Box>
         </Card>
       </SignInContainer>
     </>
