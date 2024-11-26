@@ -73,12 +73,13 @@ export default function AccountBlock() {
   };
 
   /*
-    ! api 錯誤處理 中斷, 連接api Page
+    ! api 錯誤處理, api中斷, 使用api Page
     checkbox, select 情況
     setState 傳function 紀錄 page 
     axios fetch 差別 page
 
     ! 全部改成 axios 加錯誤處理
+    ! 完成 登出
   */
 
   const handleSubmit = async () => {
