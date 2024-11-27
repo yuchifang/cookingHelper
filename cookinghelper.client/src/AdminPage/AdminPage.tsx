@@ -8,6 +8,7 @@ import Button from "@mui/material/Button";
 import AnalyzeBlock from "./AnalyzeBlock";
 import axios from "axios";
 import AccountBlock from "./AccountBlock";
+import axiosInstance from "../axiosInstance";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -32,7 +33,8 @@ interface TabPanelProps {
   ! 怎麼上到 azure
   ! check azure cost
   ! 正式機 也要 dotnet ef migrations add someThing
-  
+  ! 測試如果斷網要怎麼處理,如果網頁斷網 axios 要怎麼處理正在執行的 api
+  ! axios 攔截器 retry 斷網?? 
 
   todo 把 圖表完成 後端
   ? loader 觸發時機  只有在換頁或是action 呼叫時在會觸發(action 呼叫時在會觸發?
@@ -53,9 +55,10 @@ interface TabPanelProps {
 
   ?忘記密碼
     email 後端也寫  
+  ! axios 攔截器, 斷網處理 重新命名
 */
 export async function loader() {
-  const response = await axios.get("/api/AccountIdentity/status");
+  const response = await axiosInstance.get("/api/AccountIdentity/status");
   if (response.data.isAuthenticated) {
     const data = await response.data;
     return data;
