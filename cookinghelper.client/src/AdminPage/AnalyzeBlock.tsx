@@ -46,16 +46,18 @@ export default function AnalyzeBlock() {
     const secondStartTime = startTime!.unix();
     const secondEndTime = endTime!.unix();
     async function runAsync() {
-      const response = await getBarChart({
-        startUtcZSecondTimestamp: secondStartTime,
-        endUtcZSecondTimestamp: secondEndTime,
-        dateUnit: dateUnit,
-      });
-
-      const responseData = await response.json();
-
-      setBarChart(responseData.barChartData);
-      setOverLimit(responseData.overLimit);
+      try {
+        const response = await getBarChart({
+          startUtcZSecondTimestamp: secondStartTime,
+          endUtcZSecondTimestamp: secondEndTime,
+          dateUnit: dateUnit,
+        });
+        setBarChart(response.data.barChartData);
+        setOverLimit(response.data.overLimit);
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
     }
     if (secondStartTime >= secondEndTime) {
       setDateRangeHasError(true);

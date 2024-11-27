@@ -73,13 +73,12 @@ export default function AccountBlock() {
   };
 
   /*
-    ! api 錯誤處理, api中斷, 使用api Page
-    checkbox, select 情況
-    setState 傳function 紀錄 page 
-    axios fetch 差別 page
-
-    ! 全部改成 axios 加錯誤處理
-    ! 完成 登出
+   
+    ! apiController 刪掉
+    
+    
+    todo 紀錄 Conflict
+    todo 查看 command
   */
 
   const handleSubmit = async () => {
@@ -92,8 +91,8 @@ export default function AccountBlock() {
       await axios.post(
         "/api/AccountIdentity/register",
         {
-          email: emailRef.current!.value,
-          password: passwordRef.current!.value,
+          email: emailRef.current!.value.trim(),
+          password: passwordRef.current!.value.trim(),
           permission: permissionRef.current!.value,
         },
         {
