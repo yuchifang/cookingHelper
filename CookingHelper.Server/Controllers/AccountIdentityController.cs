@@ -83,7 +83,7 @@ public class AccountIdentityController : ControllerBase
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user == null)
         {
-            return NotFound(new { message = "Invalid login attempt." });
+            return Unauthorized(new { message = "Invalid login attempt." });
         }
         var result = await _signInManager.PasswordSignInAsync(
             user,
@@ -93,7 +93,7 @@ public class AccountIdentityController : ControllerBase
         );
 
         if (!result.Succeeded)
-            return NotFound(new { message = "Invalid login attempt." });
+            return Unauthorized(new { message = "Invalid login attempt." });
 
         return Ok("User logged in successfully.");
     }
