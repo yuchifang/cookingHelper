@@ -16,10 +16,11 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormHelperText from "@mui/material/FormHelperText";
 
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
+import axiosInstance from "../axiosInterceptor";
 
 interface ApiStatus {
   status: string;
@@ -88,7 +89,7 @@ export default function AccountBlock() {
     setApiStatus(() => ({ status: "loading", message: "" }));
     if (apiStatus.status === "loading") return;
     try {
-      await axios.post(
+      await axiosInstance.post(
         "/api/AccountIdentity/register",
         {
           email: emailRef.current!.value.trim(),
@@ -106,10 +107,19 @@ export default function AccountBlock() {
     } catch (error) {
       const err = error as AxiosError<Error>;
 
-      setApiStatus(() => ({
-        status: "error",
-        message: err.response!.data.message,
-      }));
+      if (err.response) {
+        setApiStatus(() => ({
+          status: "error",
+          message: err.response!.data.message,
+        }));
+        return;
+      }
+
+      err.message &&
+        setApiStatus(() => ({
+          status: "error",
+          message: err.message,
+        }));
     }
   };
 

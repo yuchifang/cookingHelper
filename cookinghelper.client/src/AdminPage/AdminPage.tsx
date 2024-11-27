@@ -6,9 +6,10 @@ import { useState } from "react";
 import { styled } from "@mui/system";
 import Button from "@mui/material/Button";
 import AnalyzeBlock from "./AnalyzeBlock";
-import axios from "axios";
+
 import AccountBlock from "./AccountBlock";
-import axiosInstance from "../axiosInstance";
+import axiosInterceptor from "../axiosInterceptor";
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -36,29 +37,17 @@ interface TabPanelProps {
   ! 測試如果斷網要怎麼處理,如果網頁斷網 axios 要怎麼處理正在執行的 api
   ! axios 攔截器 retry 斷網?? 
 
-  todo 把 圖表完成 後端
-  ? loader 觸發時機  只有在換頁或是action 呼叫時在會觸發(action 呼叫時在會觸發?
-  todo 用 SQL 產生更多假資料
-
-  ?? 用 react router dom 的 state 判斷登入狀態安全嗎
-  todo 
-  ? //? 帳號判斷要用 session 嗎?  chatgpt
-
-
-  todo 建立帳號的 page here
-  ?成功創建帳號 開提示
-    https://mui.com/material-ui/react-snackbar/
   
-  ?右上角登出 
-
-  ? 登入, 註冊 加入 loading 
-
-  ?忘記密碼
-    email 後端也寫  
+  todo loader 觸發時機  只有在換頁或是action 呼叫時在會觸發(action 呼叫時在會觸發?
+      action 觸發的時機
+  todo 用 SQL 產生更多假資料 使用者登入的假資料, 及line 服務的資料
+  todo 了解 http cookie and Session
+  todo 忘記密碼
+      email 後端也寫  
   ! axios 攔截器, 斷網處理 重新命名
 */
 export async function loader() {
-  const response = await axiosInstance.get("/api/AccountIdentity/status");
+  const response = await axiosInterceptor.get("/api/AccountIdentity/status");
   if (response.data.isAuthenticated) {
     const data = await response.data;
     return data;
@@ -88,7 +77,7 @@ export function AdminPage() {
   };
 
   const handleClick = async () => {
-    await axios.post("/api/AccountIdentity/logout");
+    await axiosInterceptor.post("/api/AccountIdentity/logout");
     navigate("/", { replace: true });
   };
 

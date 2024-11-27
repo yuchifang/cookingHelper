@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInterceptor from "./axiosInterceptor";
 
 export async function getBarChart({
   startUtcZSecondTimestamp,
@@ -9,7 +9,7 @@ export async function getBarChart({
   endUtcZSecondTimestamp: number;
   dateUnit?: string;
 }) {
-  const response = await axios.get(
+  const response = await axiosInterceptor.get(
     `api/applog/getLogList?startTime=${startUtcZSecondTimestamp}&endTime=${endUtcZSecondTimestamp}&dateUnit=${dateUnit}`,
   );
 

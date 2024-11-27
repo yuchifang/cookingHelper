@@ -19,13 +19,13 @@ import { useEffect, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import Alert from "@mui/material/Alert";
 import { getBarChart } from "../api";
+import { AxiosError } from "axios";
+import Snackbar from "@mui/material/Snackbar";
 
 interface Log {
   count: number;
   date: string;
 }
-
-//todo 建立一個 Page for react 處理 api
 
 export default function AnalyzeBlock() {
   const [startTime, setStartTime] = useState<Dayjs | null>(
@@ -38,13 +38,19 @@ export default function AnalyzeBlock() {
   const [dateRangeHasError, setDateRangeHasError] = useState(false);
   const [overLimit, setOverLimit] = useState(false);
   const [barChart, setBarChart] = useState<Log[] | null>(null);
+  const [error, setError] = useState<string>("");
 
   const dateUnitDisplay =
     dateUnit == "day" ? "日" : dateUnit == "month" ? "月" : "年";
 
+  const handleClose = () => {
+    setError("");
+  };
+
   useEffect(() => {
     const secondStartTime = startTime!.unix();
     const secondEndTime = endTime!.unix();
+
     async function runAsync() {
       try {
         const response = await getBarChart({
@@ -55,8 +61,8 @@ export default function AnalyzeBlock() {
         setBarChart(response.data.barChartData);
         setOverLimit(response.data.overLimit);
       } catch (error) {
-        console.log(error);
-        throw error;
+        const err = error as AxiosError<Error>;
+        err.message && setError(err.message);
       }
     }
     if (secondStartTime >= secondEndTime) {
@@ -143,6 +149,12 @@ export default function AnalyzeBlock() {
       <DateUnitBlock>
         <DateUnitButton setDateUnit={setDateUnit} />
       </DateUnitBlock>
+      <Snackbar
+        open={error != ""}
+        autoHideDuration={3000}
+        message={error}
+        onClose={handleClose}
+      />
     </AnalyzeContainer>
   );
 }

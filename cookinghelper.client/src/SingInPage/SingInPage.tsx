@@ -14,10 +14,9 @@ import ForgotPassword from "../ForgotPassword";
 import { redirect, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import Alert from "@mui/material/Alert";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
-
-//! axios 與 fetch 差別
+import axiosInterceptor from "../axiosInterceptor";
 
 //! Aspnet Core Identity ? search?
 
@@ -25,15 +24,11 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 //! Microsoft identity platform
 
-/*
-  todo Axios vs fetch 差別
-  todo admin page
-  todo 建立帳號test
-
-*/
+//! 全部都用 axiosInterceptor, 全部都要加 錯誤處理, err.message
+// axiosInterceptor 在特定 api 加 retry
 
 export async function loader() {
-  const response = await axios.get("/api/AccountIdentity/status");
+  const response = await axiosInterceptor.get("/api/AccountIdentity/status");
   if (response?.data?.isAuthenticated) {
     return redirect("/admin"); // 已登入，跳轉到首頁
   }
@@ -57,7 +52,6 @@ export function SignInPage() {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(event.target.checked);
   };
-  //todo ref Page
 
   const validateInputs = () => {
     let isValid = true;
@@ -95,7 +89,7 @@ export function SignInPage() {
     if (validateInputs()) {
       setLoading(true);
       try {
-        const response = await axios.post(
+        const response = await axiosInterceptor.post(
           "api/AccountIdentity/login",
           {
             email: (emailRef.current as HTMLInputElement).value.trim(),
@@ -114,8 +108,13 @@ export function SignInPage() {
         }
       } catch (error) {
         setLoading(false);
+
         const err = error as AxiosError<Error>;
-        setErrorMessage(err.response!.data.message);
+        if (err.response) {
+          setErrorMessage(err.response.data.message);
+          return;
+        }
+        err.message && setErrorMessage(err.message);
       }
     }
   };

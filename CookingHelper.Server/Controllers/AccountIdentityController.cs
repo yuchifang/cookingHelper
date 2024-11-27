@@ -29,7 +29,7 @@ public class AccountIdentityController : ControllerBase
     public async Task<IActionResult> GetStatus()
     {
         // todo logout 功用是甚麼
-        // todo 註冊看一下 response
+
 
         // ClaimTypes.NameIdentifier 是甚麼 代表什麼意思?
 

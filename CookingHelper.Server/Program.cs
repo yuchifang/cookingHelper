@@ -89,8 +89,6 @@ namespace CookingHelper.Server
                 todo 檢查 cookie
                 todo 忘記密碼
 
-                todo react api 有建議用哪個套件嗎 目前用 fetch
-                todo 錯誤處理
             */
 
             // Configure Identity options
