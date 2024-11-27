@@ -1,4 +1,4 @@
-import { redirect, useLoaderData } from "react-router-dom";
+import { redirect, useLoaderData, useNavigate } from "react-router-dom";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -74,6 +74,7 @@ export function AdminPage() {
   const tabList = [<Tab label="系統分析" sx={{ fontSize: "25px" }} />];
   const [value, setValue] = useState(0);
   const data: Status = useLoaderData() as Status;
+  const navigate = useNavigate();
 
   if (data && data?.permission == "admin") {
     tabList.push(<Tab label="帳號管理" sx={{ fontSize: "25px" }} />);
@@ -83,13 +84,22 @@ export function AdminPage() {
     setValue(newValue);
   };
 
+  const handleClick = async () => {
+    await axios.post("/api/AccountIdentity/logout");
+    navigate("/", { replace: true });
+  };
+
   return (
     <AdminPageContainer>
       <HeaderContainer>
         <Tabs value={value} onChange={handleChange}>
           {tabList}
         </Tabs>
-        <Button variant="outlined" sx={{ fontSize: "23px" }}>
+        <Button
+          variant="outlined"
+          sx={{ fontSize: "23px" }}
+          onClick={handleClick}
+        >
           登出
         </Button>
       </HeaderContainer>
