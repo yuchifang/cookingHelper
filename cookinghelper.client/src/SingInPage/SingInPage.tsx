@@ -14,7 +14,7 @@ import ForgotPassword from "../ForgotPassword";
 import { redirect, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import Alert from "@mui/material/Alert";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 
 //! axios 與 fetch 差別
@@ -48,6 +48,7 @@ export function SignInPage() {
   const [open, setOpen] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+
   const [errorMessage, setErrorMessage] = useState<string>("");
   const navigate = useNavigate();
   const [isChecked, setIsChecked] = useState(false);
@@ -93,23 +94,29 @@ export function SignInPage() {
   const handleSubmit = async () => {
     if (validateInputs()) {
       setLoading(true);
-      const response = await fetch("api/AccountIdentity/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: (emailRef.current as HTMLInputElement).value,
-          password: (passwordRef.current as HTMLInputElement).value,
-          rememberMe: isChecked,
-        }),
-      });
-      setLoading(false);
-      if (response.ok) {
-        return navigate("/admin", { replace: true });
+      try {
+        const response = await axios.post(
+          "api/AccountIdentity/login",
+          {
+            email: (emailRef.current as HTMLInputElement).value.trim(),
+            password: (passwordRef.current as HTMLInputElement).value.trim(),
+            rememberMe: isChecked,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        setLoading(false);
+        if (response.statusText === "OK") {
+          return navigate("/admin", { replace: true });
+        }
+      } catch (error) {
+        setLoading(false);
+        const err = error as AxiosError<Error>;
+        setErrorMessage(err.response!.data.message);
       }
-      const responseData = await response.json();
-      setErrorMessage(responseData.message);
     }
   };
 

@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export async function getBarChart({
   startUtcZSecondTimestamp,
   endUtcZSecondTimestamp,
@@ -7,17 +9,9 @@ export async function getBarChart({
   endUtcZSecondTimestamp: number;
   dateUnit?: string;
 }) {
-  try {
-    const response = await fetch(
-      `api/applog/getLogList?startTime=${startUtcZSecondTimestamp}&endTime=${endUtcZSecondTimestamp}&dateUnit=${dateUnit}`,
-      {
-        method: "GET",
-      },
-    );
+  const response = await axios.get(
+    `api/applog/getLogList?startTime=${startUtcZSecondTimestamp}&endTime=${endUtcZSecondTimestamp}&dateUnit=${dateUnit}`,
+  );
 
-    return response;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
+  return response;
 }
