@@ -3,7 +3,6 @@ using CookingHelper.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-//!  重新產生 AppLog 的資料
 [ApiController]
 [Route("api/[controller]")]
 public class AppLogController : ControllerBase

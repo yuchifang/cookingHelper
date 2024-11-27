@@ -6,9 +6,23 @@ using Microsoft.AspNetCore.Mvc;
 namespace CookingHelper.Controllers;
 
 /*
+    ! 怎麼上到 azure
+    ! check azure cost
+    ! 正式機 也要 dotnet ef migrations add someThing
     todo Unauthorized ??
 */
+//!  重新產生 AppLog 的資料
+//! line 帳號重新登入
+/*
+    todo 紀錄 page
+    DBContext 要加一行
+    base.OnModelCreating(modelBuilder);
+    todo
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+   
+    todo 忘記密碼
 
+*/
 [ApiController]
 [Route("api/[controller]")]
 public class AccountIdentityController : ControllerBase

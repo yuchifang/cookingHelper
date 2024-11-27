@@ -24,9 +24,6 @@ import axiosInterceptor from "../axiosInterceptor";
 
 //! Microsoft identity platform
 
-//! 全部都用 axiosInterceptor, 全部都要加 錯誤處理, err.message
-// axiosInterceptor 在特定 api 加 retry
-
 export async function loader() {
   const response = await axiosInterceptor.get("/api/AccountIdentity/status");
   if (response?.data?.isAuthenticated) {

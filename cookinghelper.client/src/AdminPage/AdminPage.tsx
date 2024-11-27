@@ -15,11 +15,6 @@ interface TabPanelProps {
   index: number;
   value: number;
 }
-/*
-    ? fetcher.formdata 使用方式
-    ? loader 觸發時機  只有在換頁或是action 呼叫時在會觸發(action 呼叫時在會觸發?
-    <Form method="post" action="/songs" />;  action 為送到哪個路由的 action?
-*/
 
 /*
   {
@@ -30,21 +25,20 @@ interface TabPanelProps {
 }
 */
 
-/*
-  ! 怎麼上到 azure
-  ! check azure cost
-  ! 正式機 也要 dotnet ef migrations add someThing
-  ! 測試如果斷網要怎麼處理,如果網頁斷網 axios 要怎麼處理正在執行的 api
-  ! axios 攔截器 retry 斷網?? 
-
-  
+/*  
   todo loader 觸發時機  只有在換頁或是action 呼叫時在會觸發(action 呼叫時在會觸發?
       action 觸發的時機
-  todo 用 SQL 產生更多假資料 使用者登入的假資料, 及line 服務的資料
-  todo 了解 http cookie and Session
+  
   todo 忘記密碼
-      email 後端也寫  
-  ! axios 攔截器, 斷網處理 重新命名
+    email 後端也寫
+  
+  todo 了解 http cookie and Session
+  todo identity backend
+  todo 用 SQL 產生更多假資料 使用者登入的假資料, 及line 服務的資料
+
+  todo responseCache ??
+  todo 瀏覽器 cache ?? frontend backend
+
 */
 export async function loader() {
   const response = await axiosInterceptor.get("/api/AccountIdentity/status");

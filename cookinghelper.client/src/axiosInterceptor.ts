@@ -4,7 +4,6 @@ const axiosInstance = axios.create();
 const MAX_RETRIES = 2;
 const ApiRetryList = ["api/applog/getLogList"];
 
-// 添加回應攔截器
 axiosInstance.interceptors.response.use(
   (response) => response, // 如果請求成功，直接返回回應
   async (error) => {

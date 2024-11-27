@@ -73,15 +73,6 @@ export default function AccountBlock() {
     return isValid;
   };
 
-  /*
-   
-    ! apiController 刪掉
-    
-    
-    todo 紀錄 Conflict
-    todo 查看 command
-  */
-
   const handleSubmit = async () => {
     if (!validateInputs()) {
       return;
