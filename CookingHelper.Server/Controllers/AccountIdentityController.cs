@@ -1,6 +1,8 @@
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using CookingHelper.Model;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CookingHelper.Controllers;
@@ -36,14 +38,17 @@ public class AccountIdentityController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IEmailSender _emailSender;
 
     public AccountIdentityController(
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager
+        SignInManager<ApplicationUser> signInManager,
+        IEmailSender emailSender
     )
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _emailSender = emailSender;
     }
 
     [HttpGet("status")]
@@ -125,8 +130,54 @@ public class AccountIdentityController : ControllerBase
         await _signInManager.SignOutAsync();
         return Ok("User logged out successfully.");
     }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+            return Ok(new { Message = "If the email is valid, a reset link has been sent." });
+
+        // 生成密碼重置令牌
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        // 建立重置連結
+        var resetLink =
+            $"https://localhost:5173/reset-password?email={Uri.EscapeDataString(model.Email)}&token={Uri.EscapeDataString(token)}";
+
+        // 發送重置連結至電子郵件
+        await _emailSender.SendEmailAsync(
+            user.Email,
+            "Reset Password",
+            $"Click here to reset your password: {resetLink}"
+        );
+
+        return Ok(new { Message = "If the email is valid, a reset link has been sent." });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null)
+            return BadRequest(new { Message = "Invalid request." });
+
+        // 驗證令牌並重置密碼
+        var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
+        return Ok(new { Message = "Password has been reset successfully." });
+    }
 }
 
+/*
+    Token 有效期：可透過 builder.Services.Configure<DataProtectionTokenProviderOptions> 配置令牌過期時間。
+    todo 完成全部的程式碼
+    todo 後台 Reset 的部分
+    
+*/
 public class RegisterModel
 {
     public string Email { get; set; }
@@ -139,4 +190,21 @@ public class LoginModel
     public string Email { get; set; }
     public string Password { get; set; }
     public bool RememberMe { get; set; }
+}
+
+public class ForgotPasswordModel
+{
+    [EmailAddress]
+    public string Email { get; set; }
+}
+
+public class ResetPasswordModel
+{
+    [EmailAddress]
+    public string Email { get; set; }
+
+    public string Token { get; set; }
+
+    [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters.")]
+    public string NewPassword { get; set; }
 }
