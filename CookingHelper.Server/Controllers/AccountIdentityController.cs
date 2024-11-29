@@ -9,8 +9,15 @@ namespace CookingHelper.Controllers;
     ! 怎麼上到 azure
     ! check azure cost
     ! 正式機 也要 dotnet ef migrations add someThing
+
+    
     todo Unauthorized ??
 */
+//! Aspnet Core Identity ? search?
+
+//!  Azure Table Storage.
+
+//! Microsoft identity platform
 //!  重新產生 AppLog 的資料
 //! line 帳號重新登入
 /*

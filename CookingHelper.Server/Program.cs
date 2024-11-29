@@ -78,19 +78,6 @@ namespace CookingHelper.Server
                 .AddEntityFrameworkStores<UserListDbContext>()
                 .AddDefaultTokenProviders();
 
-            //!  重新產生 AppLog 的資料
-            //! line 帳號重新登入
-            /*
-                todo 紀錄 page
-                DBContext 要加一行
-                base.OnModelCreating(modelBuilder);
-                todo
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                todo 檢查 cookie
-                todo 忘記密碼
-
-            */
-
             // Configure Identity options
             builder.Services.Configure<IdentityOptions>(IdentityConfigureOptions);
 

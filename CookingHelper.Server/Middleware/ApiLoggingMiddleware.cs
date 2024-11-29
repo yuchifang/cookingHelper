@@ -18,7 +18,7 @@ public class ApiLoggingMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        //! UTC+0 確認
+        //! UTC+0
         var utcNowDate = DateTime.UtcNow;
         var sTimestamp = new DateTimeOffset(utcNowDate).ToUnixTimeSeconds();
 

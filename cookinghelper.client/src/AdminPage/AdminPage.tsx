@@ -26,9 +26,6 @@ interface TabPanelProps {
 */
 
 /*  
-  todo loader 觸發時機  只有在換頁或是action 呼叫時在會觸發(action 呼叫時在會觸發?
-      action 觸發的時機
-  
   todo 忘記密碼
     email 後端也寫
   

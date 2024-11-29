@@ -18,12 +18,6 @@ import { AxiosError } from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import axiosInterceptor from "../axiosInterceptor";
 
-//! Aspnet Core Identity ? search?
-
-//!  Azure Table Storage.
-
-//! Microsoft identity platform
-
 export async function loader() {
   const response = await axiosInterceptor.get("/api/AccountIdentity/status");
   if (response?.data?.isAuthenticated) {
