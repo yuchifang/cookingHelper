@@ -8,6 +8,7 @@ using CookingHelper.Model;
 using CookingHelper.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -77,6 +78,8 @@ namespace CookingHelper.Server
                 .Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<UserListDbContext>()
                 .AddDefaultTokenProviders();
+
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
 
             // Configure Identity options
             builder.Services.Configure<IdentityOptions>(IdentityConfigureOptions);
