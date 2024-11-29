@@ -6,8 +6,9 @@ import AdminPage from "./AdminPage";
 import "./index.css";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import ResetPassword from "./ResetPassword";
 
-const router = createBrowserRouter([SingInPage, AdminPage]);
+const router = createBrowserRouter([SingInPage, AdminPage, ResetPassword]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
