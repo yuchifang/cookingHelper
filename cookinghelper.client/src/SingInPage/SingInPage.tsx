@@ -10,13 +10,14 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/system";
-import ForgotPassword from "../ForgotPassword";
+import ForgotPassword from "./ForgotPassword";
 import { redirect, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import Alert from "@mui/material/Alert";
 import { AxiosError } from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
 import axiosInterceptor from "../axiosInterceptor";
+import Snackbar from "@mui/material/Snackbar";
 
 export async function loader() {
   const response = await axiosInterceptor.get("/api/AccountIdentity/status");
@@ -39,6 +40,7 @@ export function SignInPage() {
   const navigate = useNavigate();
   const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [prompt, setPrompt] = useState<string>("");
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(event.target.checked);
@@ -93,13 +95,11 @@ export function SignInPage() {
             },
           },
         );
-        setLoading(false);
+
         if (response.statusText === "OK") {
           return navigate("/admin", { replace: true });
         }
       } catch (error) {
-        setLoading(false);
-
         const err = error as AxiosError<Error>;
         if (err.response) {
           setErrorMessage(err.response.data.message);
@@ -107,6 +107,7 @@ export function SignInPage() {
         }
         err.message && setErrorMessage(err.message);
       }
+      setLoading(false);
     }
   };
 
@@ -116,6 +117,10 @@ export function SignInPage() {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleClosePrompt = () => {
+    setPrompt("");
   };
 
   return (
@@ -202,7 +207,11 @@ export function SignInPage() {
             {errorMessage != "" && (
               <Alert severity="error">{errorMessage}</Alert>
             )}
-            <ForgotPassword open={open} handleClose={handleClose} />
+            <ForgotPassword
+              open={open}
+              handleClose={handleClose}
+              handlePrompt={setPrompt}
+            />
             <Button
               type="submit"
               fullWidth
@@ -213,6 +222,12 @@ export function SignInPage() {
             </Button>
           </Box>
         </Card>
+        <Snackbar
+          open={prompt !== ""}
+          autoHideDuration={1500}
+          message={prompt}
+          onClose={handleClosePrompt}
+        />
       </SignInContainer>
     </>
   );
