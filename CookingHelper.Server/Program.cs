@@ -75,7 +75,11 @@ namespace CookingHelper.Server
 
             // Add Identity
             builder
-                .Services.AddIdentity<ApplicationUser, IdentityRole>()
+                .Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+                {
+                    // 設定使用 PasswordResetTokenProvider
+                    options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
+                })
                 .AddEntityFrameworkStores<UserListDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -83,6 +87,12 @@ namespace CookingHelper.Server
 
             // Configure Identity options
             builder.Services.Configure<IdentityOptions>(IdentityConfigureOptions);
+
+            builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+            {
+                // 設定密碼重設令牌的有效期限
+                options.TokenLifespan = TimeSpan.FromSeconds(180); // 預設為 1 天
+            });
 
             // Configure Cookie settings
             builder.Services.ConfigureApplicationCookie(CookieAuthenticationOptions);
