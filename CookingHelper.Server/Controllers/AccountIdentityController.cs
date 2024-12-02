@@ -30,6 +30,7 @@ namespace CookingHelper.Controllers;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
    
     todo 忘記密碼
+    builder.Services.Configure<DataProtectionTokenProviderOptions>
 
 */
 [ApiController]
@@ -136,8 +137,10 @@ public class AccountIdentityController : ControllerBase
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user == null)
-            return Ok(new { Message = "If the email is valid, a reset link has been sent." });
+            return Ok(new { Message = "If the email is valid, a reset link has been sent. null" });
 
+        // 更新安全戳記
+        await _userManager.UpdateSecurityStampAsync(user);
         // 生成密碼重置令牌
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
@@ -149,7 +152,7 @@ public class AccountIdentityController : ControllerBase
         await _emailSender.SendEmailAsync(
             user.Email,
             "Reset Password",
-            $"Click here to reset your password: {resetLink}"
+            $"Click here to reset your password: {resetLink} This link will expire in 3 minutes"
         );
 
         return Ok(new { Message = "If the email is valid, a reset link has been sent." });
@@ -173,7 +176,7 @@ public class AccountIdentityController : ControllerBase
 }
 
 /*
-    Token 有效期：可透過 builder.Services.Configure<DataProtectionTokenProviderOptions> 配置令牌過期時間。
+   todo  Token 有效期：可透過 builder.Services.Configure<DataProtectionTokenProviderOptions> 配置令牌過期時間。
     todo 完成全部的程式碼
     todo 後台 Reset 的部分
     

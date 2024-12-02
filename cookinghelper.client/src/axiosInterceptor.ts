@@ -5,7 +5,7 @@ const MAX_RETRIES = 2;
 const ApiRetryList = ["api/applog/getLogList"];
 
 axiosInstance.interceptors.response.use(
-  (response) => response, // 如果請求成功，直接返回回應
+  (response) => response,
   async (error) => {
     const config = error.config;
     const APIString = config.url;

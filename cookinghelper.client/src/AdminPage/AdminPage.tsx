@@ -23,11 +23,18 @@ interface TabPanelProps {
   "permission": "admin",
   "username": "fangfelipe@gmail.com"
 }
+   {
+  "email": "fang@gmail.com",
+  "password": "123456",
+  "permission": "guest",
+  "username": "fangfelipe@gmail.com"
+}
 */
-
+//
 /*  
   todo 忘記密碼
     email 後端也寫
+    加 page
   
   todo 了解 http cookie and Session
   todo identity backend

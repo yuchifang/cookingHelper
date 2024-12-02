@@ -37,7 +37,6 @@ export default function ForgotPassword({
         },
       );
       if (response.statusText === "OK") {
-        console.log(response);
         response.data && handlePrompt(response.data.message);
       }
     } catch (error) {
