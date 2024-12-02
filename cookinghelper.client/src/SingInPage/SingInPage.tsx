@@ -95,19 +95,20 @@ export function SignInPage() {
             },
           },
         );
-
+        setLoading(false);
         if (response.statusText === "OK") {
           return navigate("/admin", { replace: true });
         }
       } catch (error) {
+        setLoading(false);
         const err = error as AxiosError<Error>;
+
         if (err.response) {
           setErrorMessage(err.response.data.message);
           return;
         }
         err.message && setErrorMessage(err.message);
       }
-      setLoading(false);
     }
   };
 
@@ -224,7 +225,7 @@ export function SignInPage() {
         </Card>
         <Snackbar
           open={prompt !== ""}
-          autoHideDuration={1500}
+          autoHideDuration={2000}
           message={prompt}
           onClose={handleClosePrompt}
         />
