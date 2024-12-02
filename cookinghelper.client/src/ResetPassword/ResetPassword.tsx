@@ -20,13 +20,17 @@ interface MessageInfo {
   status: "error" | "success";
 }
 
-// 看後台 設定密碼
-// todo 正式機 send email url
 export function ResetPassword() {
   const resetPasswordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
   const [searchParams] = useSearchParams();
+
   const [resetPasswordError, setResetPasswordError] = useState(false);
   const [resetPasswordErrorMessage, setResetPasswordErrorMessage] =
+    useState("");
+
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+  const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] =
     useState("");
 
   const [messageInfo, setMessageInfo] = useState<MessageInfo>({
@@ -35,6 +39,13 @@ export function ResetPassword() {
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  if (
+    searchParams.get("email") === null ||
+    searchParams.get("token") === null
+  ) {
+    throw "error";
+  }
 
   const validateInputs = () => {
     let isValid = true;
@@ -53,6 +64,24 @@ export function ResetPassword() {
       setResetPasswordError(false);
       setResetPasswordErrorMessage("");
     }
+
+    if (
+      !resetPasswordRef.current ||
+      !confirmPasswordRef.current ||
+      !confirmPasswordRef.current.value ||
+      confirmPasswordRef.current.value.length < 6 ||
+      confirmPasswordRef.current.value !== resetPasswordRef.current.value
+    ) {
+      setConfirmPasswordError(true);
+      setConfirmPasswordErrorMessage(
+        "The reset password and confirmation password must be the same",
+      );
+      isValid = false;
+    } else {
+      setConfirmPasswordError(false);
+      setConfirmPasswordErrorMessage("");
+    }
+
     return isValid;
   };
 
@@ -73,9 +102,11 @@ export function ResetPassword() {
             },
           },
         );
+        setLoading(false);
         navigate("/", { replace: true });
       } catch (error) {
         const err = error as AxiosError<Error>;
+
         if (err.response && err.response!.data.message) {
           setMessageInfo(() => ({
             status: "error",
@@ -83,6 +114,7 @@ export function ResetPassword() {
           }));
           return;
         }
+
         err.message &&
           setMessageInfo(() => ({ status: "error", message: err.message }));
       }
@@ -118,6 +150,26 @@ export function ResetPassword() {
               error={resetPasswordError}
               helperText={resetPasswordErrorMessage}
               name="password"
+              placeholder="••••••"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              autoFocus
+              required
+              fullWidth
+              variant="outlined"
+              color={resetPasswordError ? "error" : "primary"}
+            />
+          </FormControl>
+          <FormControl>
+            <Box sx={{ display: "flex", justifyContent: "start" }}>
+              <FormLabel htmlFor="email">Confirm Password</FormLabel>
+            </Box>
+            <TextField
+              inputRef={confirmPasswordRef}
+              error={confirmPasswordError}
+              helperText={confirmPasswordErrorMessage}
+              name="confirmPassword"
               placeholder="••••••"
               type="password"
               id="password"
