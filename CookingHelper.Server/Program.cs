@@ -75,11 +75,7 @@ namespace CookingHelper.Server
 
             // Add Identity
             builder
-                .Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-                {
-                    // 設定使用 PasswordResetTokenProvider
-                    options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
-                })
+                .Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<UserListDbContext>()
                 .AddDefaultTokenProviders();
 
