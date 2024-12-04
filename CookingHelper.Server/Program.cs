@@ -93,6 +93,11 @@ namespace CookingHelper.Server
             // Configure Cookie settings
             builder.Services.ConfigureApplicationCookie(CookieAuthenticationOptions);
 
+            builder.Services.Configure<CookiePolicyOptions>(options =>
+            {
+                options.MinimumSameSitePolicy = SameSiteMode.Lax; // 全局 SameSite 策略
+            });
+
             var app = builder.Build();
 
             app.UseWhen(
@@ -160,6 +165,7 @@ namespace CookingHelper.Server
             options.Cookie.HttpOnly = true;
             options.ExpireTimeSpan = TimeSpan.FromDays(14); // Example: 2 weeks
             options.SlidingExpiration = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         }
     }
 }
