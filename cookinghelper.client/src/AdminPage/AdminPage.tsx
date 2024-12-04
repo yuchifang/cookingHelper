@@ -30,20 +30,7 @@ interface TabPanelProps {
   "username": "fangfelipe@gmail.com"
 }
 */
-//
-/*  
-  todo 忘記密碼
-    email 後端也寫
-    加 page
-  
-  todo 了解 http cookie and Session
-  todo identity backend
-  todo 用 SQL 產生更多假資料 使用者登入的假資料, 及line 服務的資料
 
-  todo responseCache ??
-  todo 瀏覽器 cache ?? frontend backend
-
-*/
 export async function loader() {
   const response = await axiosInterceptor.get("/api/AccountIdentity/status");
   if (response.data.isAuthenticated) {

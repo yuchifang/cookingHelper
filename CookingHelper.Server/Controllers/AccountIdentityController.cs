@@ -14,8 +14,6 @@ namespace CookingHelper.Controllers;
     todo rememberMe 正式機
 
     todo http cookie
-    
-    todo Unauthorized ??
 */
 //! Aspnet Core Identity ? search?
 
@@ -25,15 +23,8 @@ namespace CookingHelper.Controllers;
 //!  重新產生 AppLog 的資料
 //! line 帳號重新登入
 /*
-    todo 紀錄 page
-    DBContext 要加一行
-    base.OnModelCreating(modelBuilder);
     todo
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-   
-    todo 忘記密碼
-    builder.Services.Configure<DataProtectionTokenProviderOptions>
-
 */
 [ApiController]
 [Route("api/[controller]")]
