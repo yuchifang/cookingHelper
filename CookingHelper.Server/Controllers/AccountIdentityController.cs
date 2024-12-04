@@ -8,23 +8,22 @@ using Microsoft.AspNetCore.Mvc;
 namespace CookingHelper.Controllers;
 
 /*
+    todo responseCache ??
+    todo 瀏覽器 cache ?? frontend backend
+    todo 問 chatGPT 看看 結果
+
+
+    todo 正式機 check 後台page
+
+    todo 用 SQL 產生更多假資料 使用者登入的假資料, 及line 服務的資料
+    todo rememberMe 正式機
     ! 怎麼上到 azure
     ! check azure cost
     ! 正式機 也要 dotnet ef migrations add someThing
-    todo rememberMe 正式機
+    !  重新產生 AppLog 的資料
+    ! line 帳號重新登入
+    ! 整理 cookie
 
-    todo http cookie
-*/
-//! Aspnet Core Identity ? search?
-
-//!  Azure Table Storage.
-
-//! Microsoft identity platform
-//!  重新產生 AppLog 的資料
-//! line 帳號重新登入
-/*
-    todo
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 */
 [ApiController]
 [Route("api/[controller]")]
