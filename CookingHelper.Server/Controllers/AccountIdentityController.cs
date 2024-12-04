@@ -11,7 +11,9 @@ namespace CookingHelper.Controllers;
     ! 怎麼上到 azure
     ! check azure cost
     ! 正式機 也要 dotnet ef migrations add someThing
+    todo rememberMe 正式機
 
+    todo http cookie
     
     todo Unauthorized ??
 */
@@ -55,11 +57,6 @@ public class AccountIdentityController : ControllerBase
     [HttpGet("status")]
     public async Task<IActionResult> GetStatus()
     {
-        // todo logout 功用是甚麼
-
-
-        // ClaimTypes.NameIdentifier 是甚麼 代表什麼意思?
-
         if (User.Identity?.IsAuthenticated == true) // 判斷有沒有登入
         {
             // 獲取當前用戶的 UserId
@@ -77,7 +74,7 @@ public class AccountIdentityController : ControllerBase
                         {
                             IsAuthenticated = true,
                             Username = User.Identity.Name,
-                            Permission = user.Permission // 獲取自定義屬性
+                            Permission = user.Permission
                         }
                     );
                 }
@@ -137,7 +134,7 @@ public class AccountIdentityController : ControllerBase
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user == null)
-            return Ok(new { Message = "If the email is valid, a reset link has been sent. null" });
+            return Ok(new { Message = "If the email is valid, a reset link has been sent." });
 
         // 更新安全戳記
         await _userManager.UpdateSecurityStampAsync(user);
@@ -175,12 +172,6 @@ public class AccountIdentityController : ControllerBase
     }
 }
 
-/*
-   todo  Token 有效期：可透過 builder.Services.Configure<DataProtectionTokenProviderOptions> 配置令牌過期時間。
-    todo 完成全部的程式碼
-    todo 後台 Reset 的部分
-    
-*/
 public class RegisterModel
 {
     public string Email { get; set; }
