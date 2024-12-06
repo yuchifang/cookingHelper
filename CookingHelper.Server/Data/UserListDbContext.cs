@@ -1,20 +1,24 @@
 using CookingHelper.Model;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CookingHelper.Data;
 
-public class UserListDbContext : DbContext
+public class UserListDbContext : IdentityDbContext<ApplicationUser>
 {
     public UserListDbContext(DbContextOptions<UserListDbContext> options)
         : base(options) { }
 
     public DbSet<UserList> UserList { get; set; }
-
     public DbSet<StoreItem> StoreItem { get; set; }
     public DbSet<RecipeItem> RecipeItem { get; set; }
+    public DbSet<Account> Account { get; set; }
+
+    public DbSet<ApiLog> ApiLog { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<UserList>(entityBuilder =>
         {
             entityBuilder.Property(e => e.UserId);
@@ -49,10 +53,22 @@ public class UserListDbContext : DbContext
             .Property(RecipeItem => RecipeItem.RecipeItemId)
             .ValueGeneratedOnAdd();
 
+        modelBuilder.Entity<Account>().HasKey(Account => Account.AccountId);
+
+        modelBuilder.Entity<Account>().Property(Account => Account.AccountId).ValueGeneratedOnAdd();
+
+        modelBuilder.Entity<ApiLog>().HasKey(ApiLog => ApiLog.Id);
+
+        modelBuilder.Entity<ApiLog>().Property(ApiLog => ApiLog.Id).ValueGeneratedOnAdd();
+
         modelBuilder.Entity<UserList>().ToTable("UserList");
 
         modelBuilder.Entity<StoreItem>().ToTable("StoreItem");
 
         modelBuilder.Entity<RecipeItem>().ToTable("RecipeItem");
+
+        modelBuilder.Entity<Account>().ToTable("Account");
+
+        modelBuilder.Entity<ApiLog>().ToTable("ApiLog");
     }
 }

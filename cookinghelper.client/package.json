@@ -7,14 +7,34 @@
     "dev": "vite",
     "build": "cross-env NODE_ENV=production && tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "cd .. && husky cookinghelper.client/.husky"
+  },
+  "lint-staged": {
+    "src/**/**.{ts,tsx}": [
+      "eslint --fix"
+    ],
+    "src/**": "prettier --write --ignore-unknown"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/base": "^5.0.0-beta.61",
+    "@mui/material": "^6.1.4",
+    "@mui/styled-engine-sc": "^6.1.4",
+    "@mui/system": "^6.1.6",
+    "@mui/x-date-pickers": "^7.22.2",
+    "axios": "^1.7.7",
     "cross-env": "^7.0.3",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
     "node_env": "^0.0.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-is": "^18.3.1",
+    "react-router-dom": "^6.27.0",
+    "recharts": "^2.13.3",
+    "styled-components": "^6.1.13"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
@@ -24,7 +44,10 @@
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.6",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "3.3.3",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }

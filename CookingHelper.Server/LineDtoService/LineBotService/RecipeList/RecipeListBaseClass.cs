@@ -1,5 +1,6 @@
 using System.Text.Json;
 using CookingHelper.Enum;
+using CookingHelper.Extension;
 using CookingHelper.LineDto;
 using CookingHelper.Model;
 
@@ -181,10 +182,4 @@ class RecipeListBaseClass : MessageUI
             },
         };
     }
-}
-
-public static class IEnumerableExtensions
-{
-    public static IEnumerable<(T item, int index)> WithIndex<T>(this IEnumerable<T> self) =>
-        self.Select((item, index) => (item, index));
 }
