@@ -57,7 +57,7 @@ export function AdminPage() {
     tabList.push(<Tab label="帳號管理" sx={{ fontSize: "25px" }} />);
   }
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
