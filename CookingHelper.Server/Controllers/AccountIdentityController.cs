@@ -12,6 +12,12 @@ namespace CookingHelper.Controllers;
     todo 瀏覽器 cache ?? frontend backend
     todo 問 chatGPT 看看 結果
 
+    csproj,esproj 裡面的程式碼用意
+    todo 詢問 MapFallbackToFile 這個功能是什麼
+    todo 詢問 aspnet core 與 react Spa 專案是透過哪些設定才能互相連結的
+    todo page aspnet core 與 react 連結
+
+
 
     todo 正式機 check 後台page
 
