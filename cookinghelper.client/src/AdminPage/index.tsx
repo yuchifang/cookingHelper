@@ -1,9 +1,11 @@
 import ErrorElement from "../ErrorElement";
-import { AdminPage, loader } from "./AdminPage";
 
 export default {
   path: "/admin",
-  element: <AdminPage />,
-  errorElement: <ErrorElement />,
-  loader: loader,
+  async lazy() {
+    const { AdminPage, loader } = await import(
+      /*webpackChunkName: "AdminPage"*/ "./AdminPage"
+    );
+    return { Component: AdminPage, ErrorBoundary: ErrorElement, loader };
+  },
 };

@@ -1,10 +1,11 @@
 import ErrorElement from "../ErrorElement";
-import { SignInPage, loader } from "./SingInPage";
 
 export default {
   path: "/",
-  element: <SignInPage />,
-  errorElement: <ErrorElement />,
-
-  loader: loader,
+  async lazy() {
+    const { SignInPage, loader } = await import(
+      /*webpackChunkName: "SignInPage"*/ "./SignInPage"
+    );
+    return { Component: SignInPage, loader, ErrorBoundary: ErrorElement };
+  },
 };

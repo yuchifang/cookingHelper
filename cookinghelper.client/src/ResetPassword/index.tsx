@@ -1,8 +1,11 @@
 import ErrorElement from "../ErrorElement";
-import { ResetPassword } from "./ResetPassword";
 
 export default {
   path: "/reset-password",
-  element: <ResetPassword />,
-  errorElement: <ErrorElement />,
+  async lazy() {
+    const { ResetPassword } = await import(
+      /*webpackChunkName: "ResetPassword"*/ "./ResetPassword"
+    );
+    return { Component: ResetPassword, ErrorBoundary: ErrorElement };
+  },
 };
