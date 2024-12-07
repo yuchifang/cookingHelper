@@ -129,11 +129,6 @@ namespace CookingHelper.Server
                         {
                             headers["Cache-Control"] = "public,max-age=31536000";
                         }
-                        else
-                        {
-                            // 對其他文件設置短時間快取，確保修改能被快速反映
-                            headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
-                        }
                     }
                 }
             );
