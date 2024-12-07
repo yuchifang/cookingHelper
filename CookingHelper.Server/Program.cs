@@ -119,7 +119,22 @@ namespace CookingHelper.Server
                             "RecipeImage"
                         )
                     ),
-                    RequestPath = "/UploadFile/RecipeImage"
+                    RequestPath = "/UploadFile/RecipeImage",
+                    OnPrepareResponse = context =>
+                    {
+                        var headers = context.Context.Response.Headers;
+
+                        // 對帶有哈希的文件使用長時間快取
+                        if (context.File.Name.EndsWith(".js") || context.File.Name.EndsWith(".css"))
+                        {
+                            headers["Cache-Control"] = "public,max-age=31536000";
+                        }
+                        else
+                        {
+                            // 對其他文件設置短時間快取，確保修改能被快速反映
+                            headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+                        }
+                    }
                 }
             );
 
