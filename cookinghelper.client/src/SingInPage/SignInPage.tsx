@@ -27,6 +27,7 @@ export async function loader() {
   return null;
 }
 
+SignInPage.displayName = "SignInPage";
 export function SignInPage() {
   const [emailError, setEmailError] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState("");

@@ -46,7 +46,7 @@ interface Status {
   username: string;
   permission: string;
 }
-
+AdminPage.displayName = "AdminPage";
 export function AdminPage() {
   const tabList = [<Tab label="系統分析" sx={{ fontSize: "25px" }} />];
   const [value, setValue] = useState(0);
