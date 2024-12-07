@@ -19,7 +19,7 @@ interface MessageInfo {
   message: string;
   status: "error" | "success";
 }
-
+ResetPassword.displayName = "ResetPassword";
 export function ResetPassword() {
   const resetPasswordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);

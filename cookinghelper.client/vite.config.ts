@@ -1,7 +1,8 @@
 import { fileURLToPath, URL } from 'node:url';
-
+import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
+import commonjs from 'vite-plugin-commonjs'
 import dotenv from "dotenv";
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
@@ -18,7 +19,33 @@ if (!certFileContent || !keyFileContent) {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [plugin()],
+  plugins: [plugin(), commonjs(), visualizer({
+    open: true
+  })],
+  build: {
+    target: 'esnext',
+
+    rollupOptions: {
+      output: {
+        chunkFileNames: '[name]~[hash:6].js',
+        manualChunks(id, module) {
+          if (id.includes('@mui')) {
+
+            return "@mui"
+          }
+          if (id.includes('recharts')) {
+            return "recharts"
+          }
+          if (id.includes('lodash')) {
+            return "lodash"
+          }
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        }
+      },
+    }
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
