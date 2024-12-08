@@ -129,6 +129,14 @@ namespace CookingHelper.Server
                         {
                             headers["Cache-Control"] = "public,max-age=31536000";
                         }
+                        if (context.File.Name.EndsWith(".js"))
+                        {
+                            headers["Content-Type"] = "application/javascript";
+                        }
+                        else if (context.File.Name.EndsWith(".css"))
+                        {
+                            headers["Content-Type"] = "text/css";
+                        }
                     }
                 }
             );
