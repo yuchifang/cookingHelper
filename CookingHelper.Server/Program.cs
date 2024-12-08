@@ -112,6 +112,21 @@ namespace CookingHelper.Server
             app.UseStaticFiles(
                 new StaticFileOptions
                 {
+                    OnPrepareResponse = context =>
+                    {
+                        var headers = context.Context.Response.Headers;
+
+                        if (context.File.Name.EndsWith(".js") || context.File.Name.EndsWith(".css"))
+                        {
+                            headers["Cache-Control"] = "public,max-age=31536000";
+                        }
+                    }
+                }
+            );
+
+            app.UseStaticFiles(
+                new StaticFileOptions
+                {
                     FileProvider = new PhysicalFileProvider(
                         Path.Combine(
                             builder.Environment.ContentRootPath,
@@ -123,20 +138,7 @@ namespace CookingHelper.Server
                     OnPrepareResponse = context =>
                     {
                         var headers = context.Context.Response.Headers;
-
-                        // 對帶有哈希的文件使用長時間快取
-                        if (context.File.Name.EndsWith(".js") || context.File.Name.EndsWith(".css"))
-                        {
-                            headers["Cache-Control"] = "public,max-age=31536000";
-                        }
-                        if (context.File.Name.EndsWith(".js"))
-                        {
-                            headers["Content-Type"] = "application/javascript";
-                        }
-                        else if (context.File.Name.EndsWith(".css"))
-                        {
-                            headers["Content-Type"] = "text/css";
-                        }
+                        headers["Cache-Control"] = "public,max-age=31536000";
                     }
                 }
             );
