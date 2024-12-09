@@ -183,7 +183,11 @@ export function ResetPassword() {
           </FormControl>
 
           {messageInfo.message !== "" && (
-            <Alert severity={messageInfo.status}>{messageInfo.message}</Alert>
+            <Alert severity={messageInfo.status}>
+              {messageInfo.message !== ""
+                ? messageInfo.message
+                : "Something went wrong"}
+            </Alert>
           )}
 
           <Button

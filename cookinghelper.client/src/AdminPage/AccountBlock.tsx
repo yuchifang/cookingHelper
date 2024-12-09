@@ -190,7 +190,11 @@ export default function AccountBlock() {
           </Button>
         </Box>
         {apiStatus.status === "error" && (
-          <Alert severity="error">{apiStatus.message}</Alert>
+          <Alert severity="error">
+            {apiStatus.message !== ""
+              ? apiStatus.message
+              : "Something went wrong"}
+          </Alert>
         )}
       </Card>
       <Snackbar
