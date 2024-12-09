@@ -143,7 +143,7 @@ public class AccountIdentityController : ControllerBase
 
         // 發送重置連結至電子郵件
         await _emailSender.SendEmailAsync(
-            user.Email,
+            user.Email!,
             "Reset Password",
             $"Click here to reset your password: {resetLink} This link will expire in 3 minutes"
         );
@@ -170,31 +170,31 @@ public class AccountIdentityController : ControllerBase
 
 public class RegisterModel
 {
-    public string Email { get; set; }
-    public string Password { get; set; }
-    public string Permission { get; set; }
+    public string Email { get; set; } = default!;
+    public string Password { get; set; } = default!;
+    public string Permission { get; set; } = default!;
 }
 
 public class LoginModel
 {
-    public string Email { get; set; }
-    public string Password { get; set; }
-    public bool RememberMe { get; set; }
+    public string Email { get; set; } = default!;
+    public string Password { get; set; } = default!;
+    public bool RememberMe { get; set; } = default!;
 }
 
 public class ForgotPasswordModel
 {
     [EmailAddress]
-    public string Email { get; set; }
+    public string Email { get; set; } = default!;
 }
 
 public class ResetPasswordModel
 {
     [EmailAddress]
-    public string Email { get; set; }
+    public string Email { get; set; } = default!;
 
-    public string Token { get; set; }
+    public string Token { get; set; } = default!;
 
     [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters.")]
-    public string NewPassword { get; set; }
+    public string NewPassword { get; set; } = default!;
 }

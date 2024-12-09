@@ -4,5 +4,5 @@ namespace CookingHelper.Model;
 
 public class ApplicationUser : IdentityUser
 {
-    public string Permission { get; set; }
+    public string Permission { get; set; } = default!;
 }

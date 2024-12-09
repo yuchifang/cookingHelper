@@ -16,7 +16,7 @@ public class AppLogController : ControllerBase
 
     [HttpGet("getLogList")]
     //! UTC +0 Second Time
-    public async Task<ActionResult> GetLogList(string startTime, string endTime, string dateUnit)
+    public ActionResult GetLogList(string startTime, string endTime, string dateUnit)
     {
         var startTimeLong = Convert.ToInt64(startTime);
         var endTimeLong = Convert.ToInt64(endTime);
