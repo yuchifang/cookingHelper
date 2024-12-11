@@ -7,30 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CookingHelper.Controllers;
 
-/*
-    todo responseCache ??
-    todo 瀏覽器 cache ?? frontend backend
-    todo 問 chatGPT 看看 結果
-
-    csproj,esproj 裡面的程式碼用意
-    todo 詢問 MapFallbackToFile 這個功能是什麼
-    todo 詢問 aspnet core 與 react Spa 專案是透過哪些設定才能互相連結的
-    todo page aspnet core 與 react 連結
-
-
-
-    todo 正式機 check 後台page
-
-    todo 用 SQL 產生更多假資料 使用者登入的假資料, 及line 服務的資料
-    todo rememberMe 正式機
-    ! 怎麼上到 azure
-    ! check azure cost
-    ! 正式機 也要 dotnet ef migrations add someThing
-    !  重新產生 AppLog 的資料
-    ! line 帳號重新登入
-    ! 整理 cookie
-
-*/
 [ApiController]
 [Route("api/[controller]")]
 public class AccountIdentityController : ControllerBase
@@ -143,7 +119,7 @@ public class AccountIdentityController : ControllerBase
 
         // 發送重置連結至電子郵件
         await _emailSender.SendEmailAsync(
-            user.Email,
+            user.Email!,
             "Reset Password",
             $"Click here to reset your password: {resetLink} This link will expire in 3 minutes"
         );
@@ -170,31 +146,31 @@ public class AccountIdentityController : ControllerBase
 
 public class RegisterModel
 {
-    public string Email { get; set; }
-    public string Password { get; set; }
-    public string Permission { get; set; }
+    public string Email { get; set; } = default!;
+    public string Password { get; set; } = default!;
+    public string Permission { get; set; } = default!;
 }
 
 public class LoginModel
 {
-    public string Email { get; set; }
-    public string Password { get; set; }
-    public bool RememberMe { get; set; }
+    public string Email { get; set; } = default!;
+    public string Password { get; set; } = default!;
+    public bool RememberMe { get; set; } = default!;
 }
 
 public class ForgotPasswordModel
 {
     [EmailAddress]
-    public string Email { get; set; }
+    public string Email { get; set; } = default!;
 }
 
 public class ResetPasswordModel
 {
     [EmailAddress]
-    public string Email { get; set; }
+    public string Email { get; set; } = default!;
 
-    public string Token { get; set; }
+    public string Token { get; set; } = default!;
 
     [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters.")]
-    public string NewPassword { get; set; }
+    public string NewPassword { get; set; } = default!;
 }

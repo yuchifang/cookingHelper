@@ -2,23 +2,29 @@ namespace CookingHelper.Service;
 
 public class ApiLogService
 {
-    private readonly Dictionary<string, long> _logs = new Dictionary<string, long>();
+    private readonly List<Log> _logs = new List<Log>();
 
     public void AddLog(string userId, long time)
     {
         lock (_logs)
         {
-            _logs.Add(userId, time);
+            _logs.Add(new Log { UserId = userId, Time = time });
         }
     }
 
-    public Dictionary<string, long> GetAndClearLogs()
+    public List<Log> GetAndClearLogs()
     {
         lock (_logs)
         {
-            var logsToSave = new Dictionary<string, long>(_logs);
+            var logsToSave = new List<Log>(_logs);
             _logs.Clear();
             return logsToSave;
         }
+    }
+
+    public class Log
+    {
+        public string UserId { get; set; } = default!;
+        public long Time { get; set; } = default!;
     }
 }

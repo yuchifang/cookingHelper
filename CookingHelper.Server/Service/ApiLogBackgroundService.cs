@@ -29,9 +29,9 @@ public class ApiLogBackgroundService : BackgroundService
                     var dbContext = scope.ServiceProvider.GetRequiredService<UserListDbContext>();
 
                     var logList = logDic
-                        .Select(item => new ApiLog { UserId = item.Key, LogTime = item.Value })
+                        .Select(item => new ApiLog { UserId = item.UserId, LogTime = item.Time })
                         .ToList();
-                    dbContext.ApiLog.AddRange(logList);
+                    await dbContext.ApiLog.AddRangeAsync(logList);
 
                     await dbContext.SaveChangesAsync(stoppingToken);
                 }

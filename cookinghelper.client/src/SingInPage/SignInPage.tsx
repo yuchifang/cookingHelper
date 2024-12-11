@@ -206,7 +206,7 @@ export function SignInPage() {
               }
               label="Remember me"
             />
-            {errorMessage != "" && (
+            {errorMessage !== "" && (
               <Alert severity="error">{errorMessage}</Alert>
             )}
             <ForgotPassword
