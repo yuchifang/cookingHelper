@@ -7,30 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CookingHelper.Controllers;
 
-/*
-    todo responseCache ??
-    todo 瀏覽器 cache ?? frontend backend
-    todo 問 chatGPT 看看 結果
-
-    csproj,esproj 裡面的程式碼用意
-    todo 詢問 MapFallbackToFile 這個功能是什麼
-    todo 詢問 aspnet core 與 react Spa 專案是透過哪些設定才能互相連結的
-    todo page aspnet core 與 react 連結
-
-
-
-    todo 正式機 check 後台page
-
-    todo 用 SQL 產生更多假資料 使用者登入的假資料, 及line 服務的資料
-    todo rememberMe 正式機
-    ! 怎麼上到 azure
-    ! check azure cost
-    ! 正式機 也要 dotnet ef migrations add someThing
-    !  重新產生 AppLog 的資料
-    ! line 帳號重新登入
-    ! 整理 cookie
-
-*/
 [ApiController]
 [Route("api/[controller]")]
 public class AccountIdentityController : ControllerBase
