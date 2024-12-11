@@ -92,7 +92,8 @@ public class MessageUI
                         Text = valueString,
                         Size = "md",
                         Color = "#111111",
-                        Align = "end"
+                        Align = "end",
+                        Wrap = true
                     },
                 }
             };

@@ -318,7 +318,7 @@ public class RecipeListAdditionService
             [
                 new TextMessageObject
                 {
-                    Text = "請輸入步驟 限制20個",
+                    Text = "請輸入步驟 限制3個",
                     QuickReply = new QuickReplyItemDto
                     {
                         Items = new List<QuickReplyButtonDto>
@@ -339,13 +339,13 @@ public class RecipeListAdditionService
     public void StepStatus(string WebHookEventMessage)
     {
         var RecipeMethodGroup = RecipeListBaseClass.Instance;
-        if (_InputRecipeInfoStatic.Step.Count == 20)
+        if (_InputRecipeInfoStatic.Step.Count == 3)
         {
             _ReplyMessageListStatic = new List<object>(
                 [
                     new TextMessageObject
                     {
-                        Text = "已達到步驟次數上限",
+                        Text = "已達到步驟次數上限 有字數限制",
                         QuickReply = new QuickReplyItemDto
                         {
                             Items = new List<QuickReplyButtonDto>
@@ -373,7 +373,7 @@ public class RecipeListAdditionService
                 [
                     new TextMessageObject
                     {
-                        Text = "請輸入下一個步驟",
+                        Text = "請輸入下一個步驟 有字數限制",
                         QuickReply = new QuickReplyItemDto
                         {
                             Items = new List<QuickReplyButtonDto>
