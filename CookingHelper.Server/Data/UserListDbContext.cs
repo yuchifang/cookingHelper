@@ -12,7 +12,6 @@ public class UserListDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<UserList> UserList { get; set; }
     public DbSet<StoreItem> StoreItem { get; set; }
     public DbSet<RecipeItem> RecipeItem { get; set; }
-    public DbSet<Account> Account { get; set; }
 
     public DbSet<ApiLog> ApiLog { get; set; }
 
@@ -53,10 +52,6 @@ public class UserListDbContext : IdentityDbContext<ApplicationUser>
             .Property(RecipeItem => RecipeItem.RecipeItemId)
             .ValueGeneratedOnAdd();
 
-        modelBuilder.Entity<Account>().HasKey(Account => Account.AccountId);
-
-        modelBuilder.Entity<Account>().Property(Account => Account.AccountId).ValueGeneratedOnAdd();
-
         modelBuilder.Entity<ApiLog>().HasKey(ApiLog => ApiLog.Id);
 
         modelBuilder.Entity<ApiLog>().Property(ApiLog => ApiLog.Id).ValueGeneratedOnAdd();
@@ -66,8 +61,6 @@ public class UserListDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<StoreItem>().ToTable("StoreItem");
 
         modelBuilder.Entity<RecipeItem>().ToTable("RecipeItem");
-
-        modelBuilder.Entity<Account>().ToTable("Account");
 
         modelBuilder.Entity<ApiLog>().ToTable("ApiLog");
     }
