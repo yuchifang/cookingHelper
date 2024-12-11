@@ -72,6 +72,7 @@ namespace CookingHelper.Server
             builder.Services.AddScoped<RecipeListDatabaseService, RecipeListDatabaseService>();
             builder.Services.AddScoped<RecipeListAdditionService, RecipeListAdditionService>();
             builder.Services.AddScoped<RecipeListSearchService, RecipeListSearchService>();
+            builder.Services.AddScoped<GenerateDataService, GenerateDataService>();
 
             // Add Identity
             builder

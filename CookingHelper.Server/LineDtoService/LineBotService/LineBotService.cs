@@ -24,7 +24,7 @@ public class LineBotService
     private readonly RecipeListService _recipeListService;
     private readonly RecipeListAdditionService _recipeListAdditionService;
     private readonly RecipeListSearchService _recipeListSearchService;
-
+    private readonly GenerateDataService _generateDataService;
     private readonly HttpClient _client;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
@@ -48,7 +48,8 @@ public class LineBotService
         StorageManagementSearchService StorageManagementSearchService,
         RecipeListService RecipeListService,
         RecipeListAdditionService RecipeListAdditionService,
-        RecipeListSearchService RecipeListSearchService
+        RecipeListSearchService RecipeListSearchService,
+        GenerateDataService GenerateDataService
     )
     {
         _httpClientFactory = httpClientFactory;
@@ -63,6 +64,7 @@ public class LineBotService
         _recipeListService = RecipeListService;
         _recipeListAdditionService = RecipeListAdditionService;
         _recipeListSearchService = RecipeListSearchService;
+        _generateDataService = GenerateDataService;
     }
 
     public async Task ReceiveWebhook(WebhookRequestBodyDto WebHookRequestBody)
@@ -183,6 +185,31 @@ public class LineBotService
         {
             case "text":
                 var WebHookEventMessage = WebHookEventDto.Message!.Text!;
+                if (WebHookEventMessage == "/data")
+                {
+                    var response = await _generateDataService.GenerateData(WebHookEventDto);
+                    if (response)
+                    {
+                        _ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
+                        {
+                            ReplyToken = WebHookEventDto.ReplyToken!,
+                            Messages = new List<TextMessageObject>
+                            {
+                                new TextMessageObject { Text = "假資料新增成功", }
+                            }
+                        };
+                        return;
+                    }
+                    _ReplyMessageRequestStatic = new ReplyMessageRequestDto<TextMessageObject>
+                    {
+                        ReplyToken = WebHookEventDto.ReplyToken!,
+                        Messages = new List<TextMessageObject>
+                        {
+                            new TextMessageObject { Text = "資料已經存在或是找不到使用者, 資料新增失敗", }
+                        }
+                    };
+                    return;
+                }
                 if (
                     WebHookEventMessage == KeywordGroup.RecipeList
                     || WebHookEventMessage == KeywordGroup.StorageManagement
