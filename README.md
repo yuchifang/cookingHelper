@@ -14,3 +14,10 @@
 
 ### 功能展示
 #### LintBot 使用介面
+<div>
+  <img src="github/images/lineBotMainCatalog.jpg" alt="LineBotMainCatalog" width="250"/>
+</div>
+透過點擊食譜清單,庫存管理,採買清單並依據提示,輸入文字或執行特定按鈕完成互動
+<div>
+  <img src="github/images/lineBotMainCatalog.jpg" alt="LineBotMainCatalog" width="250"/>
+</div>
