@@ -16,21 +16,6 @@ interface TabPanelProps {
   value: number;
 }
 
-/*
-  {
-  "email": "fangfelipe@gmail.com",
-  "password": "123456",
-  "permission": "admin",
-  "username": "fangfelipe@gmail.com"
-}
-   {
-  "email": "fang@gmail.com",
-  "password": "123456",
-  "permission": "guest",
-  "username": "fangfelipe@gmail.com"
-}
-*/
-
 export async function loader() {
   const response = await axiosInterceptor.get("/api/AccountIdentity/status");
   if (response.data.isAuthenticated) {
