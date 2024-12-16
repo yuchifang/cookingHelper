@@ -14,3 +14,4 @@
 
 ### 功能展示
 #### LintBot 使用介面
+![LineBot主要功能](https://imgur.com/a/7pDOkEx)
