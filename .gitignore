@@ -1,5 +1,6 @@
 /CookingHelper.Server/obj
 /CookingHelper.Server/bin
+/CookingHelper.Server/publish
 /CookingHelper.Server/Migrations
 /CookingHelper.Server.Test/bin
 /CookingHelper.Server.Test/obj
