@@ -3,7 +3,11 @@
 
 ## 目錄
 - [範例](#範例)
+- [專案展示](#專案展示)
+- [使用套件](#使用套件)
 - [功能展示](#功能展示)
+
+
 
 
 ### 範例
@@ -18,7 +22,7 @@
 > 帳號: guest@gmail.com
 > 密碼: guest01
 
-### 功能展示
+### 專案展示
 #### LintBot 使用介面
 <div>
   <img src="github/images/lineBotMainCatalog.jpg" alt="LineBotMainCatalog" width="250"/>
@@ -47,3 +51,10 @@
 <div>
 <img src="github/images/AccountPage.png" alt="AccountPage" width="800"/>
 </div>
+
+### 使用套件
+#### 前端
+版本要加版本, 描述在哪邊使用
+#### 後端
+版本要加版本, 描述在哪邊使用
+
