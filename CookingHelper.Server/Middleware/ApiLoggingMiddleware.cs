@@ -32,15 +32,10 @@ public class ApiLoggingMiddleware
             if (requestBody != null && requestBody.Events != null && requestBody.Events.Count != 0)
             {
                 UserId = requestBody!.Events[0].Source!.UserId!;
-            }
-            else
-            {
-                return;
+                _apiLogService.AddLog(UserId, sTimestamp);
             }
         }
 
         await _next(context);
-
-        _apiLogService.AddLog(UserId, sTimestamp);
     }
 }
