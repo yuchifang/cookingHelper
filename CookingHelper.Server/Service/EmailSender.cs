@@ -6,6 +6,13 @@ namespace CookingHelper.Service;
 
 public class EmailSender : IEmailSender
 {
+    private readonly IConfiguration _configuration;
+
+    public EmailSender(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
     public Task SendEmailAsync(string email, string subject, string htmlMessage)
     {
         using (var client = new SmtpClient())
@@ -17,7 +24,7 @@ public class EmailSender : IEmailSender
             client.EnableSsl = true;
             client.Credentials = new NetworkCredential(
                 "cookinghelper01@gmail.com",
-                "cwhr ivee lmdr rbkc"
+                _configuration["Email:EmailToken"]
             );
             using (
                 var message = new MailMessage(
