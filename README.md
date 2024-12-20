@@ -54,7 +54,33 @@
 
 ### 使用套件
 #### 前端
-版本要加版本, 描述在哪邊使用
+**@mui/material 6.1.4** 製作UI Component
+<br/>
+**react 18.2.0** 主要框架
+<br/>
+**react-router-dom 6.27.0** 製作網頁路由
+<br/>
+**vite 5.2.0**
+<br/>
+**typescript 5.2.2**
+<br/>
+**recharts 2.13.3, dayjs** 製作圖表
+<br/>
+**axios** 連接api
+
 #### 後端
-版本要加版本, 描述在哪邊使用
+**Aspnet core net8**  主要框架
+<br/>
+**EntityFrameworkCore 8.0.6** ORM
+<br/>
+**Identity.EntityFrameworkCore** 用於帳號管理驗證
+<br/>
+**NUnit 3.0.0, Playwright.NUnit 1.49.0** 用於測試
+**line api 完成line 頁面**
+
+### 功能展示
+
+
+
+
 
