@@ -37,6 +37,13 @@
 
 #### 後台連結
 系統分析
-<img src="github/images/RecipeListNoData.jpg" alt="RecipeListNoData" width="250"/>
+<div>
+<img src="github/images/AnalyzePage.png" alt="AnalyzePage" width="800"/>
+</div>
+<br/>
 帳號管理
-<img src="github/images/RecipeListNoData.jpg" alt="RecipeListNoData" width="250"/>
+
+> 一般用戶不會有帳號管理這頁
+<div>
+<img src="github/images/AccountPage.png" alt="AccountPage" width="800"/>
+</div>
