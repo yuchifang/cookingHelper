@@ -105,7 +105,6 @@ public class AppLogController : ControllerBase
                         Count = logGroupDic.ContainsKey(date) ? logGroupDic[date] : 0
                     };
                 })
-                .OrderBy(entry => entry.Date)
                 .ToList();
 
             return Ok(new { BarChartData, OverLimit = false });
